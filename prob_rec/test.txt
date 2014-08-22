@@ -1,28 +1,28 @@
-import yardApp.ajaxRespFee
+import App.ajaxRespFee
 import zdCommon.dbhelp
 
 from imp import reload
 reload(zdCommon.dbhelp)
-reload(yardApp.ajaxRespFee)
+reload(App.ajaxRespFee)
 
 ==============================================
 aaa = {"func": '\u5BA2\u6237\u8D39\u7528\u660E\u7EC6\u62A5\u8868',
 "ex_parm": {  "client_id": 53, "fee_typ": I , "begin_tim": '2001-1-1', "end_tim": '2022-2-2',   "rpt": 1   } }
-yardApp.ajaxRespFee.queryRptFee(aaa, aaa)
+App.ajaxRespFee.queryRptFee(aaa, aaa)
 
 ====================================
 aaa = { "func": '\u534F\u8BAE\u8981\u7D20\u5185\u5BB9\u521D\u59CB\u5316',
     "reqtype": 'update',
     "ex_parm": {   "id": '1'  } }
-yardApp.ajaxRespFee.initProtElemContent(aaa, aaa)
-reload(yardApp.ajaxRespFee)
+App.ajaxRespFee.initProtElemContent(aaa, aaa)
+reload(App.ajaxRespFee)
 ====================================
 aaa = {    "func": '\u534F\u8BAE\u6A21\u5F0F\u7ED3\u6784\u67E5\u8BE2',
     "reqtype": 'query',
     "ex_parm": {
         "modid": "2"
     }  }
-yardApp.ajaxRespFee.queryProtStruct(aaa, aaa)
+App.ajaxRespFee.queryProtStruct(aaa, aaa)
 
 
 

@@ -1,6 +1,6 @@
 gwyard
-    yard: urls.py:   url(r'^yard/',include('yardApp.yardurls')),
-        yardApp: yardurls.py:
+    yard: urls.py:   url(r'^yard/',include('App.yardurls')),
+        App: yardurls.py:
             url('^dealmenureq/$', renderviews.dealMenuReq,name='dealmenureq'),
                 renderviews.py :    dealMenuReq(request):
                     dealMenuReq : return render(request,"yard/basedata/user.html",locals())

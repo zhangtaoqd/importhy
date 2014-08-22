@@ -42,7 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'yardApp',
+    'App',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -93,9 +93,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_PATH = BASE_DIR + "/yardApp/static"
+STATIC_PATH = BASE_DIR + "/App/static"
 
-DOWNLOAD_PATH = BASE_DIR + "/yardApp/static/download/"
+DOWNLOAD_PATH = BASE_DIR + "/App/static/download/"
 DOWNLOAD_URL = '/static/download/'
 
 nouser = ""

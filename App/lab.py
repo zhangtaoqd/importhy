@@ -42,7 +42,7 @@ def getfunc(request):
     print(ls_t)
     return eval(ls_t)
 
-from yardApp import models
+from App import models
 
 def getJson2(request):
     xx = models.Client.objects.raw("select id,client_name,client_flag, remark,rec_tim from c_client")

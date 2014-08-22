@@ -3,7 +3,7 @@ __doc__ ='''
     render的交换接口。
 '''
 from django.http import HttpResponse
-from yardApp.render.renderviews import *
+from App.render.renderviews import *
 
 
 def index(request):

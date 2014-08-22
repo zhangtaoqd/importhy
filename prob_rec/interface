@@ -93,7 +93,7 @@ jpargs: {
 从系统数据库里返回表数据。  sys_menu
 功能菜单估计客户会要求排序的。所以 sortno 留着。
 
-yardApp/views.getMenuList
+App/views.getMenuList
 入口： url('^getmenulist/$', views.getMenuList),
 返回值：
 [

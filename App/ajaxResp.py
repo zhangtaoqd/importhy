@@ -1,9 +1,9 @@
 __author__ = 'dddh'
 from zdCommon.sysjson import getMenuPrivilege, setMenuPrivilege, getFunc4User, checkPrivilege
 from zdCommon.dbhelp import rawsql2combodatajson
-from yardApp.ajaxRespFee import *
-from yardApp.ajaxRespBase import *
-from yardApp.ajaxRespQuery import *
+from App.ajaxRespFee import *
+from App.ajaxRespBase import *
+from App.ajaxRespQuery import *
 
 ##########################################################        GET    ----
 def getsysmenu(request):

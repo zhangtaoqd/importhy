@@ -2,7 +2,7 @@ __author__ = 'zhangtao'
 # render 前台界面
 import json
 from django.shortcuts import render
-from yardApp import models
+from App import models
 from zdCommon import easyuihelp
 
 from zdCommon.sysjson import getMenuList,getMenuListByUser
@@ -544,6 +544,6 @@ def protocolratcopyview(request):
 
 '''
 from zdCommon import easyuihelp
-from yardApp import models
+from App import models
 id = easyuihelp.EasyuiFieldUI(model=models.FilterHead,field='id')
 '''

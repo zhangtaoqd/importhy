@@ -359,12 +359,12 @@ def queryRptFee(request, adict):
 
 def initProtElemContent(request, adict):
     '''  # 协议要素内容初始化
-    import yardApp.ajaxRespFee
+    import App.ajaxRespFee
     import zdCommon.dbhelp
     aaa = { "func": '协议要素内容初始化',
         "reqtype": 'update',
         "ex_parm": {   "id": '1'  } }
-    yardApp.ajaxRespFee.initProtElemContent(aaa, aaa)
+    App.ajaxRespFee.initProtElemContent(aaa, aaa)
     '''
     l_rtn = {"msg": "成功", "stateCod": "001", "error": [], "rows": [] }
     l_recnam = request.session['userid']

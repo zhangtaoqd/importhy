@@ -1,7 +1,7 @@
 __author__ = 'dh'
 
 from django.shortcuts import render
-from yardApp import models,views
+from App import models,views
 from zdCommon import easyuihelp
 
 

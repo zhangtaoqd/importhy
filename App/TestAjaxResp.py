@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
 class dataPack():
     '''
-from yardApp.TestAjaxResp import dataPack
+from App.TestAjaxResp import dataPack
 a = dataPack()
 a.fillContr()
     '''
