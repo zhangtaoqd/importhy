@@ -1,0 +1,127 @@
+<script>
+    Namespace.register('basedata.postmenufuncview');
+    $(function () {
+        basedata.postmenufuncview.postdg = $('#basedata-postmenufunc-postdg').datagrid({
+            columns: [
+                [   {% autoescape off %}
+                    {{ postid.writeUI|safe|escape }},
+                    {{ postname.writeUI|safe|escape }},
+                {% endautoescape %}
+                ]
+            ],
+            pagination: false,
+            queryFuncName: '岗位查询',
+            onDblClickRow: function (rowIndex, rowData) {
+                return;
+            },
+            onClickRow: function (rowIndex, rowData) {
+                var id = rowData.id;
+                basedata.postmenufuncview.postdg.refreshFunc(id);
+            }
+        });
+        basedata.postmenufuncview.postdg.refreshFunc = function (postid) {
+            var param = {
+                type: 'query',
+                reqtype:'query',
+                func: '岗位权限查询',
+                postid: postid
+            }
+            $.ajax({
+                url: "./dealPAjax/",
+                data: {jpargs: JSON.stringify(param)},
+                success: function (r, t, a) {
+                    if ($.ajaxSettings.success(r, t, a, false) == true) {
+                        basedata.postmenufuncview.menufunctree.tree('loadData', r.rows);
+                        basedata.postmenufuncview.menufunctree.tree('collapseAll');
+                    }
+                }
+            });
+        }
+        basedata.postmenufuncview.menufunctree = $('#basedata-postmenufunc-menufunctree').tree({
+            checkbox: true,
+            lines: true
+        });
+        $('#basedata-postmenufunc-savebutton').bind('click', function () {
+            var checkedNodes = basedata.postmenufuncview.menufunctree.tree('getChecked', ['checked', 'indeterminate']);
+            var uncheckedNodes = basedata.postmenufuncview.menufunctree.tree('getChecked', 'unchecked');
+            var postid = basedata.postmenufuncview.postdg.datagrid('getSelected').id;
+            var menuid, funcid, table;
+            var rows = new Array();
+            for (var i = 0, ilen = checkedNodes.length; i < ilen; i++) {
+                if (!checkedNodes[i].attributes.oldval) {
+                    if (checkedNodes[i].attributes.type == 'func') {
+                        funcid = checkedNodes[i].attributes.id;
+                        menuid = basedata.postmenufuncview.menufunctree.tree('getParent', checkedNodes[i].target).attributes.id;
+                        table = 'func';
+                    } else {
+                        funcid = -1;
+                        menuid = checkedNodes[i].attributes.id;
+                        table = 'menu';
+                    }
+                    rows.push({
+                        op: 'insert',
+                        table: table,
+                        menuid: menuid,
+                        funcid: funcid,
+                        postid: postid
+                    });
+                }
+            }
+            for (var j = 0, jlen = uncheckedNodes.length; j < jlen; j++) {
+                if (uncheckedNodes[j].attributes.oldval) {
+                    if (uncheckedNodes[j].attributes.type == 'func') {
+                        funcid = uncheckedNodes[j].attributes.id;
+                        menuid = basedata.postmenufuncview.menufunctree.tree('getParent', uncheckedNodes[j].target).attributes.id;
+                        table = 'func';
+                    } else {
+                        funcid = -1;
+                        menuid = uncheckedNodes[j].attributes.id;
+                        table = 'menu';
+                    }
+                    rows.push({
+                        op: 'delete',
+                        table: table,
+                        menuid: menuid,
+                        funcid: funcid,
+                        postid: postid
+                    });
+                }
+            }
+            if (rows.length == 0) {
+                return;
+            }
+            rows.sort(sy.createComparsion('op', 'desc'));
+            var p = {
+                reqtype: 'sysfunc',
+                func: '岗位权限维护',
+                rows: rows
+            }
+            $.ajax({
+                url: "./dealPAjax/",
+                data: {jpargs: JSON.stringify(p)},
+                success: function (returnData, returnMsg, ajaxObj) {
+                    $.ajaxSettings.success(returnData, returnMsg, ajaxObj);
+                    var stateCod = parseInt(returnData.stateCod);
+                    if (!isNaN(stateCod)) {
+                        if (returnData.stateCod == 202) { //更新成功
+                            basedata.postmenufuncview.postdg.refreshFunc(postid);
+                        }
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div region="north" border="false" style="height: 200px" data-options="split:true">
+        <table id="basedata-postmenufunc-postdg" border="false">
+        </table>
+    </div>
+    <div region="center" border="false">
+        <ul id="basedata-postmenufunc-menufunctree"></ul>
+    </div>
+    <div region="south" border="false" style="height:25px;">
+        <a id="basedata-postmenufunc-savebutton" href="#" class="easyui-linkbutton">保存</a>
+    </div>
+</div>

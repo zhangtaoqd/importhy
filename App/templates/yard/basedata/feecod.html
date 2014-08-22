@@ -1,0 +1,62 @@
+<script>
+    Namespace.register('basedata.feecodview');
+    $(function () {
+        basedata.feecodview.datagrid = $('#basedata-feecod-datagrid').datagrid({
+            columns: [
+                [
+                    {% autoescape off %}
+                        {{ id.writeUI|safe|escape }},
+                        {{ fee_name.writeUI|safe|escape }},
+                        {{ pair_flag.writeUI|safe|escape }},
+{#                        {{ protocol_flag.writeUI|safe|escape }},#}
+                        {{ remark.writeUI|safe|escape }}
+                    {% endautoescape %}
+                ]
+            ],
+            dataTable: 'c_fee',
+            toolbar: [
+                {text: '查询',
+                    iconCls: 'icon-search',
+                    group:'basedata-feecod-datagrid',
+                    handler: function () {
+                        sy.createSearchWindow(basedata.feecodview.datagrid);
+                    }
+                },
+                '-',
+                {text: '增加',
+                    iconCls: 'icon-add',
+                    group:'basedata-feecod-datagrid',
+                    handler: function () {
+                        basedata.feecodview.datagrid.datagrid('insertData', {
+                            fee_name: '新费用'
+                        });
+                    }
+                },
+                '-',
+                {text: '删除',
+                    iconCls: 'icon-remove',
+                    group:'basedata-feecod-datagrid',
+                    handler: function () {
+                        basedata.feecodview.datagrid.datagrid('deleteData');
+                    }
+                },
+                '-',
+                {text: '保存',
+                    iconCls: 'icon-save',
+                    group:'basedata-feecod-datagrid',
+                    handler: function () {
+                        basedata.feecodview.datagrid.datagrid('postUpdateAllData');
+                    }
+                }
+            ],
+            queryFuncName:'费用名称查询',
+            updateFuncName:'费用名称维护'
+        });
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div region="center" border="false">
+        <table id="basedata-feecod-datagrid" border="false">
+        </table>
+    </div>
+</div>

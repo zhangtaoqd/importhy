@@ -1,0 +1,123 @@
+<script>
+    Namespace.register('basedata.postuserview');
+    $(function () {
+        basedata.postuserview.postdg = $('#basedata-postuser-postdg').datagrid({
+            columns: [
+                [   {% autoescape off %}
+                    {{ postid.writeUI|safe|escape }},
+                    {{ postname.writeUI|safe|escape }},
+                {% endautoescape %}
+                ]
+            ],
+            pagination: false,
+            queryFuncName: '岗位查询',
+            onDblClickRow: function (rowIndex, rowData) {
+                return;
+            },
+            onClickRow: function (rowIndex, rowData) {
+                var id = rowData.id;
+                var opts = basedata.postuserview.postuserdg.datagrid('options');
+                if (basedata.postuserview.postuserdg.datagrid('getChanges').length > 0) {
+                    $.messager.confirm('确认', '数据已改变,是否保存?', function (r) {
+                        if (r) {
+                            basedata.postuserview.postuserdg.datagrid('options').toolbar[4].handler();
+                        }
+                        opts.filterFields = [
+                            {cod: 'post_id', operatorTyp: '等于', value: id}
+                        ];
+                        basedata.postuserview.postuserdg.datagrid('reload');
+                    });
+                } else {
+                    opts.filterFields = [
+                        {cod: 'post_id', operatorTyp: '等于', value: id}
+                    ];
+                    basedata.postuserview.postuserdg.datagrid('reload');
+                }
+            }
+        });
+        basedata.postuserview.postuserdg = $('#basedata-postuser-postuserdg').datagrid({
+            autoLoad:false,
+            columns: [
+                [   {% autoescape off %}
+                    {{ id.writeUI|safe|escape }},
+                    {{ post_id.writeUI|safe|escape }},
+                    {{ user_id.writeUI|safe|escape }},
+                    {{ remark.writeUI|safe|escape }}
+                {% endautoescape %}
+                ]
+            ],
+            dataTable: 's_postuser',
+            pagination: false,
+            toolbar: [
+                {text: '增加',
+                    iconCls: 'icon-add',
+                    group: 'basedata.postuserview.postuserdg',
+                    handler: function () {
+                        var postRow = basedata.postuserview.postdg.datagrid('getSelected');
+                        if (postRow != null && postRow.id != null) {
+                            basedata.postuserview.postuserdg.datagrid('insertData', {
+                                post_id: postRow.id
+                            });
+                        } else {
+                            $.messager.alert('提示', '请选择岗位', 'info');
+                        }
+                    }
+                },
+                '-',
+                {text: '删除',
+                    iconCls: 'icon-remove',
+                    group: 'basedata.postuserview.postuserdg',
+                    handler: function () {
+                        basedata.postuserview.postuserdg.datagrid('deleteData');
+                    }
+                },
+                '-',
+                {text: '保存',
+                    iconCls: 'icon-save',
+                    group: 'basedata.postuserview.postuserdg',
+                    handler: function () {
+                        if (basedata.postuserview.postuserdg.datagrid('preSave') == 1){
+                            if (basedata.postuserview.postuserdg.validateAllData() == 1){
+                                basedata.postuserview.postuserdg.datagrid('postUpdateAllData');
+                            }
+                        }else{
+                            $.messager.alert('提示','检验失败','info');
+                        }
+                    }
+                }
+            ],
+            queryFuncName: '岗位用户查询',
+            updateFuncName: '岗位用户维护'
+        });
+        basedata.postuserview.postuserdg.validateAllData = function () {
+            var rows = basedata.postuserview.postuserdg.datagrid('getRows');
+            var find = false;
+            $.each(rows, function (index, data) {
+                for (var i = index + 1, ilen = rows.length; i < ilen; i++) {
+                    if (data.user_id == rows[i].user_id) {
+                        find = true;
+                        return false;
+                    }
+                }
+            });
+            if (find == true) {
+                $.messager.alert('提示', '用户重复', 'info');
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+    });
+</script>
+
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div region="north" border="false" style="height: 200px" data-options="split:true">
+        <table id="basedata-postuser-postdg" border="false">
+        </table>
+    </div>
+    <div region="center" border="false">
+        <table id="basedata-postuser-postuserdg" border="false">
+        </table>
+    </div>
+
+</div>

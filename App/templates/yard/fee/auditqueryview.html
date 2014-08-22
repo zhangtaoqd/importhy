@@ -1,0 +1,105 @@
+<script>
+    Namespace.register('audit.auditqueryview');
+    $(function () {
+        audit.auditqueryview.sumgrid = null;
+        audit.auditqueryview.actgrid = null;
+        audit.auditqueryview.pregrid = null;
+        $(document).on('afterrender', '#control-audit-auditsumgrid-{{ seq }}', function (e, grid) {
+            audit.auditqueryview.sumgrid = $(grid);
+        });
+        $(document).on('afterrender', '#control-audit-actfeegrid-{{ seq }}', function (e, grid) {
+            audit.auditqueryview.actgrid = $(grid);
+        });
+        $(document).on('dbClickRow', '#control-audit-auditsumgrid-{{ seq }}', function (e, ex_over) {
+            var p = {
+                func: '核销明细查询',
+                reqtype:'query',
+                ex_parm: {
+                    ex_over: ex_over}
+            };
+            $.ajax({
+                url: "./dealPAjax/",
+                data: {jpargs: JSON.stringify(p)},
+                success: function (r, t, a) {
+                    if ($.ajaxSettings.success(r, t, a, false)) {
+                        audit.auditqueryview.actgrid.datagrid('loadData', r.result.act);
+                        audit.auditqueryview.pregrid.datagrid('loadData', r.result.pre);
+                    } else {
+                        audit.auditqueryview.actgrid.datagrid('loadData', []);
+                        audit.auditqueryview.pregrid.datagrid('loadData', []);
+                    }
+                    audit.auditqueryview.actgrid.datagrid('checkAll');
+                    audit.auditqueryview.pregrid.datagrid('checkAll');
+                }
+            });
+        });
+
+        $(document).on('afterrender', '#control-audit-prefeegrid-{{ seq }}', function (e, grid) {
+            audit.auditqueryview.pregrid = $(grid);
+        });
+        $(document).on('refresh', '#control-audit-queryfilter-toolbar-{{ seq }}', function (e, parm) {
+            audit.auditqueryview.refresh(parm);
+        });
+        audit.auditqueryview.refresh = function (param) {
+            audit.auditqueryview.sumgrid.datagrid('uncheckAll');
+            var p = {
+                func: '核销汇总查询',
+                reqtype:'query',
+                ex_parm: {
+                    client_id: '',
+                    fee_typ: '',
+                    begin_audit_tim: '',
+                    end_audit_tim: ''}
+            };
+            if (param.client != null && param.client.length > 0) {
+                p.ex_parm.client_id = param.client;
+            }
+            if (param.feetyp != null && param.feetyp.length > 0) {
+                p.ex_parm.fee_typ = param.feetyp;
+            }
+            if (param.auditbegintim != null && param.auditbegintim.length > 0) {
+                p.ex_parm.begin_audit_tim = param.auditbegintim;
+            }
+            if (param.auditendtim != null && param.auditendtim.length > 0) {
+                p.ex_parm.end_audit_tim = param.auditendtim;
+            }
+
+            $.ajax({
+                url: "./dealPAjax/",
+                data: {jpargs: JSON.stringify(p)},
+                success: function (r, t, a) {
+                    if ($.ajaxSettings.success(r, t, a, false)) {
+                        audit.auditqueryview.sumgrid.datagrid('loadData', r.rows);
+                    } else {
+                        audit.auditqueryview.sumgrid.datagrid('loadData', []);
+                    }
+                    audit.auditqueryview.actgrid.datagrid('loadData', []);
+                    audit.auditqueryview.pregrid.datagrid('loadData', []);
+                    audit.auditqueryview.sumgrid.datagrid('checkAll');
+                    audit.auditqueryview.actgrid.datagrid('checkAll');
+                    audit.auditqueryview.pregrid.datagrid('checkAll');
+                }
+            });
+
+        }
+
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'north',border:'false'">
+        {% include 'yard/fee/auditqueryfilterview.html' %}
+    </div>
+    <div data-options="region:'center',border:'false'">
+        {% include 'yard/fee/auditsumgrid.html' %}
+    </div>
+    <div data-options="region:'south',split:'true',height:window.innerHeight * 0.6,border:'false'">
+        <div class="easyui-layout" data-options="fit:true,border:false">
+            <div data-options="region:'center',border:'false'">
+                {% include 'yard/fee/actfeegrid.html' %}
+            </div>
+            <div data-options="region:'south',split:'true',height:window.innerHeight * 0.3,border:'false'">
+                {% include 'yard/fee/prefeegrid.html' %}
+            </div>
+        </div>
+    </div>
+</div>

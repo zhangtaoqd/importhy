@@ -1,0 +1,7 @@
+{"result": [
+    [{"colspan": 1, "title": "包干费"},
+     {"colspan": 2, "title": "海关费用"},
+     {"colspan": 2, "title": "商检费用"},
+     {"colspan": 3, "title": "码头费用"}
+    ],
+    [{"align": "right", "field": 1, "title": "包干费"}, {"align": "right", "field": 5, "title": "海关验货费"}, {"align": "right", "field": 11, "title": "滞报金"}, {"align": "right", "field": 7, "title": "商检熏蒸场地费"}, {"align": "right", "field": 8, "title": "商检熏蒸拖车费"}, {"align": "right", "field": 2, "title": "码头超期费"}, {"align": "right", "field": 3, "title": "码头堆存费"}, {"align": "right", "field": 4, "title": "码头搬移费"}]]}

@@ -1,0 +1,74 @@
+<script>
+    Namespace.register('fee.actfeeview');
+    $(function () {
+        fee.actfeeview.datagrid = $('#fee-actfee-datagrid').datagrid({
+            autoLoad: false,
+            columns: [
+                [
+                    {% autoescape off %}
+                        {{ idObj.writeUI|safe|escape }},
+                        {{ clientIdObj.writeUI|safe|escape }},
+                        {{ feeTypObj.writeUI|safe|escape }},
+                        {{ amountObj.writeUI|safe|escape }},
+                        {{ invoiceNoObj.writeUI|safe|escape }},
+                        {{ checkNoObj.writeUI|safe|escape }},
+                        {{ acceptno.writeUI|safe|escape }},
+                        {{ payTypeObj.writeUI|safe|escape }},
+                        {{ feeTimObj.writeUI|safe|escape }}
+                        {% comment %}{{ audit_id.writeUI|safe|escape }},
+                        {{ ex_feeid.writeUI|safe|escape }}{% endcomment %}
+                    {% endautoescape %}
+                ]
+            ],
+            dataTable: 'act_fee',
+            toolbar: [
+                {text: '查询',
+                    iconCls: 'icon-search',
+                    group:'fee-actfee-datagrid',
+                    handler: function () {
+                        sy.createSearchWindow(fee.actfeeview.datagrid);
+                    }
+                },
+                '-',
+                {text: '增加',
+                    iconCls: 'icon-add',
+                    group:'fee-actfee-datagrid',
+                    handler: function () {
+                        fee.actfeeview.datagrid.datagrid('insertData', {
+
+                        });
+                    }
+                },
+                '-',
+                {text: '删除',
+                    iconCls: 'icon-remove',
+                    group:'fee-actfee-datagrid',
+                    handler: function () {
+                        {% comment %}var selectRow = fee.actfeeview.datagrid.datagrid('getSelected');
+                        if (selectRow.audit_id == 'true' || selectRow.ex_feeid == 'E'){
+                            $.messager.alert('提示','此费用已核销不能删除','info');
+                            return;
+                        }{% endcomment %}
+                        fee.actfeeview.datagrid.datagrid('deleteData');
+                    }
+                },
+                '-',
+                {text: '保存',
+                    iconCls: 'icon-save',
+                    group:'fee-actfee-datagrid',
+                    handler: function () {
+                        fee.actfeeview.datagrid.datagrid('postUpdateAllData');
+                    }
+                }
+            ],
+            queryFuncName:'已收付费用查询',
+            updateFuncName:'已收付费用维护'
+        });
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div region="center" border="false">
+        <table id="fee-actfee-datagrid" border="false">
+        </table>
+    </div>
+</div>

@@ -1,5 +1,5 @@
 """
-Django settings for importhy project.
+Django settings for yard project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -10,22 +10,28 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+if BASE_DIR[-1] != '/':
+    BASE_DIR = BASE_DIR + '/'
+# 确保最右边是‘/’结尾。
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'mxv6lji$bt#gl8u3g-50*2x#psvbk9(!5l3mo3gn*m0qbqh$o_'
+SECRET_KEY = 'fsfci)_%wfvnaopz)$w)n(0wcfzyrfdyl99)9%m6ij(v)z6mmi'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+#test settings. here donghai add to test work together.
+aGlobal = "here is a test string."
 
 # Application definition
 
@@ -36,7 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'App',
+    'yardApp',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -48,9 +54,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'importhy.urls'
+ROOT_URLCONF = 'yard.urls'
 
-WSGI_APPLICATION = 'importhy.wsgi.application'
+WSGI_APPLICATION = 'yard.wsgi.application'
 
 
 # Database
@@ -58,17 +64,22 @@ WSGI_APPLICATION = 'importhy.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'yard',
+        'USER': 'yardAdmin',
+        'PASSWORD': 'zht+dh=sql2',
+        'HOST': '172.40.68.103',
+        'PORT': '5432',
     }
 }
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-CN'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -82,6 +93,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR,  'templates'),
-)
+STATIC_PATH = BASE_DIR + "/yardApp/static"
+
+DOWNLOAD_PATH = BASE_DIR + "/yardApp/static/download/"
+DOWNLOAD_URL = '/static/download/'
+
+nouser = ""

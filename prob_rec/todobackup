@@ -1,0 +1,204 @@
+todo 9 to dh
+func:\u2018\u8D39\u7528\u62A5\u8868\u7ED3\u6784\u2019
+\u4ECEc_rpt,c_rpt_item,c_rpt_fee\u4E09\u4E2A\u8868\u4E2D\u8FD4\u56DE\u6307\u5B9A\u7684\u8D39\u7528\u62A5\u8868\u7ED3\u6784,\u4E09\u5C42\u5173\u8054\u8868
+\u63A5\u6536\u53C2\u6570\uFF1A
+{
+    func: '\u8D39\u7528\u62A5\u8868\u7ED3\u6784',
+    ex_parm: {
+        'rptid':'xxx' //\u8D39\u7528\u62A5\u8868id int\u578B
+    }
+}
+\u67E5\u8BE2\uFF1A
+    select id,item_name from c_rpt_item where rpt_id = xxx order by sort_no
+    for item in itemlist
+        select c_rpt_fee.fee_id,c_fee.fee_name from c_rtp_fee,c_fee
+         where c_rpt_fee.rpt_id = xxx and c_rpt_fee.item_id = item.id
+           and c_rpt_fee.fee_id = c_fee.id
+        \u5C06item.item_name\u5199\u5165\u4E00\u7EA7\u8868\u5934title
+        for fee in feelist
+            \u5199\u5165\u4E8C\u7EA7\u8868\u5934field,title
+\u8FD4\u56DE\u53C2\u6570\uFF1A
+{
+    "msg":"", #\u6210\u529F\u2018\u2019\uFF0C\u5931\u8D25\u8FD4\u56DE\u9519\u8BEF\u4FE1\u606F
+    "stateCod": "001",   #  \u6709\u6570\u636E\u2018001\u2019 \u65E0\u6570\u636E\u2018201\u2019
+    "error": ["xxx", "xx"]...        # \u9519\u8BEF\u6570\u7EC4\u3002
+    "result": [
+        [{"title": "\u5305\u5E72\u8D39", "colspan": 1}],  #\u4E00\u7EA7\u8868\u5934,title-\u5BF9\u5E94\u8868\u5B57\u6BB5c_rpt_item.item_name,colspan-\u5305\u542B\u7684\u8D39\u7528\u6570\u91CF
+        [{"field": "fee_id", "title": "\u8D39\u7528\u540D\u79F0", "align": "right"},
+        ....
+
+        ] #\u4E8C\u7EA7\u8868\u5934 fee_id-\u5BF9\u5E94\u8868\u5B57\u6BB5 c_rpt_fee.fee_id \u5B57\u7B26\u578B
+     ] #\u8FD4\u56DE\u62A5\u8868\u7ED3\u6784 \u53CC\u5C42\u8868\u5934
+}
+\u6D4B\u8BD5\u6570\u636E\uFF1A
+\u63A5\u6536\u53C2\u6570\uFF1A
+{
+    "func": '\u8D39\u7528\u62A5\u8868\u7ED3\u6784',
+    "ex_parm": {
+        'rptid':1 #\u8D39\u7528\u62A5\u8868id int\u578B
+    }
+}
+\u8FD4\u56DE\u53C2\u6570\uFF1A
+{
+    "msg": "\u6210\u529F",
+    "stateCod": "001",
+    "error": [],
+    "result": [
+        [
+            {"title": "\u5305\u5E72\u8D39", "colspan": 1},
+            {"title": "\u6D77\u5173\u8D39\u7528", "colspan": 2},
+            {"title": "\u5546\u68C0\u8D39\u7528","colspan":2},
+            {"title":"\u7801\u5934\u8D39\u7528","colspan":3}
+        ],
+        [
+            {"field": "1", "title": "\u5305\u5E72\u8D39", "align": "right"},
+            {"field": "5", "title": "\u6D77\u5173\u9A8C\u8D27\u8D39", "align": "right"},
+            {"field": "11", "title": "\u6EDE\u62A5\u91D1", "align": "right"},
+            {"field": "7", "title": "\u5546\u68C0\u718F\u84B8\u573A\u5730\u8D39", "align": "right"},
+            {"field": "8", "title": "\u5546\u68C0\u718F\u84B8\u62D6\u8F66\u8D39", "align": "right"},
+            {"field": "2", "title": "\u7801\u5934\u8D85\u671F\u8D39", "align": "right"},
+            {"field": "3", "title": "\u7801\u5934\u5806\u5B58\u8D39", "align": "right"},
+            {"field": "4", "title": "\u7801\u5934\u642C\u79FB\u8D39", "align": "right"}
+        ]
+            ]
+}
+todo 10 to dh
+func: '\u5BA2\u6237\u8D39\u7528\u660E\u7EC6\u62A5\u8868'
+\u63A5\u6536\u53C2\u6570\uFF1A
+{
+    func:'\u5BA2\u6237\u8D39\u7528\u660E\u7EC6\u62A5\u8868',
+    ex_parm:{
+        client_id: \u5BA2\u6237ID,
+        fee_typ:\u8D39\u7528\u7C7B\u578B,
+        begin_tim: \u5F00\u59CB\u65E5\u671F,  #date\u578B
+        end_tim: \u622A\u6B62\u65E5\u671F,    #date\u578B
+        rpt: \u62A5\u8868id
+    }
+}
+\u67E5\u8BE2\uFF1A\u53C2\u8003\u8FD9\u4E2Asql
+select c.bill_no,sum(case p.fee_cod when 1 then amount else 0 end) baogan,sum(case p.fee_cod when 2 then amount else 0 end) chaoqi,
+        sum(case p.fee_cod when 3 then amount else 0 end) '3',sum(case p.fee_cod when 4 then amount else 0 end) banyi,
+        sum(case p.fee_cod when 5 then amount else 0 end) '5',sum(case p.fee_cod when 6 then amount else 0 end) xunzheng,
+        sum(case p.fee_cod when 7 then amount else 0 end) changdi,sum(case p.fee_cod when 8 then amount else 0 end) tuoche,
+        sum(case p.fee_cod when 11 then amount else 0 end) zhibao,
+        sum(case p.fee_cod in(1,2,3,4,5,6,7,8,11) when true then 0 else amount end) qita
+        from pre_fee as p,contract as c
+        where  p.client_id = %s and p.fee_typ = %s and p.ex_feeid = 'O'
+        and (p.fee_financial_tim between %s and %s)
+        and p.contract_id = c.id
+        group by c.bill_no
+
+\u6839\u636E\u4F20\u5165\u7684\u62A5\u8868id\uFF0C\u627E\u51FA\u8FD9\u4E2A\u62A5\u8868\u4E0B\u7684\u6240\u6709\u8D39\u7528\u540D\u79F0\uFF0C\u62FC\u51FAselect\u7684\u5217\uFF0C\u884C\u53D8\u5217\u67E5\u8BE2\uFF0C\u5217\u540D\u53D8\u4E3A\u5B57\u7B26\u578B\u7684feeid\uFF0C
+'bill_no'\u548C'qita'\u8FD9\u4E24\u5217\u540D\u56FA\u5B9A\u3002
+\u8FD4\u56DE\u901A\u7528\u7684\u67E5\u8BE2\u7ED3\u6784
+
+todo 11 to dh
+func:'\u534F\u8BAE\u8981\u7D20\u5185\u5BB9\u521D\u59CB\u5316'
+\u63A5\u6536\u53C2\u6570\u63A5\u53E3\uFF1A{
+    func: '\u534F\u8BAE\u8981\u7D20\u5185\u5BB9\u521D\u59CB\u5316',
+    reqtype: 'update',
+    ex_parm: {
+        id: 'XXX'
+    }
+}
+\u8FC7\u7A0B\uFF1A
+\u6839\u636Eid\u4ECE\u8868p_fee_ele\u7684init_data_sql\u5B57\u6BB5\uFF0C\u53D6\u521D\u59CB\u5316sql\u8BED\u53E5,\u6267\u884C\u540E\u5F97\u8BB0\u5F55\u96C6A.
+\u4ECEp_fee_ele_lov\u8868\u4E2D\u53D6\u51FA\u6B64\u8981\u7D20\u5F53\u524D\u6240\u6709\u5185\u5BB9\u5F97\u8BB0\u5F55\u96C6B\uFF1A
+select * from p_fee_ele_lov where ele_id = 'XXX'
+
+\u8FC7\u6EE4\u6389A.lov_cod==B.lov_cod,\u5269\u4F59\u7684\u63D2\u5165p_fee_ele_lov,\u6700\u540E\u518D\u6267\u884C\u4E00\u6B21
+select id,ele_id,lov_cod,lov_name,remark from p_fee_ele_lov where ele_id = 'XXX'\u5F97\u8BB0\u5F55\u96C6C
+\u8FD4\u56DE\u6807\u51C6\u67E5\u8BE2\u7ED3\u6784\uFF0Crows\uFF1AC
+
+\u8FD4\u56DE\u53C2\u6570\u63A5\u53E3\uFF1A\u6807\u51C6\u67E5\u8BE2\u8FD4\u56DE
+{
+    "msg":"\u521D\u59CB\u5316\u6210\u529F",
+    "stateCod": "202",   #  \u9519\u8BEF < 0 > \u6B63\u786E--\u4E0D\u5F39\u51FA\u63D0\u793A\u6846--100--\u4E2D\u5FC3\u5F39\u51FA\u63D0\u793A--200--\u53F3\u4E0B\u5F39\u51FA\u63D0\u793A--300
+    "error": ["xxx", "xx"]...        # \u9519\u8BEF\u6570\u7EC4\u3002
+    "rows":[{},{},{}]
+}
+todo 12 to dh
+func:'\u534F\u8BAE\u6A21\u5F0F\u7ED3\u6784\u67E5\u8BE2'
+\u63A5\u6536\u53C2\u6570\u63A5\u53E3\uFF1A{
+    func: '\u534F\u8BAE\u6A21\u5F0F\u7ED3\u6784\u67E5\u8BE2',
+    reqtype: 'query',
+    ex_parm: {
+        modid: 'XXX' //\u6A21\u5F0Fid
+    }
+}
+\u8FC7\u7A0B\uFF1A
+\u65B0\u5EFA\u6570\u7EC4D\uFF0C\u4F5C\u4E3A\u8FD4\u56DE\u5BF9\u8C61\u6570\u7EC4,\u6570\u7EC4\u5185\u5BF9\u8C61
+{
+    title:'\u5B57\u6BB5\u6807\u9898',
+    field:'fee_elen', //n\u4E3A1-10
+    align: 'right', //\u5199\u6B7B
+    halign: 'center',   //\u5199\u6B7B
+    sortable: true,//\u5199\u6B7B
+    editor:{}
+}
+
+
+\u6839\u636E\u4F20\u5165\u7684modid,\u67E5\u8BE2\u51FA\u8BB0\u5F55A\uFF0C
+select * from p_fee_mod where id = 'XXX';
+\u8BB0\u5F55A\u4E2Dcol_1\u5230col_10\u8FD910\u4E2A\u5B57\u6BB5\u4E2D\u7684\u975E\u7A7A\u503C\u7EC4\u6210\u96C6\u5408B\uFF0C
+
+for mod in B
+    select * from p_fee_ele where id = mod
+    \u53D6p_fee_ele.ele_name\u4F5C\u4E3A\u8FD4\u56DE\u7ED3\u6784'title'
+    \u6839\u636Ecol_[n]\u4E2D\u7684n,\u4F5C\u4E3A\u8FD4\u56DE\u7ED3\u6784'field'\uFF0C\u683C\u5F0F'fee_elen'
+    select * from p_fee_ele_lov where ele_id = mod  \u7684\u96C6\u5408C
+    if C == \u7A7A
+        \u8FD4\u56DE\u7ED3\u6784\u7684editor: {'type': 'text'}
+    else
+        \u8FD4\u56DE\u7ED3\u6784\u7684editor:{
+            'type':'combobox',
+            'options':{
+                'textField': 'text',
+                'valueField': 'value',
+                'data': [{'text': C.lov_name, 'value': C.lov_cod},{},{},.....],
+            }
+        }
+
+\u8FD4\u56DE\u53C2\u6570\u63A5\u53E3\uFF1A
+{
+    "msg":"\u67E5\u8BE2\u6210\u529F",
+    "stateCod": "001",   #  \u9519\u8BEF < 0 > \u6B63\u786E--\u4E0D\u5F39\u51FA\u63D0\u793A\u6846--100--\u4E2D\u5FC3\u5F39\u51FA\u63D0\u793A--200--\u53F3\u4E0B\u5F39\u51FA\u63D0\u793A--300
+    "error": ["xxx", "xx"]...        # \u9519\u8BEF\u6570\u7EC4\u3002
+    "rows":\u6570\u7EC4D
+}
+todo 14 to dh
+
+func:'\u5BA2\u6237\u8D39\u7528\u660E\u7EC6\u62A5\u8868' \u4FEE\u6539 \u8FD4\u56DE\u589E\u52A0\u5408\u8BA1\u8D39\u7528
+\u8FD4\u56DE\u5BF9\u8C61\u589E\u52A0footer\u5C5E\u6027,\u5BF9\u8C61\u6570\u7EC4
+
+{"msg": "\u6210\u529F",
+ "stateCod": "001",
+ "error": [],
+ "rows": [],
+ "footer":[{"bill_no":"\u5408\u8BA1\uFF1A",
+            "zongji":\u5408\u8BA1\u8D39\u7528   sum([ i['zongji'] for i in row ])
+            }]
+}
+
+
+todo 16 to dh
+func:'\u534F\u8BAE\u8D39\u7528\u751F\u6210'    \u5DF2\u6709\u6B64\u529F\u80FD\uFF0C\u66F4\u6539\u63A5\u6536\u53C2\u6570\u548C\u8C03\u7528\u7684\u540E\u53F0\u8FC7\u7A0B
+\u63A5\u6536\u53C2\u6570:
+{
+    func: '\u534F\u8BAE\u8D39\u7528\u751F\u6210',
+    reqtype:'query',
+    ex_parm: {
+        client_id: //\u5BA2\u6237id,
+        begin_date: //\u7EDF\u8BA1\u65E5\u671F\u6BB5\u5F00\u59CB\u65E5\u671F date\u578B \u5230\u6E2F\u65E5\u671F,
+        end_date: //\u7EDF\u8BA1\u65E5\u671F\u6BB5\u622A\u6B62\u65E5\u671F date\u578B \u5230\u6E2F\u65E5\u671F,
+        financial_date:  //\u751F\u6210pre_fee\u7684\u8D22\u52A1\u7EDF\u8BA1\u65E5\u671F
+        }
+    }
+\u8FC7\u7A0B\uFF1A\u8C03\u7528f_create_protocol_fee(client_id,begin_date,end_date,financial_date,oper_id);
+     oper_id\uFF1A\u5F53\u524D\u64CD\u4F5C\u5458id
+\u8FD4\u56DE\u53C2\u6570\uFF1A \u4E0D\u53D8
+
+
+ALTER TABLE c_rpt_fee
+  ADD COLUMN fee_typ character(1) NOT NULL;
+COMMENT ON COLUMN c_rpt_fee.fee_typ IS '\u8D39\u7528\u7C7B\u578B';

@@ -1,0 +1,48 @@
+<script type="text/javascript">
+    Namespace.register('system.mainmenu');
+
+    system.mainmenu.treedata = [
+        {% for imenu in menudata %}
+            {{ imenu | safe}},
+        {% endfor %}
+    ];
+
+    $(function () {
+        system.mainmenu.tree = $('#main-menu-tree').tree({
+            data: system.mainmenu.treedata,
+            lines: true,
+            onDblClick: function (node) {
+                if ($(this).tree('isLeaf', node.target)) {
+                    if (system.maintabs.tabs.tabs('exists', node.text)) {
+                        system.maintabs.tabs.tabs('select', node.text);
+                    } else {
+                        system.maintabs.tabs.tabs('add', {
+                            title: node.text,
+                            href: encodeURI("./dealmenureq/?menutext=" + node.attributes),
+                            closable: true,
+                            tools: [
+                                {
+                                    iconCls: 'icon-mini-refresh',
+                                    handler: function () {
+                                        system.mainmenu.refreshtab(node.text);
+                                    }
+                                }
+                            ]
+                        });
+                    }
+                }
+            }
+        });
+        if (system.mainmenu.treedata == null) {
+            window.location.href = sy.logonPath;
+        }
+        system.mainmenu.refreshtab = function(title) {
+            var tab = system.maintabs.tabs.tabs('getTab',title);
+            system.maintabs.tabs.tabs('update',{
+                tab:tab,
+                options:tab.panel('options')
+            });
+        }
+    });
+</script>
+<ul id="main-menu-tree"></ul>

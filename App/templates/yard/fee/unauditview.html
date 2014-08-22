@@ -1,0 +1,109 @@
+<script>
+    Namespace.register('audit.unauditview');
+    $(function () {
+        audit.unauditview.actfeegrid = null;
+        audit.unauditview.prefeegrid = null;
+        $(document).on('afterrender', '#control-audit-actfeegrid-{{ seq }}', function (e, grid) {
+            audit.unauditview.actfeegrid = $(grid);
+            //audit.unauditview.actfeegrid.datagrid('options').queryFuncName = '实收付未核销查询';
+        });
+        audit.unauditview.refresh = function (param) {
+            audit.unauditview.actfeegrid.datagrid('uncheckAll');
+            audit.unauditview.prefeegrid.datagrid('uncheckAll');
+            var p = {
+                func: '核销删除查询',
+                reqtype:'query',
+                ex_parm: {
+                    client_id: '',
+                    fee_typ: ''}
+            };
+            $('#control-audit-filter-toolbar-audit-{{ seq }}').linkbutton('enable');
+            if (param.client != null && param.client.length > 0) {
+                p.ex_parm.client_id = param.client;
+            } else {
+                $('#control-audit-filter-toolbar-audit-{{ seq }}').linkbutton('disable');
+            }
+            if (param.feetyp != null && param.feetyp.length > 0) {
+                p.ex_parm.fee_typ = param.feetyp;
+            } else {
+                $('#control-audit-filter-toolbar-audit-{{ seq }}').linkbutton('disable');
+            }
+            if (p.ex_parm.client_id.length == 0 || p.ex_parm.fee_typ.length == 0){
+                $.messager.alert('提示','缺少必要查询条件','info');
+                return;
+            }
+            $.ajax({
+                url: "./dealPAjax/",
+                data: {jpargs: JSON.stringify(p)},
+                success: function (r, t, a) {
+                    audit.unauditview.actfeegrid.datagrid('unselectAll');
+                    audit.unauditview.prefeegrid.datagrid('unselectAll');
+                    if ($.ajaxSettings.success(r, t, a, true)) {
+                        audit.unauditview.actfeegrid.datagrid('loadData', r.result.act);
+                        audit.unauditview.prefeegrid.datagrid('loadData', r.result.pre);
+                    } else {
+                        audit.unauditview.actfeegrid.datagrid('loadData', []);
+                        audit.unauditview.prefeegrid.datagrid('loadData', []);
+                    }
+                    audit.unauditview.actfeegrid.datagrid('checkAll');
+                    audit.unauditview.prefeegrid.datagrid('checkAll');
+                }
+            });
+        }
+        $(document).on('refresh', '#control-audit-filter-toolbar-{{ seq }}', function (e, parm) {
+            audit.unauditview.refresh(parm);
+        });
+        $(document).on('audit', '#control-audit-filter-toolbar-{{ seq }}', function (e, parm) {
+            if (parm == '取消') {
+                audit.unauditview.unaudit();
+            }
+        });
+
+        $(document).on('afterrender', '#control-audit-prefeegrid-{{ seq }}', function (e, grid) {
+            audit.unauditview.prefeegrid = $(grid);
+            //audit.auditview.prefeegrid.datagrid('options').queryFuncName = '核销删除应收付查询';
+        });
+        audit.unauditview.unaudit = function () {
+            var actRows = audit.unauditview.actfeegrid.datagrid('getRows');
+            var preRows = audit.unauditview.prefeegrid.datagrid('getRows');
+            if (actRows.length == 0 || preRows.length == 0) {
+                $.messager.alert('提示', '取消核销数据不完整', 'info');
+                return;
+            }
+            param = {
+                func: "核销删除",
+                reqtype:'update',
+                ex_parm: {
+                    ex_over: actRows[0].ex_over
+                }
+            }
+            $.ajax({
+                url: "./dealPAjax/",
+                data: {jpargs: JSON.stringify(param)},
+                success: function (r, t, a) {
+                    if ($.ajaxSettings.success(r, t, a, true)) {
+                        var stateCod = parseInt(r.stateCod);
+                        if (r && !isNaN(stateCod)) {
+                            if (stateCod == 202) {
+                                //保存成功刷新界面
+                                $('#control-audit-filter-toolbar-search-{{ seq }}').triggerHandler('click');
+                                $('#control-audit-filter-toolbar-audit-{{ seq }}').linkbutton('enable');
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'north',border:'false'">
+        {% include 'yard/fee/auditfilterview.html' %}
+    </div>
+    <div data-options="region:'center',border:'false'">
+        {% include 'yard/fee/actfeegrid.html' %}
+    </div>
+    <div data-options="region:'south', split:'true',height:window.innerHeight * 0.6,border:false">
+        {% include 'yard/fee/prefeegrid.html' %}
+    </div>
+</div>

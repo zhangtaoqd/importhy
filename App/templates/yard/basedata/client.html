@@ -1,0 +1,70 @@
+<script>
+    Namespace.register('basedata.clientsview');
+    $(function () {
+        basedata.clientsview.datagrid = $('#basedata-client-datagrid').datagrid({
+            autoSave: false,
+            columns: [
+                [
+                    {% autoescape off %}
+                        {{ idObj.writeUI|safe|escape }},
+                        {{ clientNameObj.writeUI|safe|escape }},
+                        {{ clientFlagObj.writeUI|safe|escape }},
+                        {{ customFlagObj.writeUI|safe|escape }},
+                        {{ shipcorpFlagObj.writeUI|safe|escape }},
+                        {{ yardFlagObj.writeUI|safe|escape }},
+                        {{ portFlagObj.writeUI|safe|escape }},
+                        {{ financialFlagObj.writeUI|safe|escape }},
+                        {{ landtransflag.writeUI|safe|escape }},
+                        {{ creditflag.writeUI|safe|escape }},
+                        {{ protocolid.writeUI|safe|escape }},
+                        {{ remarkObj.writeUI|safe|escape }}
+                    {% endautoescape %}
+                ]
+            ],
+            dataTable: 'c_client',
+            toolbar: [
+                {text: '查询',
+                    iconCls: 'icon-search',
+                    group:'basedata-client-datagrid',
+                    handler: function () {
+                        sy.createSearchWindow(basedata.clientsview.datagrid);
+                    }
+                },
+                '-',
+                {text: '增加',
+                    iconCls: 'icon-add',
+                    group:'basedata-client-datagrid',
+                    handler: function () {
+                        basedata.clientsview.datagrid.datagrid('insertData', {
+                            client_name: '新客户名称'
+                        });
+                    }
+                },
+                '-',
+                {text: '删除',
+                    iconCls: 'icon-remove',
+                    group:'basedata-client-datagrid',
+                    handler: function () {
+                        basedata.clientsview.datagrid.datagrid('deleteData');
+                    }
+                },
+                '-',
+                {text: '保存',
+                    iconCls: 'icon-save',
+                    group:'basedata-client-datagrid',
+                    handler: function () {
+                        basedata.clientsview.datagrid.datagrid('postUpdateAllData');
+                    }
+                }
+            ],
+            queryFuncName:'客户查询',
+            updateFuncName:'客户维护'
+        });
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div region="center" border="false">
+        <table id="basedata-client-datagrid" border="false">
+        </table>
+    </div>
+</div>

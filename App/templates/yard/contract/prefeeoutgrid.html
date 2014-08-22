@@ -1,0 +1,91 @@
+<script>
+    Namespace.register('control.contract.prefeeoutgrid');
+    $(function () {
+        control.contract.prefeeoutgrid._{{ seq }} = $('#control-contract-prefeeoutgrid-{{ seq }}').datagrid({
+            autoLoad: false,
+            fee_typ: 'O',
+            contract_id: 0,
+            columns: [
+                [
+                    {% autoescape off %}
+                        {{ prefee_id.writeUI|safe|escape }},
+                        {{ prefee_contractid.writeUI|safe|escape }},
+                        {{ prefee_feetyp.writeUI|safe|escape }},
+                        {{ prefee_feecod.writeUI|safe|escape }},
+                        {{ prefee_client.writeUI|safe|escape }},
+                        {{ prefee_amount.writeUI|safe|escape }},
+                        {{ prefee_feetim.writeUI|safe|escape }},
+                        {{ prefee_financialtim.writeUI|safe|escape }},
+                        {{ prefee_lock_flag.writeUI|safe|escape }},
+                        {{ prefee_audit_id.writeUI|safe|escape }},
+                        {{ prefee_ex_feeid.writeUI|safe|escape }},
+                        {{ prefee_create_flag.writeUI|safe|escape }},
+                        {{ prefee_remark.writeUI|safe|escape }}
+                    {% endautoescape %}
+                ]
+            ],
+            dataTable: 'pre_fee',
+            pagination: false,
+            {% if display_toolbar %}
+                toolbar: [
+                    {text: '增加应付费用',
+                        iconCls: 'icon-add',
+                        group: '#control-contract-prefeeoutgrid-{{ seq }}',
+                        handler: function () {
+                            var opts = control.contract.prefeeoutgrid._{{ seq }}.datagrid('options');
+                            if (opts.contract_id == 0) {
+                                return;
+                            }
+                            var curtim = new Date();
+                            var stim = curtim.getFullYear() + '-' + (curtim.getMonth() + 1) + '-' + curtim.getDate();
+                            control.contract.prefeeoutgrid._{{ seq }}.datagrid('insertData', {
+                                contract_id: opts.contract_id,
+                                fee_typ: 'O',
+                                ex_feeid: 'O',
+                                fee_tim: stim,
+                                fee_financial_tim: stim
+                            });
+                        }
+
+                    },
+                    '-',
+                    {text: '删除应付费用',
+                        iconCls: 'icon-remove',
+                        group: '#control-contract-prefeeoutgrid-{{ seq }}',
+                        handler: function () {
+                            if (control.contract.prefeeoutgrid._{{ seq }}.datagrid('getSelected').audit_id == 'true'
+                                    || control.contract.prefeeoutgrid._{{ seq }}.datagrid('getSelected').lock_flag == 'true'
+                                    || control.contract.prefeeoutgrid._{{ seq }}.datagrid('getSelected').ex_feeid == 'E') {
+                                $.messager.alert('提示', '已核销或已锁定不能删除', 'info');
+                                return;
+                            }
+
+                            control.contract.prefeeoutgrid._{{ seq }}.datagrid('deleteData');
+                        }
+                    }
+                ],
+            {% endif %}
+            queryFuncName: '委托应付查询',
+            onLoadSuccess: function (data) {
+                var rows = control.contract.prefeeoutgrid._{{ seq }}.datagrid('getRows');
+                var sum = 0;
+                for (var i = 0, ilen = rows.length; i < ilen; i++) {
+                    sum = sum + parseFloat(rows[i].amount);
+                }
+                $('#control-contract-prefeeoutgrid-sum-{{ seq }}').text('合计:' + sum);
+            }
+        });
+        control.contract.prefeeoutgrid._{{ seq }}.trigger('afterrender', control.contract.prefeeoutgrid._{{ seq }});
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'center',border:'false'">
+
+        <table id="control-contract-prefeeoutgrid-{{ seq }}" data-options="border:'false'">
+        </table>
+    </div>
+    <div data-options="region:'south',border:'false'" style="border-top: none">
+        <label id="control-contract-prefeeoutgrid-sum-{{ seq }}">合计:0</label>
+
+    </div>
+</div>

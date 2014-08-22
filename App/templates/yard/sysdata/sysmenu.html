@@ -1,0 +1,84 @@
+<script>
+    Namespace.register('sysdata.sysmenuview');
+    $(function () {
+        sysdata.sysmenuview.datagrid = $('#sysdata-sysmenu-datagrid').datagrid({
+            autoSave: false,
+            columns: [
+                [   {% autoescape off %}
+                    {{ id.writeUI|safe|escape }},
+                    {{ menuname.writeUI|safe|escape }},
+                    {{ menushowname.writeUI|safe|escape }},
+                    {{ parent_id.writeUI|safe|escape }},
+                    {{ sortno.writeUI|safe|escape }},
+                    {{ sys_flag.writeUI|safe|escape }},
+                    {{ remark.writeUI|safe|escape }}
+                {% endautoescape %}
+                ]
+            ],
+            dataTable: 'sys_menu',
+            filterFields: [
+                {cod: 'id', operatorTyp: '不等于', value: 0}
+            ],
+            sortFields: [
+                {cod: 'parent_id', order_typ: '升序'},
+                {cod: 'sortno', order_typ: '升序'}
+            ],
+            groupField: 'parent_id',
+            groupFormatter: function (value, rows) {
+                var groupField = $(this).datagrid('options').groupField;
+                var editor = $(this).datagrid('getColumnOption', groupField).editor;
+                for (var i = 0, ilen = editor.options.data.length; i < ilen; i++) {
+                    if (editor.options.data[i].value == value) {
+                        return editor.options.data[i].text;
+                    }
+                }
+                return value;
+            },
+            view: groupview,
+            toolbar: [
+                {text: '查询',
+                    iconCls: 'icon-search',
+                    group: 'sysdata.sysmenuview.datagrid',
+                    handler: function () {
+                        sy.createSearchWindow(sysdata.sysmenuview.datagrid);
+                    }
+                },
+                '-',
+                {text: '增加',
+                    iconCls: 'icon-add',
+                    group: 'sysdata.sysmenuview.datagrid',
+                    handler: function () {
+                        sysdata.sysmenuview.datagrid.datagrid('insertData', {
+                            menuname: '新菜单'
+                        });
+                    }
+                },
+                '-',
+                {text: '删除',
+                    iconCls: 'icon-remove',
+                    group: 'sysdata.sysmenuview.datagrid',
+                    handler: function () {
+                        sysdata.sysmenuview.datagrid.datagrid('deleteData');
+                    }
+                },
+                '-',
+                {text: '保存',
+                    iconCls: 'icon-save',
+                    group: 'sysdata.sysmenuview.datagrid',
+                    handler: function () {
+                        sysdata.sysmenuview.datagrid.datagrid('postUpdateAllData');
+                    }
+                }
+            ],
+            queryFuncName: '功能查询',
+            updateFuncName: '功能维护'
+        });
+
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div region="center" border="false">
+        <table id="sysdata-sysmenu-datagrid" border="false">
+        </table>
+    </div>
+</div>

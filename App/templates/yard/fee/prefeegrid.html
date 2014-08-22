@@ -1,0 +1,80 @@
+<script>
+    Namespace.register('control.audit.prefeegrid');
+    $(function () {
+        control.audit.prefeegrid._{{ seq }} = $('#control-audit-prefeegrid-{{ seq }}').datagrid({
+            autoLoad: false,
+            border:false,
+            sumAmount: 0,
+            title:'应收付费用',
+            columns: [
+                [
+                    {% autoescape off %}
+                        {{ prefee_id.writeUI|safe|escape }},
+                        {% if check_flag == True %}
+                        {field: 'check_flag', checkbox: true},
+                        {% endif %}
+                        {field: 'bill_no', title: '提单号'},
+                        {{ prefee_contractid.writeUI|safe|escape }},
+                        {{ prefee_feetyp.writeUI|safe|escape }},
+                        {{ prefee_feecod.writeUI|safe|escape }},
+                        {{ prefee_client.writeUI|safe|escape }},
+                        {{ prefee_amount.writeUI|safe|escape }},
+                        {{ prefee_remark.writeUI|safe|escape }}
+                    {% endautoescape %}
+                ]
+            ],
+            dataTable: 'pre_fee',
+            pagination: false,
+            singleSelect: false,
+            rowStyler : function(rowIndex,rowData){
+                //console.info(rowData);
+                if (rowData.amount < 0 ){
+                    return 'color:red';
+                }
+            },
+            onDblClickRow: function (rowIndex, rowData) {
+                return;
+            },
+            onClickRow: function (rowIndex, rowData) {
+                return;
+            },
+            onCheck: function (rowIndex, rowData) {
+                var opts = control.audit.prefeegrid._{{ seq }}.datagrid('options');
+                opts.sumAmount = opts.sumAmount + parseFloat(rowData.amount);
+                control.audit.prefeegrid._{{ seq }}.refreshSum();
+            },
+            onUncheck: function (rowIndex, rowData) {
+                var opts = control.audit.prefeegrid._{{ seq }}.datagrid('options');
+                opts.sumAmount = opts.sumAmount - parseFloat(rowData.amount);
+                control.audit.prefeegrid._{{ seq }}.refreshSum();
+            },
+            onCheckAll: function (rows) {
+                var opts = control.audit.prefeegrid._{{ seq }}.datagrid('options');
+                opts.sumAmount = 0;
+                for (var i = 0, ilen = rows.length; i < ilen; i++) {
+                    opts.sumAmount = opts.sumAmount + parseFloat(rows[i].amount);
+                }
+                control.audit.prefeegrid._{{ seq }}.refreshSum();
+            },
+            onUncheckAll: function (rows) {
+                var opts = control.audit.prefeegrid._{{ seq }}.datagrid('options');
+                opts.sumAmount = 0;
+                control.audit.prefeegrid._{{ seq }}.refreshSum();
+            }
+        });
+        control.audit.prefeegrid._{{ seq }}.refreshSum = function () {
+            $('#control-audit-prefeegrid-sum-{{ seq }}').text('合计:' + control.audit.prefeegrid._{{ seq }}.datagrid('options').sumAmount
+            );
+        }
+        control.audit.prefeegrid._{{ seq }}.trigger('afterrender', control.audit.prefeegrid._{{ seq }});
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'center',border:'false'">
+        <table id="control-audit-prefeegrid-{{ seq }}" data-options="border:'false'">
+        </table>
+    </div>
+    <div data-options="region:'south',border:'false'" style="border-top: none">
+        <label id="control-audit-prefeegrid-sum-{{ seq }}">合计:0：</label>
+    </div>
+</div>

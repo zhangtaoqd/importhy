@@ -1,0 +1,129 @@
+<script>
+    Namespace.register('option.logview');
+    $(function () {
+        option.logview.tablecombo = $('#option-logview-tablecombobox').combobox({
+            valueField: 'value',
+            textField: 'text',
+            required: false,
+            width: 100,
+            onSelect: function (record) {
+                var p = {
+                    func: '字段注释查询',
+                    reqtype: 'query',
+                    ex_parm: {
+                        table_name: record.value //表名
+                    }
+                };
+                $.ajax({
+                    url: "./dealPAjax/",
+                    data: {jpargs: JSON.stringify(p)},
+                    success: function (r, t, a) {
+                        if ($.ajaxSettings.success(r, t, a, false)) {
+                            option.logview.fieldcombo.combobox('loadData', r.rows);
+                            //console.info(r);
+                        } else {
+                            option.logview.fieldcombo.combobox('loadData', []);
+                        }
+                    }
+                });
+            }
+        });
+        option.logview.fieldcombo = $('#option-logview-fieldcombobox').combobox({
+            valueField: 'value',
+            textField: 'text',
+            required: false,
+            width: 100
+        });
+        option.logview.operatorcombo = $('#option-logview-operatorcombobox').combobox({
+            valueField: 'value',
+            textField: 'value',
+            required: false,
+            width: 100,
+            data: [
+                {
+                    value: '等于'
+                },
+                {
+                    value: '不等于'
+                },
+                {
+                    value: '大于'
+                },
+                {
+                    value: '大于等于'
+                },
+                {
+                    value: '小于'
+                },
+                {
+                    value: '小于等于'
+                },
+                {
+                    value: '包含'
+                },
+                {
+                    value: '不包含'
+                },
+                {
+                    value: '属于'
+                },
+                {
+                    value: '不属于'
+                },
+                {
+                    value: '介于'
+                },
+                {
+                    value: '不介于'
+                }
+            ],
+            onSelect : function(record){
+
+            }
+        });
+        var p = {
+            reqtype: 'query',
+            func: '表注释查询',
+            cols: [],
+            filter: [],
+            sort: [],
+            ex_parm: {}
+        };
+        $.ajax({
+            url: "./dealPAjax/",
+            data: {jpargs: JSON.stringify(p)},
+            success: function (r, t, a) {
+                if ($.ajaxSettings.success(r, t, a, false)) {
+                    option.logview.tablecombo.combobox('loadData', r.rows);
+                    //console.info(r);
+                } else {
+                    option.logview.tablecombo.combobox('loadData', []);
+                }
+            }
+        });
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'north',border:'false'">
+        <label for="table">对象:</label>
+        <input id="option-logview-tablecombobox" type="text" name="table"/>
+        <label for="field">属性:</label>
+        <input id="option-logview-fieldcombobox" type="text" name="field"/>
+        <label for="operator">条件:</label>
+        <input id="option-logview-operatorcombobox" type="text" name="operator"/>
+        <label for="value1">值:</label>
+        <input id="option-logview-value1" type="text" name="value1"/>
+
+        <span id="option-logview-value2div">
+            <label for="value2">至:</label>
+            <input id="option-logview-value2" type="text" name="value2"/>
+        </span>
+        <a id="option-logview-submit" href="#" class="easyui-linkbutton"
+           data-options="iconCls:'icon-search',group:'option-logview'">查询</a>
+
+    </div>
+    <div data-options="region:'center',border:'false'">
+        <table id="option-logview-loggrid" border="false">
+        </table>
+    </div>
+</div>

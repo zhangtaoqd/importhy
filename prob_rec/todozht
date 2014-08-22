@@ -1,0 +1,11 @@
+todo 17 to dh
+func:'客户费用明细报表'  修改
+zongji 改成三个字段
+1,。zongji_in  应收合计
+     sum(case fee_typ when 'I' then amount else 0 end) zongji_in,
+2.zongji_out 应付合计
+     sum(case fee_typ when 'O' then amount else 0 end) zongji_out,
+3.zongji_gain 收入
+     sum(case fee_typ when 'I' then amount else 0-amount end) zongji_gain,
+
+todo 9 to dh

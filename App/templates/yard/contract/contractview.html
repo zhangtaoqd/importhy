@@ -1,0 +1,443 @@
+<script>
+Namespace.register('contract.contractview');
+$(function () {
+    contract.contractview.contractform = null;
+    contract.contractview.billnovb = null;
+    $(document).on('afterrender', '#control-contract-contractform-{{ seq }}', function (e, d) {
+        contract.contractview.contractform = $(d.form);
+        contract.contractview.contractform.form('disableValidation');
+        contract.contractview.billnovb = $(d.bill);
+    });
+    contract.contractview.actiondatagrid = $('#contract-contractview-actiondatagrid').datagrid({
+        autoLoad: false,
+        columns: [
+            [
+                {% autoescape off %}
+                    {{ actionid.writeUI|safe|escape }},
+                    {{ actioncontractid.writeUI|safe|escape }},
+                    {{ action_id.writeUI|safe|escape }},
+                    {{ finish_flag.writeUI|safe|escape }},
+                    {{ finish_time.writeUI|safe|escape }},
+                    {{ actionremark.writeUI|safe|escape }}
+                {% endautoescape %}
+            ]
+        ],
+        dataTable: 'contract_action',
+        pagination: false,
+        toolbar: [
+            {text: '增加动态',
+                iconCls: 'icon-add',
+                group: 'contract-contractview-actiondatagrid',
+                handler: function () {
+                    var rowCount = contract.contractview.actiondatagrid.datagrid('getRows').length;
+                    var oaction = contract.contractview.actiondatagrid.datagrid('getColumnOption', 'action_id').editor.options.data;
+                    if (rowCount == oaction.length) {
+                        return;
+                    } else {
+                        var contract_id = parseInt($('#control-contract-contractform-id-{{ seq }}').val());
+                        contract.contractview.actiondatagrid.datagrid('insertData', {
+                            contract_id: (isNaN(contract_id) ? -1 : contract_id),
+                            action_id: oaction[rowCount].value
+                        });
+                    }
+                }
+            },
+            '-',
+            {text: '删除动态',
+                iconCls: 'icon-remove',
+                group: 'contract-contractview-actiondatagrid',
+                handler: function () {
+                    contract.contractview.actiondatagrid.datagrid('deleteData');
+                }
+            }
+        ],
+        queryFuncName: '委托动态查询'
+    });
+    contract.contractview.cntrdatagrid = $('#contract-contractview-cntrdatagrid').datagrid({
+        autoLoad: false,
+        columns: [
+            [
+                {% autoescape off %}
+                    {{ cntrid.writeUI|safe|escape }},
+                    {{ cntrcontractid.writeUI|safe|escape }},
+                    {{ cntr_type.writeUI|safe|escape }},
+                    {{ cntr_num.writeUI|safe|escape }},
+                    {{ check_num.writeUI|safe|escape }},
+                    {{ actionremark.writeUI|safe|escape }}
+                {% endautoescape %}
+            ]
+        ],
+        dataTable: 'contract_cntr',
+        pagination: false,
+        toolbar: [
+
+            {text: '增加箱量',
+                iconCls: 'icon-add',
+                group: 'contract-contractview-cntrdatagrid',
+                handler: function () {
+                    var contract_id = parseInt($('#control-contract-contractform-id-{{ seq }}').val());
+                    contract.contractview.cntrdatagrid.datagrid('insertData', {
+                        contract_id: (isNaN(contract_id) ? -1 : contract_id)
+                    });
+                }
+            },
+            '-',
+            {text: '删除箱量',
+                iconCls: 'icon-remove',
+                group: 'contract-contractview-cntrdatagrid',
+                handler: function () {
+                    contract.contractview.cntrdatagrid.datagrid('deleteData');
+                }
+            }
+        ],
+        queryFuncName: '委托箱查询'
+    });
+    contract.contractview.refresh = function (bill_no) {
+        if (bill_no != null && bill_no.length > 0) {
+            var cols = new Array();
+            var formcols = contract.contractview.contractform.serializeArray();
+            for (var i = 0, ilen = formcols.length; i < ilen; i++) {
+                cols.push(formcols[i].name);
+            }
+            var queryParam = {
+                reqtype: 'query',
+                func: '委托查询',
+                page: 1,
+                rows: 1,
+                cols: cols,
+                filter: [
+                    {cod: 'bill_no', operatorTyp: '等于', value: bill_no}
+                ],
+                sort: [],
+                ex_parm: {}
+            };
+            $.ajax({
+                url: "./dealPAjax/",
+                data: {jpargs: JSON.stringify(queryParam)},
+                success: function (r, t, a) {
+                    var stateCod = parseInt(r.stateCod);
+                    if (r && !isNaN(stateCod)) {
+                        if (stateCod == 1) {
+                            contract.contractview.contractform.form('load', r.rows[0]);
+                            var actionOpts = contract.contractview.actiondatagrid.datagrid('options');
+                            var cntrOpts = contract.contractview.cntrdatagrid.datagrid('options');
+                            actionOpts.filterFields = [
+                                {cod: 'contract_id', operatorTyp: '等于', value: r.rows[0].id}
+                            ];
+                            cntrOpts.filterFields = [
+                                {cod: 'contract_id', operatorTyp: '等于', value: r.rows[0].id}
+                            ];
+                            contract.contractview.actiondatagrid.datagrid('reload');
+                            contract.contractview.cntrdatagrid.datagrid('reload');
+                            //旧委托 刷新界面
+                        }
+                        if (stateCod == 201) {
+                            //新委托 清空界面
+                            contract.contractview.contractform.form('clear');
+                            contract.contractview.contractform.form('extReset');
+                            contract.contractview.contractform.form('disableValidation')
+                            contract.contractview.billnovb.val(bill_no);
+                            $('#control-contract-contractform-id-{{ seq }}').val(-1);
+                            contract.contractview.contractform.form('enableValidation')
+                            contract.contractview.cntrdatagrid.datagrid('loadData', []);
+                            contract.contractview.actiondatagrid.datagrid('loadData', []);
+                        }
+
+                    } else {
+                        $.messager.alert('错误', '系统错误，请联系系统管理员', 'error');
+                    }
+                }
+            });
+        }
+        else {
+            contract.contractview.contractform.form('clear');
+            contract.contractview.contractform.form('extReset');
+            contract.contractview.contractform.form('disableValidation')
+            $('#control-contract-contractform-id-{{ seq }}').val(-1);
+            contract.contractview.cntrdatagrid.datagrid('loadData', []);
+            contract.contractview.actiondatagrid.datagrid('loadData', []);
+        }
+        if (contract.contractview.contractform.serializeJson()['finish_flag'] == 'true') {
+            $('a[group=contract-contractview]').linkbutton('disable');
+            $('a[group=contract-contractview-unlock]').linkbutton('enable');
+        }
+        else {
+            $('a[group=contract-contractview]').linkbutton('enable');
+            $('a[group=contract-contractview-unlock]').linkbutton('disable');
+        }
+        $('#contract-contractview-tabs').tabs('select', 0);
+        contract.contractview.billnovb.focus().select();
+    }
+    $(document).on('refresh', '#control-contract-contractform-{{ seq }}', function (e, bill_no) {
+        contract.contractview.refresh(bill_no);
+    });
+
+    $('#contract-contract-form-save-button').bind('click', function (e) {
+        contract.contractview.contractform.form('enableValidation');
+        if (contract.contractview.actiondatagrid.datagrid('preSave') == 0) {
+            $.messager.show({title: '错误信息',
+                msg: '委托动态数据验证失败',
+                timeout: 3000,
+                showType: 'slide'});
+            return;
+        }
+        if (contract.contractview.cntrdatagrid.datagrid('preSave') == 0) {
+            $.messager.show({title: '错误信息',
+                msg: '委托箱量数据验证失败',
+                timeout: 3000,
+                showType: 'slide'});
+            return;
+        }
+        if (!contract.contractview.contractform.form('validate')) {
+            $.messager.show({title: '错误信息',
+                msg: '委托数据验证失败',
+                timeout: 3000,
+                showType: 'slide'});
+            return;
+        }
+        var parm = {
+            reqtype: 'update',
+            func: '委托维护'
+        };
+        if (parseInt($('#control-contract-contractform-id-{{ seq }}').val()) > 0) {
+            //旧委托 修改
+            var actionObj = contract.contractview.actiondatagrid.datagrid('getDirtyData', 'all');
+            var cntrObj = contract.contractview.cntrdatagrid.datagrid('getDirtyData', 'all');
+            var dirtyContract = contract.contractview.contractform.form('getUpdateData');
+            parm.rows = [
+                {
+                    op: 'update',
+                    table: 'contract',
+                    cols: dirtyContract,
+                    id: contract.contractview.contractform.form('getOriData').id,
+                    subs: {
+                        rows: actionObj.i.concat(actionObj.u).concat(actionObj.d).concat(cntrObj.i).concat(cntrObj.u).concat(cntrObj.d)
+                    }
+                }
+            ];
+        } else {
+            //新委托 增加
+            var uuid = (new UUID()).id;
+            var actionrows = contract.contractview.actiondatagrid.datagrid('getChanges', 'inserted');
+            var cntrrows = contract.contractview.cntrdatagrid.datagrid('getChanges', 'inserted');
+            var newactions = new Array();
+            for (var i = 0, ilen = actionrows.length; i < ilen; i++) {
+                actionrows[i].contract_id = uuid;
+                newactions.push({
+                    op: 'insert',
+                    table: 'contract_action',
+                    cols: actionrows[i],
+                    id: -1,
+                    uuid: uuid,
+                    subs: {}
+                });
+            }
+            var newcntrs = new Array();
+            for (var i = 0, ilen = cntrrows.length; i < ilen; i++) {
+                cntrrows[i].contract_id = uuid;
+                newcntrs.push({
+                    op: 'insert',
+                    table: 'contract_cntr',
+                    cols: cntrrows[i],
+                    id: -1,
+                    uuid: uuid,
+                    subs: {}
+                });
+            }
+            parm.rows = [
+                {
+                    op: 'insert',
+                    table: 'contract',
+                    cols: contract.contractview.contractform.serializeJson(),
+                    id: -1,
+                    uuid: uuid,
+                    subs: {
+                        rows: newactions.concat(newcntrs)
+                    }
+                }
+            ];
+        }
+        $.ajax({
+            url: "./dealPAjax/",
+            data: {jpargs: JSON.stringify(parm)},
+            success: function (r, t, a) {
+                if ($.ajaxSettings.success(r, t, a, true) == true) {
+                    var stateCod = parseInt(r.stateCod);
+                    if (r && !isNaN(stateCod)) {
+                        if (stateCod == 202) {
+                            //保存成功刷新界面
+                            contract.contractview.refresh($.trim(contract.contractview.billnovb.val()));
+                        }
+                    }
+                }
+            }
+        });
+    });
+    $('#contract-contract-form-delete-button').bind('click', function (e) {
+        if (parseInt($('#control-contract-contractform-id-{{ seq }}').val()) > 0) {
+            $.messager.confirm('确认', '确认删除此委托下所有数据?', function (r) {
+                if (r) {
+                    var parm = {
+                        reqtype: 'update',
+                        func: '委托维护',
+                        rows: [
+                            {op: 'delete',
+                                table: 'contract',
+                                id: parseInt($('#control-contract-contractform-id-{{ seq }}').val()),
+                                subs: { }
+                            }
+                        ]
+                    };
+                    $.ajax({
+                        url: "./dealPAjax/",
+                        data: {jpargs: JSON.stringify(parm)},
+                        success: function (r, t, a) {
+                            if ($.ajaxSettings.success(r, t, a, true) == true) {
+                                var stateCod = parseInt(r.stateCod);
+                                if (r && !isNaN(stateCod)) {
+                                    if (stateCod == 202) {
+                                        //保存成功刷新界面
+                                        contract.contractview.refresh(null);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
+    $('#contract-contract-form-lock-button').bind('click', function (e) {
+        if (parseInt($('#control-contract-contractform-id-{{ seq }}').val()) > 0) {
+            var finish_time = contract.contractview.contractform.serializeJson()['finish_time'];
+            var bill_no = contract.contractview.contractform.serializeJson()['bill_no'];
+            if (finish_time != null && finish_time.length > 0) {
+
+            } else {
+                var curdate = new Date();
+                finish_time = curdate.getFullYear() + '-' + (curdate.getMonth() + 1) + '-' + curdate.getDate()
+            }
+            var parm = {
+                reqtype: 'update',
+                func: '委托锁定',
+                rows: [
+                    {op: 'updatedirty',
+                        cols: {finish_flag: ['true'], finish_time: [finish_time]},
+                        table: 'contract',
+                        id: parseInt($('#control-contract-contractform-id-{{ seq }}').val()),
+                        subs: { }
+                    }
+                ]
+            };
+            $.ajax({
+                url: "./dealPAjax/",
+                data: {jpargs: JSON.stringify(parm)},
+                success: function (r, t, a) {
+                    if ($.ajaxSettings.success(r, t, a, true) == true) {
+                        var stateCod = parseInt(r.stateCod);
+                        if (r && !isNaN(stateCod)) {
+                            if (stateCod == 202) {
+                                //保存成功刷新界面
+                                contract.contractview.refresh(bill_no);
+                            }
+                        }
+                    }
+                }
+            });
+
+        }
+    });
+    $('#contract-contract-form-unlock-button').bind('click', function (e) {
+        if (parseInt($('#control-contract-contractform-id-{{ seq }}').val()) > 0) {
+            var bill_no = contract.contractview.contractform.serializeJson()['bill_no'];
+            var parm = {
+                reqtype: 'update',
+                func: '委托解锁',
+                rows: [
+                    {op: 'updatedirty',
+                        cols: {finish_flag: [''], finish_time: ['']},
+                        table: 'contract',
+                        id: parseInt($('#control-contract-contractform-id-{{ seq }}').val()),
+                        subs: { }
+                    }
+                ]
+            };
+            $.ajax({
+                url: "./dealPAjax/",
+                data: {jpargs: JSON.stringify(parm)},
+                success: function (r, t, a) {
+                    if ($.ajaxSettings.success(r, t, a, true) == true) {
+                        var stateCod = parseInt(r.stateCod);
+                        if (r && !isNaN(stateCod)) {
+                            if (stateCod == 202) {
+                                //保存成功刷新界面
+                                contract.contractview.refresh(bill_no);
+                            }
+                        }
+                    }
+                }
+            });
+
+        }
+    });
+    $('#contract-contract-form-insert-button').bind('click', function (e) {
+        contract.contractview.refresh('');
+    });
+    $('#contract-contract-form-search-button').bind('click', function (e) {
+        contract.contractview.billsearch = $('<div></div>').window({
+            href: encodeURI("./dealmenureq/?menutext=提单查询"),
+            title: '提单查询',
+            width: window.innerWidth * 0.6,
+            height: window.innerHeight * 0.8,
+            modal: true,
+            collapsible: false,
+            minimizable: false,
+            maximizable: false,
+            returnData: '',
+            closable: true,
+            onBeforeClose: function () {
+                var bill_no = contract.contractview.billsearch.window('options').returnData;
+                if (bill_no != null && bill_no.length > 0) {
+                    contract.contractview.refresh($.trim(bill_no));
+                }
+            },
+            onClose: function () {
+                contract.contractview.billsearch.window('destroy');
+                contract.contractview.billsearch = null;
+            }
+        });
+        contract.tool.billsearch.combogrid('options').parentWin = contract.contractview.billsearch;
+    });
+});
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'center',border:'true'">
+        {% include 'yard/contract/contractform.html' %}
+        <div class="editform-toolbar">
+            <a id="contract-contract-form-search-button" href="#" class="easyui-linkbutton"
+               data-options="iconCls:'icon-search',group:'contract-contractview-search'">查询</a>
+            <a id="contract-contract-form-insert-button" href="#" class="easyui-linkbutton"
+               data-options="iconCls:'icon-add',group:'contract-contractview-search'">增加</a>
+            <a id="contract-contract-form-delete-button" href="#" class="easyui-linkbutton"
+               data-options="iconCls:'icon-remove',group:'contract-contractview'">删除</a>
+            <a id="contract-contract-form-save-button" href="#" class="easyui-linkbutton"
+               data-options="iconCls:'icon-save',group:'contract-contractview'">保存</a>
+            <a id="contract-contract-form-lock-button" href="#" class="easyui-linkbutton"
+               data-options="iconCls:'icon-lock',group:'contract-contractview'">完结</a>
+            <a id="contract-contract-form-unlock-button" href="#" class="easyui-linkbutton"
+               data-options="iconCls:'icon-unlock',group:'contract-contractview-unlock'">解锁</a>
+        </div>
+    </div>
+    <div data-options="region:'south', split:'true',height:window.innerHeight * 0.4,border:false">
+        <div class="easyui-tabs" data-options="fit:'true',headerWidth:300" id="contract-contractview-tabs">
+            <div title="委托动态">
+                <table id="contract-contractview-actiondatagrid" data-options="border:'false'">
+                </table>
+            </div>
+            <div title="委托箱量">
+                <table id="contract-contractview-cntrdatagrid" data-options="border:'false'">
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

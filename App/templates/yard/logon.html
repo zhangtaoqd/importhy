@@ -1,0 +1,69 @@
+<script type="text/javascript">
+    Namespace.register('logon');
+    $(function () {
+        logon.form = $('#logon-form').form({
+
+        });
+        logon.form.form('disableValidation');
+        $('input','#logon-form').val(null);
+        logon.logonbutton = $('#logon-button').linkbutton({});
+        logon.logonbutton.bind('click', function () {
+            logon.form.form('enableValidation');
+            var param = null;
+            var url = '';
+            if (logon.logonbutton.linkbutton('options').text == '登录') {
+                url = "{% url 'logon' %}";
+                param = logon.form.serializeJson();
+            } else {
+                url = "{% url 'logout' %}";
+            }
+            if (!logon.form.form('validate')) {
+                return;
+            }
+            $.ajax({
+                url: url,
+                data: {jpargs: JSON.stringify(param)},
+                success: function (returnData, returnMsg, ajaxObj) {
+
+                    var stateCod = parseInt(returnData.stateCod);
+                    if (!isNaN(stateCod)) {
+                        $('input[type=password]').val(null);
+                        if (stateCod == 2) { //登录成功
+                            //关闭所有tabs页面，刷新菜单导航
+                            document.title = document.title + '-----' + '当前用户：' + param.name;
+                            sy.logonform.window('close');
+
+                        }
+                        if (stateCod == 3 ) { //注销 登录失败
+                            //关闭所有tabs页面，清空菜单导航
+
+                        }
+                        if (stateCod == -2) { //登录失败
+                            //关闭所有tabs页面，刷新菜单导航
+                            //sy.logonform.window('close');
+
+                        }
+
+                    }
+                    $.ajaxSettings.success(returnData, returnMsg, ajaxObj,false);
+                }
+            });
+        });
+
+    });
+</script>
+<div>
+    <form id="logon-form" method="post" class="editform">
+        <div>
+            <label for="name">用户:</label>
+            <input class="easyui-validatebox" type="text" name="name" data-options="required:true"/>
+        </div>
+        <div>
+            <label for="password">密码:</label>
+            <input class="easyui-validatebox" type="password" name="password" data-options="required:true"/>
+        </div>
+        <div class="editform-toolbar">
+            <a id="logon-button" data-options="iconCls:'icon-unlock'" href="#" class="easyui-linkbutton">登录</a>
+        </div>
+    </form>
+</div>

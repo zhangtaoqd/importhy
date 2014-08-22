@@ -1,0 +1,61 @@
+<script>
+    Namespace.register('basedata.cntrtypeview');
+    $(function () {
+        basedata.cntrtypeview.datagrid = $('#basedata-cntrtype-datagrid').datagrid({
+            columns: [
+                [
+                    {% autoescape off %}
+                        {{ id.writeUI|safe|escape }},
+                        {{ cntrtype.writeUI|safe|escape }},
+                        {{ cntrtypename.writeUI|safe|escape }},
+                        {{ remark.writeUI|safe|escape }}
+                    {% endautoescape %}
+                ]
+            ],
+            dataTable: 'c_cntr_type',
+            toolbar: [
+                {text: '查询',
+                    iconCls: 'icon-search',
+                    group:'basedata-cntrtype-datagrid',
+                    handler: function () {
+                        sy.createSearchWindow(basedata.cntrtypeview.datagrid);
+                    }
+                },
+                '-',
+                {text: '增加',
+                    iconCls: 'icon-add',
+                    group:'basedata-cntrtype-datagrid',
+                    handler: function () {
+                        basedata.cntrtypeview.datagrid.datagrid('insertData', {
+                            cntr_type: '新箱型'
+                        });
+                    }
+                },
+                '-',
+                {text: '删除',
+                    iconCls: 'icon-remove',
+                    group:'basedata-cntrtype-datagrid',
+                    handler: function () {
+                        basedata.cntrtypeview.datagrid.datagrid('deleteData');
+                    }
+                },
+                '-',
+                {text: '保存',
+                    iconCls: 'icon-save',
+                    group:'basedata-cntrtype-datagrid',
+                    handler: function () {
+                        basedata.cntrtypeview.datagrid.datagrid('postUpdateAllData');
+                    }
+                }
+            ],
+            queryFuncName:'箱型查询',
+            updateFuncName:'箱型维护'
+        });
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div region="center" border="false">
+        <table id="basedata-cntrtype-datagrid" border="false">
+        </table>
+    </div>
+</div>

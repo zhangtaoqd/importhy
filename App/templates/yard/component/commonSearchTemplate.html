@@ -1,0 +1,690 @@
+<script type="text/javascript">
+Namespace.register('common.createsearchform');
+$(function () {
+    //common.createsearchform.datagridid = '-1';
+    common.createsearchform.filterdatagrid = $('#common-createsearchform-filterdatagrid').datagrid({
+        columns: [
+            [
+                {
+                    field: 'text',
+                    title: '属性',
+                    width: 100,
+                    align: 'center'
+                },
+                {
+                    field: 'operatorTyp',
+                    title: '条件',
+                    width: 100,
+                    align: 'center',
+                    editor: {
+                        type: 'combobox',
+                        options: {
+                            data: [
+                                {
+                                    value: '等于'
+                                },
+                                {
+                                    value: '不等于'
+                                },
+                                {
+                                    value: '大于'
+                                },
+                                {
+                                    value: '大于等于'
+                                },
+                                {
+                                    value: '小于'
+                                },
+                                {
+                                    value: '小于等于'
+                                },
+                                {
+                                    value: '包含'
+                                },
+                                {
+                                    value: '不包含'
+                                },
+                                {
+                                    value: '属于'
+                                },
+                                {
+                                    value: '不属于'
+                                },
+                                {
+                                    value: '介于'
+                                },
+                                {
+                                    value: '不介于'
+                                }
+                            ],
+                            valueField: 'value',
+                            textField: 'value',
+                            editable: true,
+                            panelHeight: 250,
+                            onChange: function (newData, oldData) {
+                                if (newData.length == 0) {
+                                    var opts = common.createsearchform.filterdatagrid.datagrid('options');
+                                    var cur_datagrid_row = opts.editRow;
+                                    common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value = '';
+                                    common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value_text = '';
+                                    common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].display_value = '';
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    field: 'display_value',
+                    title: "值,多值用','分隔",
+                    width: 400,
+                    align: 'right'
+                },
+                {
+                    field: 'editor',
+                    hidden: true
+                },
+                {
+                    field: 'cod',
+                    hidden: true
+                },
+                {
+                    field: 'value',
+                    hidden: true
+                },
+                {
+                    field: 'value_text',
+                    hidden: true
+                }
+            ]
+        ],
+        idField: 'cod',
+        fit: true,
+        border: false,
+        pagination: false,
+        showHeader: true,
+        singleSelect: true,
+        striped: true,
+        url: '',
+        onDblClickRow: function (rowIndex, rowData) {
+            if (!rowData.hasOwnProperty('editor')){
+                rowData.editor = {
+                    type:'text'
+                }
+            }
+            if (rowData.editor.type == 'datetimebox' || rowData.editor.type == 'datebox') {
+                common.createsearchform.filterdatagrid.datagrid('getRows')[rowIndex].display_value = '';
+            }
+            common.createsearchform.filterdatagrid.datagrid('removeEditor', ['display_value']);
+            common.createsearchform.filterdatagrid.datagrid('addEditor', [
+                {
+                    field: 'display_value',
+                    editor: rowData.editor
+                }
+            ]);
+            common.createsearchform.filterdatagrid.datagrid('dbClick', rowIndex);
+        },
+
+        onAfterEdit: function (rowIndex, rowData, changes) {
+            if (rowData.operatorTyp.length == 0){
+                common.createsearchform.filterdatagrid.datagrid('getRows')[rowIndex].display_value = '';
+                common.createsearchform.filterdatagrid.datagrid('getRows')[rowIndex].value = '';
+                common.createsearchform.filterdatagrid.datagrid('getRows')[rowIndex].value_text = '';
+                common.createsearchform.filterdatagrid.datagrid('refreshRow', rowIndex);
+                return;
+            }
+            if (rowData.editor.type == 'combobox' || rowData.editor.type == 'datetimebox' || rowData.editor.type == 'datebox') {
+                common.createsearchform.filterdatagrid.datagrid('getRows')[rowIndex].display_value = rowData.value_text;
+                common.createsearchform.filterdatagrid.datagrid('refreshRow', rowIndex);
+            }
+            else {
+                common.createsearchform.filterdatagrid.datagrid('getRows')[rowIndex].value = rowData.display_value;
+                common.createsearchform.filterdatagrid.datagrid('getRows')[rowIndex].value_text = rowData.display_value;
+            }
+        }
+
+    });
+    common.createsearchform.sorterdatagrid = $('#common-createsearchform-sorterdatagrid').datagrid({
+        columns: [
+            [
+                {
+                    field: 'text',
+                    title: '属性',
+                    width: 100,
+                    align: 'center'
+                },
+                {
+                    field: 'order_typ',
+                    title: '排序类型',
+                    width: 100,
+                    align: 'center',
+                    editor: {
+                        type: 'combobox',
+                        options: {
+                            data: [
+                                {
+                                    value: '升序'
+                                },
+                                {
+                                    value: '降序'
+                                }
+                            ],
+                            valueField: 'value',
+                            textField: 'value',
+                            editable: true,
+                            panelHeight: 40
+                        }
+                    }
+                },
+                {
+                    field: 'cod',
+                    hidden: true
+                }
+            ]
+        ],
+        toolbar: [
+            {
+                text: '上移',
+                iconCls: '',
+                handler: function () {
+                    common.createsearchform.sorterdatagrid.datagrid('manualEndEdit');
+                    var newRow = common.createsearchform.sorterdatagrid.datagrid('getSelected');
+                    if (newRow) {
+                        var index = common.createsearchform.sorterdatagrid.datagrid('getRowIndex', newRow);
+                        if (index > 0) {
+                            common.createsearchform.sorterdatagrid.datagrid('insertRow', {
+                                index: index - 1,
+                                row: newRow
+                            });
+                            common.createsearchform.sorterdatagrid.datagrid('deleteRow', index + 1);
+                            common.createsearchform.sorterdatagrid.datagrid('unselectAll');
+                            common.createsearchform.sorterdatagrid.datagrid('selectRow', index - 1);
+                        }
+                    }
+                }
+            },
+            '-',
+            {
+                text: '下移',
+                iconCls: '',
+                handler: function () {
+                    common.createsearchform.sorterdatagrid.datagrid('manualEndEdit');
+                    var newRow = common.createsearchform.sorterdatagrid.datagrid('getSelected');
+                    if (newRow) {
+                        var index = common.createsearchform.sorterdatagrid.datagrid('getRowIndex', newRow);
+                        var rowCount = common.createsearchform.sorterdatagrid.datagrid('getRows').length;
+                        if (index < rowCount - 1) {
+                            common.createsearchform.sorterdatagrid.datagrid('insertRow', {
+                                index: index + 2,
+                                row: newRow
+                            });
+                            common.createsearchform.sorterdatagrid.datagrid('deleteRow', index);
+                            common.createsearchform.sorterdatagrid.datagrid('unselectAll');
+                            common.createsearchform.sorterdatagrid.datagrid('selectRow', index + 1);
+                        }
+                    }
+                }
+            },
+            '-'
+        ],
+        idField: 'cod',
+        fit: true,
+        border: false,
+        singleSelect: true,
+        pagination: false,
+        url: ''
+    });
+    common.createsearchform.colsdatagrid = $('#common-createsearchform-colsdatagrid').datagrid({
+        columns: [
+            [
+                {field: 'text', title: '列', align: 'center', width: 100},
+                {field: 'cod', checkbox: true}
+            ]
+        ],
+        idField: 'cod',
+        fit: true,
+        border: false,
+        pagination: false,
+        showHeader: true,
+        singleSelect: false,
+        striped: true,
+        url: ''
+    });
+    for (var i = 0, ilen = sy.searchWindowData.length; i < ilen; i++) {
+        if (sy.searchWindowData[i].cod == 'id') {
+            continue;
+        }
+        if (sy.searchWindowData[i].hidden != true) {
+            if (sy.searchWindowData[i].editor) {
+                var commEditorTypes = "text,validatebox,combobox,checkbox,datebox,datetimebox";
+                if (commEditorTypes.indexOf(sy.searchWindowData[i].editor.type) < 0) {
+                    sy.searchWindowData[i].editor.type = 'text';
+                    sy.searchWindowData[i].editor.options = {};
+                }
+                if (sy.searchWindowData[i].editor.options && sy.searchWindowData[i].editor.options.required) {
+                    sy.searchWindowData[i].editor.options.required = false;
+                }
+                /*
+                 if (sy.searchWindowData[i].editor.type == 'validatebox' && sy.searchWindowData[i].editor.options.required == true) {
+                 sy.searchWindowData[i].editor.options.required = false;
+                 }*/
+                if (sy.searchWindowData[i].editor.type == 'combobox') {
+                    //sy.searchWindowData[i].editor.options.valueField = 'value';
+                    sy.searchWindowData[i].editor.options.multiple = true;
+                    sy.searchWindowData[i].editor.options.onSelect = function (record) {
+                        var cur_datagrid_row = common.createsearchform.filterdatagrid.datagrid('options').editRow;
+
+                        common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value = $(this).combo('getValues');
+                        common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value_text = $(this).combo('getText');
+
+                    }
+                }
+                if (sy.searchWindowData[i].editor.type == 'checkbox') {
+                    sy.searchWindowData[i].editor = {
+                        type: 'combobox',
+                        options: {
+                            data: [
+                                { cod: 'true', value: '是' },
+                                { cod: 'false', value: '否' }
+                            ],
+                            valueField: 'cod',
+                            textField: 'value',
+                            editable: true,
+                            panelHeight: 40,
+                            multiple: false,
+                            onSelect: function (record) {
+                                var cur_datagrid_row = common.createsearchform.filterdatagrid.datagrid('options').editRow;
+                                common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value = $(this).combo('getValues');
+                                common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value_text = $(this).combo('getText');
+                            }
+                        }
+                    };
+                }
+                if (sy.searchWindowData[i].editor.type == 'datetimebox') {
+                    sy.searchWindowData[i].editor = {
+                        type: 'datetimebox',
+                        options: {
+                            required: false,
+                            onChange: function (newDate, oldDate) {
+                                var cur_datagrid_row = common.createsearchform.filterdatagrid.datagrid('options').editRow;
+                                if (newDate != null && common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value.indexOf(newDate) < 0) {
+                                    if (common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value.length > 0) {
+                                        common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value = common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value + ',' + newDate;
+                                        common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value_text = common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value_text + ',' + newDate;
+                                    } else {
+                                        common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value = newDate;
+                                        common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value_text = newDate;
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }
+                if (sy.searchWindowData[i].editor.type == 'datebox') {
+                    sy.searchWindowData[i].editor = {
+                        type: 'datebox',
+                        options: {
+                            required: false,
+                            onChange: function (newDate, oldDate) {
+                                var cur_datagrid_row = common.createsearchform.filterdatagrid.datagrid('options').editRow;
+                                if (newDate != null && common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value.indexOf(newDate) < 0) {
+                                    if (common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value.length > 0) {
+                                        common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value = common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value + ',' + newDate;
+                                        common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value_text = common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value_text + ',' + newDate;
+                                    } else {
+                                        common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value = newDate;
+                                        common.createsearchform.filterdatagrid.datagrid('getRows')[cur_datagrid_row].value_text = newDate;
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }
+            } else {
+                sy.searchWindowData[i].editor = { type: 'text' };
+            }
+            common.createsearchform.filterdatagrid.datagrid('appendRow', {
+                'cod': sy.searchWindowData[i].cod,
+                'text': sy.searchWindowData[i].text,
+                'editor': sy.searchWindowData[i].editor,
+                'value': '',
+                'display_value': '',
+                'value_text': '',
+                'operatorTyp': ''
+            });
+            common.createsearchform.sorterdatagrid.datagrid('appendRow', {
+                'cod': sy.searchWindowData[i].cod,
+                'text': sy.searchWindowData[i].text
+            });
+        }
+        common.createsearchform.colsdatagrid.datagrid('appendRow', {
+            'cod': sy.searchWindowData[i].cod,
+            'text': sy.searchWindowData[i].text
+        });
+        common.createsearchform.colsdatagrid.datagrid('checkAll');
+
+    }
+    common.createsearchform.pregetdata = function () {
+        common.createsearchform.filterdatagrid.datagrid('manualEndEdit');
+        common.createsearchform.sorterdatagrid.datagrid('manualEndEdit');
+        common.createsearchform.colsdatagrid.datagrid('manualEndEdit');
+    }
+    common.createsearchform.getfilterdata = function (flag) {
+        //flag:'Q'-查询 'S'-保存
+        var rows = common.createsearchform.filterdatagrid.datagrid('getRows');
+        var d = [];
+        for (var i = 0, ilen = rows.length; i < ilen; i++) {
+            if (rows[i].operatorTyp && rows[i].value) {
+                if (rows[i].operatorTyp == '介于' || rows[i].operatorTyp == '不介于') {
+                    if (rows[i].value.indexOf(',') > 0) {
+                    } else {
+                        //$.messager.alert('提示', '第' + (i + 1) + '行条件数据不完整!');
+                        $.messager.alert('提示', "'" + rows[i].text + "'" + '条件,提供数据不完整!');
+                        return null;
+                    }
+                }
+                if (flag == 'S'){
+                    d.push(
+                        {
+                            cod: rows[i].cod,
+                            operatorTyp: rows[i].operatorTyp,
+                            value: rows[i].value.toString(),
+                            value_text:rows[i].value_text.toString(),
+                            display_value:rows[i].display_value.toString()
+                        });
+                }else{
+                    d.push(
+                        {
+                            cod: rows[i].cod,
+                            operatorTyp: rows[i].operatorTyp,
+                            value: rows[i].value.toString()
+                        });
+                }
+            }
+        }
+        return d;
+    }
+    common.createsearchform.getsortdata = function () {
+        var rows = common.createsearchform.sorterdatagrid.datagrid('getRows');
+        var d = [];
+        for (var i = 0, ilen = rows.length; i < ilen; i++) {
+            if (rows[i].order_typ) {
+                d.push(
+                        {
+                            cod: rows[i].cod,
+                            order_typ: rows[i].order_typ
+                        });
+            }
+        }
+        return d;
+    }
+    common.createsearchform.getcoldata = function () {
+        var rows = common.createsearchform.colsdatagrid.datagrid('getChecked');
+        var d = [];
+        for (var i = 0, ilen = rows.length; i < ilen; i++) {
+            d.push(rows[i].cod);
+        }
+        return d;
+    }
+
+    $('#common-createsearchform-ok').bind('click', function () {
+        common.createsearchform.pregetdata();
+        sy.searchWindowReturnData.filters = common.createsearchform.getfilterdata('Q');
+        if (sy.searchWindowReturnData.filters == null) {
+            return;
+        }
+        sy.searchWindowReturnData.sorts = common.createsearchform.getsortdata();
+        sy.searchWindowReturnData.cols = common.createsearchform.getcoldata();
+        sy.searchWindowReturnData.refreshFlag = true;
+        sy.searchWindow.window('close');
+    });
+    $('#common-createsearchform-filtersave').bind('click', function () {
+        common.createsearchform.filtersavewin = $('<div></div>').window({
+            href: encodeURI("./dealmenureq/?menutext=查询保存"),
+            title: '查询保存',
+            width: window.innerWidth * 0.25,
+            height: window.innerHeight * 0.2,
+            modal: true,
+            collapsible: false,
+            minimizable: false,
+            maximizable: false,
+            returnData: null,
+            closable: true,
+            onBeforeClose: function () {
+                if (common.createsearchform.filtersavewin.window('options').returnData == null){
+                    return;
+                }
+                common.createsearchform.pregetdata();
+                var filter_opt = common.createsearchform.filtersavewin.window('options').returnData;
+                var uuid = (new UUID()).id
+                var filterbody = [];
+                var filterrows = common.createsearchform.getfilterdata('S');
+                if (filterrows == null || filterrows.length == 0) {
+                    return;
+                }
+                var sortrows = common.createsearchform.getsortdata();
+                var colrows = common.createsearchform.getcoldata();
+                for (var i = 0, ilen = filterrows.length; i < ilen; i++) {
+                    filterbody.push({
+                        op: 'insert',
+                        table: 's_filter_body',
+                        cols: {
+                            filter_id: uuid,
+                            content_type: 'W',
+                            content_col: filterrows[i].cod,
+                            content_condition: filterrows[i].operatorTyp,
+                            content_value: filterrows[i].value,
+                            value_text:filterrows[i].value_text,
+                            display_value:filterrows[i].display_value
+                        },
+                        uuid: uuid,
+                        id: -1,
+                        subs: {}
+                    });
+                }
+                for (var i = 0, ilen = sortrows.length; i < ilen; i++) {
+                    filterbody.push({
+                        op: 'insert',
+                        table: 's_filter_body',
+                        cols: {
+                            filter_id: uuid,
+                            content_type: 'S',
+                            content_col: sortrows[i].cod,
+                            content_condition: sortrows[i].order_typ
+                        },
+                        uuid: uuid,
+                        id: -1,
+                        subs: {}
+                    });
+                }
+                for (var i = 0, ilen = colrows.length; i < ilen; i++) {
+                    filterbody.push({
+                        op: 'insert',
+                        table: 's_filter_body',
+                        cols: {
+                            filter_id: uuid,
+                            content_type: 'C',
+                            content_col: colrows[i]
+                        },
+                        uuid: uuid,
+                        id: -1,
+                        subs: {}
+                    });
+                }
+
+                var p = {
+                    reqtype: 'update',
+                    func: '查询增加',
+                    rows: [
+                        {
+                            op: 'insert',
+                            table: 's_filter_head',
+                            cols: {
+                                datagrid: common.createsearchform.datagridid,
+                                filter_owner:'',
+                                filter_type: filter_opt.filtertype,
+                                filter_name: filter_opt.filtername
+                            },
+                            uuid: uuid,
+                            id: -1,
+                            subs: {
+                                rows: filterbody
+                            }
+                        }
+                    ]
+                };
+
+                $.ajax({
+                    url: "./dealPAjax/",
+                    data: {jpargs: JSON.stringify(p)},
+                    success: function (r, t, a) {
+                        if ($.ajaxSettings.success(r, t, a, true) == true) {
+                            var stateCod = parseInt(r.stateCod);
+                            if (r && !isNaN(stateCod)) {
+                                if (stateCod == 202) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                });
+            },
+            onClose: function () {
+                common.createsearchform.filtersavewin.window('destroy');
+                common.createsearchform.filtersavewin = null;
+            }
+        });
+        component.filternametype.form.parentWin = common.createsearchform.filtersavewin;
+
+    });
+    $('#common-createsearchform-filterselect').bind('click',function(){
+        common.createsearchform.filterwin = $('<div></div>').window({
+            href: encodeURI("./dealmenureq/?menutext=查询选择"),
+            title: '查询列表',
+            width: window.innerWidth * 0.4,
+            height: window.innerHeight * 0.4,
+            modal: true,
+            collapsible: false,
+            minimizable: false,
+            maximizable: false,
+            returnData: null,
+            closable: true,
+            onBeforeClose:function(){
+                if (common.createsearchform.filterwin.window('options').returnData == null){
+                    return;
+                }
+                var p = {
+                    reqtype:'query',
+                    func:'查询体查询',
+                    page:-1,
+                    rows:-1,
+                    cols:['content_type','content_col','content_condition','content_value','value_text','display_value'],
+                    filter:[{
+                        cod:'filter_id',
+                        operatorTyp:'等于',
+                        value:common.createsearchform.filterwin.window('options').returnData
+                    }],
+                    sort:[],
+                    ex_parm:{}
+                };
+                $.ajax({
+                    url: "./dealPAjax/",
+                    data: {jpargs: JSON.stringify(p)},
+                    success: function (r, t, a) {
+                        if ($.ajaxSettings.success(r, t, a, true) == true) {
+                            var filterrows = common.createsearchform.filterdatagrid.datagrid('getRows');
+                            var sortrows = common.createsearchform.sorterdatagrid.datagrid('getRows');
+                            var colrows = common.createsearchform.colsdatagrid.datagrid('getRows');
+                            var col = '';
+                            var find = false;
+                            for(var i= 0,ilen=filterrows.length;i<ilen;i++){
+                                col = filterrows[i].cod;
+                                find = false;
+                                for(var j= 0,jlen= r.rows.length;j<jlen;j++){
+                                    if (r.rows[j].content_col == col && r.rows[j].content_type == 'W'){
+                                        filterrows[i].operatorTyp = r.rows[j].content_condition;
+                                        filterrows[i].value = r.rows[j].content_value;
+                                        filterrows[i].value_text = r.rows[j].value_text;
+                                        filterrows[i].display_value = r.rows[j].display_value;
+                                        find = true;
+                                        break;
+                                    }
+                                }
+                                if (!find){
+                                    filterrows[i].operatorTyp = '';
+                                    filterrows[i].value = '';
+                                    filterrows[i].value_text = '';
+                                    filterrows[i].display_value = '';
+                                }
+                                common.createsearchform.filterdatagrid.datagrid('refreshRow',i);
+                            }
+                            for(var i= 0,ilen=sortrows.length;i<ilen;i++){
+                                col = sortrows[i].cod;
+                                find = false;
+                                for(var j= 0,jlen= r.rows.length;j<jlen;j++){
+                                    if (r.rows[j].content_col == col && r.rows[j].content_type == 'S'){
+                                        sortrows[i].order_typ = r.rows[j].content_condition;
+                                        find = true;
+                                        break;
+                                    }
+                                }
+                                if (!find){
+                                   sortrows[i].order_typ = '';
+                                }
+                                common.createsearchform.sorterdatagrid.datagrid('refreshRow',i);
+                            }
+                            common.createsearchform.colsdatagrid.datagrid('uncheckAll');
+                            for(var i= 0,ilen=colrows.length;i<ilen;i++){
+                                col = colrows[i].cod;
+                                for(var j= 0,jlen= r.rows.length;j<jlen;j++){
+                                    if (r.rows[j].content_col == col && r.rows[j].content_type == 'C'){
+                                        common.createsearchform.colsdatagrid.datagrid('checkRow',i);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            },
+            onClose: function () {
+                common.createsearchform.filterwin.window('destroy');
+                common.createsearchform.filterwin = null;
+            }
+        });
+        component.filterselect.datagrid.datagrid('options').parentWin = common.createsearchform.filterwin;
+    });
+});
+</script>
+
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div region="center" border="false" data-options="fit:true">
+
+        <div class="easyui-tabs" data-options="fit:true,border:false">
+            <div title="过滤">
+                <table id="common-createsearchform-filterdatagrid" data-options="fit:true,border:false">
+                </table>
+            </div>
+            <div title="排序">
+                <table id="common-createsearchform-sorterdatagrid" data-options="fit:true,border:false">
+                </table>
+            </div>
+            <div title="内容">
+                <table id="common-createsearchform-colsdatagrid" data-options="fit:true,border:false">
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div region="south" border="false" style="height:25px;">
+        <a id="common-createsearchform-ok" href="#" class="easyui-linkbutton"
+           data-options="iconCls:'icon-ok',group:'common-createsearchform'">确定</a>
+        <a id="common-createsearchform-filterselect" href="#" class="easyui-linkbutton"
+           data-options="iconCls:'icon-filter',group:'common-createsearchform'">查询选择</a>
+        <a id="common-createsearchform-filtersave" href="#" class="easyui-linkbutton"
+           data-options="iconCls:'icon-save',group:'common-createsearchform'">查询保存</a>
+
+
+    </div>
+</div>
+
+

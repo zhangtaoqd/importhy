@@ -1,0 +1,38 @@
+.editform input {
+    width: 180px;
+}
+.editform input[type=radio] {
+    width: 10px;
+}
+.editform label {
+    width:60px;
+    display: inline-block;
+}
+.editform div {
+    padding: 5px;
+}
+.editform-toolbar{
+    position: absolute;
+    float:left;
+    bottom:10px;
+    left:5px;
+}
+.editform-toolbar-gridbottom{
+    position: absolute;
+    float:left;
+    bottom:10px;
+    left:5px;
+}
+.grid-sumbar-bottom-nopage{
+    border-top:medium none;
+    position: absolute;
+    float:left;
+    bottom:10px;
+    left:5px;
+}
+.grid-toolbar-bottom-page{
+    position: absolute;
+    float:left;
+    bottom:30px;
+    left:5px;
+}

@@ -1,0 +1,61 @@
+<script>
+    Namespace.register('basedata.userview');
+    $(function () {
+        basedata.userview.datagrid = $('#basedata-user-datagrid').datagrid({
+            columns: [
+                [
+                    {% autoescape off %}
+                        {{ id.writeUI|safe|escape }},
+                        {{ username.writeUI|safe|escape }},
+                        {{ lock.writeUI|safe|escape }},
+                        {{ remark.writeUI|safe|escape }}
+                    {% endautoescape %}
+                ]
+            ],
+            dataTable: 's_user',
+            toolbar: [
+                {text: '查询',
+                    iconCls: 'icon-search',
+                    group:'basedata-user-datagrid',
+                    handler: function () {
+                        sy.createSearchWindow(basedata.userview.datagrid);
+                    }
+                },
+                '-',
+                {text: '增加',
+                    iconCls: 'icon-add',
+                    group:'basedata-user-datagrid',
+                    handler: function () {
+                        basedata.userview.datagrid.datagrid('insertData', {
+                            username: '新用户'
+                        });
+                    }
+                },
+                '-',
+                {text: '删除',
+                    iconCls: 'icon-remove',
+                    group:'basedata-user-datagrid',
+                    handler: function () {
+                        basedata.userview.datagrid.datagrid('deleteData');
+                    }
+                },
+                '-',
+                {text: '保存',
+                    iconCls: 'icon-save',
+                    group:'basedata-user-datagrid',
+                    handler: function () {
+                        basedata.userview.datagrid.datagrid('postUpdateAllData');
+                    }
+                }
+            ],
+            queryFuncName:'用户查询',
+            updateFuncName:'用户维护'
+        });
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div region="center" border="false">
+        <table id="basedata-user-datagrid" border="false">
+        </table>
+    </div>
+</div>
