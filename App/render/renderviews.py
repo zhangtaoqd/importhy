@@ -11,13 +11,13 @@ from zdCommon.dbhelp import fetchSeq
 gUI = easyuihelp.EasyuiFieldUI
 
 def indexview(request):
-    return render(request, "yard/index.html")
+    return render(request, "importhy/index.html")
 
 def logonview(request):
-    return render(request, "yard/logon.html")
+    return render(request, "importhy/logon.html")
 
 def maintabview(request):
-    return render(request, "yard/MainTab.html")
+    return render(request, "importhy/MainTab.html")
 
 def mainmenutreeview(request):    #
     l_userid = str(request.session['userid'])
@@ -25,18 +25,18 @@ def mainmenutreeview(request):    #
         menudata = getMenuList()
     else:
         menudata = getMenuListByUser(l_userid)
-    return render(request, "yard/MainMenuTree.html",locals())
+    return render(request, "importhy/MainMenuTree.html",locals())
 
 def getcommonsearchview(request):
-    return render(request, "yard/component/commonSearchTemplate.html")
+    return render(request, "importhy/component/commonSearchTemplate.html")
 def filterview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.FilterHead,field='id')
     datagrid = easyuihelp.EasyuiFieldUI(model=models.FilterHead,field='datagrid',hidden=True)
     filter_type = easyuihelp.EasyuiFieldUI(model=models.FilterHead,field='filter_type')
     filter_name = easyuihelp.EasyuiFieldUI(model=models.FilterHead,field='filter_name',autoforeign=True,foreigndisplayfield='username')
-    return render(request, "yard/component/filterselect.html",locals())
+    return render(request, "importhy/component/filterselect.html",locals())
 def logview(request):
-    return render(request,"yard/option/logview.html")
+    return render(request,"importhy/option/logview.html")
 def sysmenuview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='id')
     menuname = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='menuname')
@@ -45,13 +45,13 @@ def sysmenuview(request):
     sortno = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='sortno')
     sys_flag = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='sys_flag')
     remark = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='remark')
-    return render(request, 'yard/sysdata/sysmenu.html',locals())
+    return render(request, 'importhy/sysdata/sysmenu.html',locals())
 def sysfuncview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.SysFunc,field='id')
     funcname = easyuihelp.EasyuiFieldUI(model=models.SysFunc,field='funcname',width=200)
     ref_tables = easyuihelp.EasyuiFieldUI(model=models.SysFunc,field='ref_tables',width=200)
     remark = easyuihelp.EasyuiFieldUI(model=models.SysFunc,field='remark',width=250)
-    return render(request, 'yard/sysdata/sysfunc.html',locals())
+    return render(request, 'importhy/sysdata/sysfunc.html',locals())
 def sysmenufuncview(request):
     menuid = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='id')
     menuname = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='menuname',width=200)
@@ -60,7 +60,7 @@ def sysmenufuncview(request):
     menu_id = easyuihelp.EasyuiFieldUI(model=models.SysMenuFunc,field='menu_id',hidden=True)
     func_id = easyuihelp.EasyuiFieldUI(model=models.SysMenuFunc,field='func_id',autoforeign=True,foreigndisplayfield='funcname',width=200)
     remark = easyuihelp.EasyuiFieldUI(model=models.SysMenuFunc,field='remark',width=200)
-    return render(request, 'yard/sysdata/sysmenufunc.html',locals())
+    return render(request, 'importhy/sysdata/sysmenufunc.html',locals())
 def syscodview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.SysCode,field='id')
     fldEng = easyuihelp.EasyuiFieldUI(model=models.SysCode,field='fld_eng')
@@ -70,21 +70,21 @@ def syscodview(request):
     fldExt2 = easyuihelp.EasyuiFieldUI(model=models.SysCode,field='fld_ext2')
     seq = easyuihelp.EasyuiFieldUI(model=models.SysCode,field='seq')
     remark = easyuihelp.EasyuiFieldUI(model=models.SysCode,field='remark')
-    return render(request, "yard/sysdata/syscod.html",locals())
+    return render(request, "importhy/sysdata/syscod.html",locals())
 def userview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.User,field='id')
     username = easyuihelp.EasyuiFieldUI(model=models.User,field='username',width=180)
     #password = easyuihelp.EasyuiFieldUI(model=models.User,field='password',hidden=True)
     lock = easyuihelp.EasyuiFieldUI(model=models.User,field='lock')
     remark = easyuihelp.EasyuiFieldUI(model = models.User,field='remark',width=180)
-    return render(request, "yard/basedata/user.html",locals())
+    return render(request, "importhy/basedata/user.html",locals())
 def pwupdateview(request):
-    return render(request, "yard/option/pwupdateview.html",locals())
+    return render(request, "importhy/option/pwupdateview.html",locals())
 def postview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.Post,field='id')
     postname = easyuihelp.EasyuiFieldUI(model=models.Post,field='postname')
     remark = easyuihelp.EasyuiFieldUI(model=models.Post,field='remark',width=180)
-    return render(request, "yard/basedata/post.html",locals())
+    return render(request, "importhy/basedata/post.html",locals())
 def postuserview(request):
     postid = easyuihelp.EasyuiFieldUI(model=models.Post,field='id')
     postname = easyuihelp.EasyuiFieldUI(model=models.Post,field='postname')
@@ -92,11 +92,11 @@ def postuserview(request):
     post_id = easyuihelp.EasyuiFieldUI(model=models.PostUser,field='post_id',hidden=True)
     user_id = easyuihelp.EasyuiFieldUI(model=models.PostUser,field='user_id',autoforeign=True,foreigndisplayfield='username',foreignexclude={'username':'Admin'})
     remark = easyuihelp.EasyuiFieldUI(model=models.PostUser,field='remark',width=180)
-    return render(request, "yard/basedata/postuser.html",locals())
+    return render(request, "importhy/basedata/postuser.html",locals())
 def postmenufuncview(request):
     postid = easyuihelp.EasyuiFieldUI(model=models.Post,field='id')
     postname = easyuihelp.EasyuiFieldUI(model=models.Post,field='postname')
-    return render(request, "yard/basedata/postmenufunc.html",locals())
+    return render(request, "importhy/basedata/postmenufunc.html",locals())
 def clientview(request):
     idObj = easyuihelp.EasyuiFieldUI(model=models.Client,field='id')
     clientNameObj = easyuihelp.EasyuiFieldUI(model=models.Client,field='client_name',width=200)
@@ -116,47 +116,47 @@ def cntrtypeview(request):
     cntrtype = easyuihelp.EasyuiFieldUI(model=models.CntrType,field='cntr_type',width=100)
     cntrtypename = easyuihelp.EasyuiFieldUI(model=models.CntrType,field='cntr_type_name',width=180)
     remark = easyuihelp.EasyuiFieldUI(model=models.CntrType,field='remark',width=180)
-    return render(request, "yard/basedata/cntrtype.html",locals())
+    return render(request, "importhy/basedata/cntrtype.html",locals())
 def actionview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.Action,field='id')
     action_name = easyuihelp.EasyuiFieldUI(model=models.Action,field='action_name')
     #require_flag = easyuihelp.EasyuiFieldUI(model=models.Action,field='require_flag')
     sortno = easyuihelp.EasyuiFieldUI(model=models.Action,field='sortno')
     remark = easyuihelp.EasyuiFieldUI(model=models.Action,field='remark',width=180)
-    return render(request, "yard/basedata/action.html",locals())
+    return render(request, "importhy/basedata/action.html",locals())
 def cargoview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.Cargo,field='id')
     cargoname = easyuihelp.EasyuiFieldUI(model=models.Cargo,field='cargo_name')
     remark = easyuihelp.EasyuiFieldUI(model=models.Cargo,field='remark',width=180)
-    return render(request, "yard/basedata/cargo.html",locals())
+    return render(request, "importhy/basedata/cargo.html",locals())
 def cargotypeview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.CargoType,field='id')
     typename = easyuihelp.EasyuiFieldUI(model=models.CargoType,field='type_name')
     remark = easyuihelp.EasyuiFieldUI(model=models.CargoType,field='remark',width=180)
-    return render(request, "yard/basedata/cargotype.html",locals())
+    return render(request, "importhy/basedata/cargotype.html",locals())
 def placeview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.Place,field='id')
     placename = easyuihelp.EasyuiFieldUI(model=models.Place,field='place_name')
     remark = easyuihelp.EasyuiFieldUI(model=models.Place,field='remark',width=180)
-    return render(request, "yard/basedata/place.html",locals())
+    return render(request, "importhy/basedata/place.html",locals())
 
 def dispatchview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.Dispatch,field='id')
     place_name = easyuihelp.EasyuiFieldUI(model=models.Dispatch,field='place_name',width=180)
     remark = easyuihelp.EasyuiFieldUI(model=models.Dispatch,field='remark',width=180)
-    return render(request, "yard/basedata/dispatchplace.html",locals())
+    return render(request, "importhy/basedata/dispatchplace.html",locals())
 def feecodview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.FeeCod,field='id')
     fee_name = easyuihelp.EasyuiFieldUI(model=models.FeeCod,field='fee_name')
     pair_flag = easyuihelp.EasyuiFieldUI(model=models.FeeCod,field='pair_flag')
     #protocol_flag = easyuihelp.EasyuiFieldUI(model=models.FeeCod,field='protocol_flag')
     remark = easyuihelp.EasyuiFieldUI(model=models.FeeCod,field='remark',width=180)
-    return render(request, "yard/basedata/feecod.html",locals())
+    return render(request, "importhy/basedata/feecod.html",locals())
 def paytypeview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.PayType,field='id')
     pay_name = easyuihelp.EasyuiFieldUI(model=models.PayType,field='pay_name')
     remark = easyuihelp.EasyuiFieldUI(model=models.PayType,field='remark',width=180)
-    return render(request, "yard/basedata/paytype.html",locals())
+    return render(request, "importhy/basedata/paytype.html",locals())
 def contractview(request):
     seq = str(fetchSeq('seq_html'))
     actionid = easyuihelp.EasyuiFieldUI(model=models.ContractAction,field='id')
@@ -185,7 +185,7 @@ def contractview(request):
     cargotypedata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.Contract,field='cargo_type',autoforeign=True,foreigndisplayfield='type_name').editor['options']['data'],ensure_ascii = False)
     originplacedata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.Contract,field='origin_place',autoforeign=True,foreigndisplayfield='place_name').editor['options']['data'],ensure_ascii = False)
     display_toolbar = True
-    return render(request, "yard/contract/contractview.html",locals())
+    return render(request, "importhy/contract/contractview.html",locals())
 
 def contractqueryview(request):
     seq = str(fetchSeq('seq_html'))
@@ -245,7 +245,7 @@ def contractqueryview(request):
     prefee_create_flag = easyuihelp.EasyuiFieldUI(model=models.PreFee,field='create_flag')
     prefee_remark = easyuihelp.EasyuiFieldUI(model=models.PreFee,field='remark',width=200)
     display_toolbar = False
-    return render(request, "yard/contract/contractqueryview.html",locals())
+    return render(request, "importhy/contract/contractqueryview.html",locals())
 def contractreportview(request):
     seq = str(fetchSeq('seq_html'))
     id = easyuihelp.EasyuiFieldUI(model=models.Contract,field='id')
@@ -281,7 +281,7 @@ def contractreportview(request):
     finish_time = easyuihelp.EasyuiFieldUI(model=models.Contract,field='finish_time')
     finish_flag = easyuihelp.EasyuiFieldUI(model=models.Contract,field='finish_flag')
     remark = easyuihelp.EasyuiFieldUI(model=models.Contract,field='remark')
-    return render(request, "yard/contract/contractreportview.html",locals())
+    return render(request, "importhy/contract/contractreportview.html",locals())
 def contractgroupreportview(request):
     seq = str(fetchSeq('seq_html'))
     cntr_num = easyuihelp.EasyuiFieldUI(model=models.Contract,field='remark',title='箱量',displayfield='cntr_num',width=150)
@@ -291,7 +291,7 @@ def contractgroupreportview(request):
     cargo_name = easyuihelp.EasyuiFieldUI(model=models.Contract,field='cargo_name',autoforeign=True,foreigndisplayfield='cargo_name')
     origin_place = easyuihelp.EasyuiFieldUI(model=models.Contract,field='origin_place',autoforeign=True,foreigndisplayfield='place_name')
     clientdata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.Contract,field='client_id',autoforeign=True,foreigndisplayfield='client_name').editor['options']['data'],ensure_ascii = False)
-    return render(request, "yard/contract/contractgroupreportview.html",locals())
+    return render(request, "importhy/contract/contractgroupreportview.html",locals())
 def billsearchview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.Contract,field='id')
     bill_no = easyuihelp.EasyuiFieldUI(model=models.Contract,field='bill_no',width=150)
@@ -300,7 +300,7 @@ def billsearchview(request):
     cargo_name = easyuihelp.EasyuiFieldUI(model=models.Contract,field='cargo_name')
     in_port_date = easyuihelp.EasyuiFieldUI(model=models.Contract,field='in_port_date',width=150)
     remark = easyuihelp.EasyuiFieldUI(model=models.Contract,field='remark')
-    return render(request, "yard/contract/billsearchcombogrid.html",locals())
+    return render(request, "importhy/contract/billsearchcombogrid.html",locals())
 def prefeeview(request):
     seq = str(fetchSeq('seq_html'))
     prefee_id = easyuihelp.EasyuiFieldUI(model=models.PreFee,field='id')
@@ -330,7 +330,7 @@ def prefeeview(request):
     originplacedata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.Contract,field='origin_place',autoforeign=True,foreigndisplayfield='place_name').editor['options']['data'],ensure_ascii = False)
     dispatchdata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.Contract,field='dispatch_place',autoforeign=True,foreigndisplayfield='place_name').editor['options']['data'],ensure_ascii = False)
     display_toolbar = True
-    return render(request, "yard/contract/contractprefeeview.html",locals())
+    return render(request, "importhy/contract/contractprefeeview.html",locals())
 ########################### 收费 、 核销 #########
 def actfeeview(request):
 
@@ -345,7 +345,7 @@ def actfeeview(request):
     feeTimObj = easyuihelp.EasyuiFieldUI(model=models.ActFee,field='fee_tim')
     # audit_id = easyuihelp.EasyuiFieldUI(model=models.ActFee,field='audit_id',hidden=True,readonly=True)
     # ex_feeid = easyuihelp.EasyuiFieldUI(model=models.ActFee,field='ex_feeid',hidden=True,readonly=True)
-    return render(request, "yard/fee/actfee.html",locals())
+    return render(request, "importhy/fee/actfee.html",locals())
 def auditview(request):    # 已收费用核销
     seq = str(fetchSeq('seq_html'))
     funcname = '核销'
@@ -375,7 +375,7 @@ def auditview(request):    # 已收费用核销
     prefee_remark = easyuihelp.EasyuiFieldUI(model=models.PreFee,field='remark',width=200)
     clientdata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.PreFee,field='client_id',autoforeign=True,foreigndisplayfield='client_name').editor['options']['data'],ensure_ascii = False)
     feetypdata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.PreFee,field='fee_typ').editor['options']['data'],ensure_ascii = False)
-    return render(request, "yard/fee/auditview.html",locals())
+    return render(request, "importhy/fee/auditview.html",locals())
 def unauditview(request):    # 取消核销
     seq = str(fetchSeq('seq_html'))
     funcname = '取消核销'
@@ -402,7 +402,7 @@ def unauditview(request):    # 取消核销
     prefee_remark = easyuihelp.EasyuiFieldUI(model=models.PreFee,field='remark',width=200)
     clientdata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.PreFee,field='client_id',autoforeign=True,foreigndisplayfield='client_name').editor['options']['data'],ensure_ascii = False)
     feetypdata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.PreFee,field='fee_typ').editor['options']['data'],ensure_ascii = False)
-    return render(request, "yard/fee/unauditview.html",locals())
+    return render(request, "importhy/fee/unauditview.html",locals())
 def auditqueryview(request):    # 核销查询
     seq = str(fetchSeq('seq_html'))
     check_flag = False
@@ -432,7 +432,7 @@ def auditqueryview(request):    # 核销查询
     prefee_amount = easyuihelp.EasyuiFieldUI(model=models.PreFee,field='amount')
     prefee_remark = easyuihelp.EasyuiFieldUI(model=models.PreFee,field='remark',width=200,hidden=True)
 
-    return render(request, "yard/fee/auditqueryview.html",locals())
+    return render(request, "importhy/fee/auditqueryview.html",locals())
 def feesheetview(request):
     bill_no = easyuihelp.EasyuiFieldUI(model=models.Contract,field='bill_no',width=180)
     baogan = easyuihelp.EasyuiFieldUI(model=models.PreFee,field='amount',displayfield='baogan',title='包干费')
@@ -448,9 +448,9 @@ def feesheetview(request):
     clientdata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.PreFee,field='client_id',autoforeign=True,foreigndisplayfield='client_name').editor['options']['data'],ensure_ascii = False)
     feetypdata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.PreFee,field='fee_typ').editor['options']['data'],ensure_ascii = False)
     rptdata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.RptItem,field='rpt_id',autoforeign=True,foreigndisplayfield='rpt_name').editor['options']['data'],ensure_ascii = False)
-    return render(request, "yard/contract/feesheetview.html",locals())
+    return render(request, "importhy/contract/feesheetview.html",locals())
 def filteroptionview(request):
-    return render(request, "yard/component/filternametype.html")
+    return render(request, "importhy/component/filternametype.html")
 def rptview(request):
     rpt_id = easyuihelp.EasyuiFieldUI(model=models.Rpt,field='id')
     rpt_rptname = easyuihelp.EasyuiFieldUI(model=models.Rpt,field='rpt_name',width=120)
@@ -465,23 +465,23 @@ def rptview(request):
     rptfee_itemid = easyuihelp.EasyuiFieldUI(model=models.RptItemFee,field='item_id',hidden=True)
     rptfee_feeid = easyuihelp.EasyuiFieldUI(model=models.RptItemFee,field='fee_id',autoforeign=True,foreigndisplayfield='fee_name',title='费用名称',width=180)
     rptfee_feetyp = easyuihelp.EasyuiFieldUI(model=models.RptItemFee,field='fee_typ')
-    return render(request, "yard/fee/rptview.html",locals())
+    return render(request, "importhy/fee/rptview.html",locals())
 def protocolfeecreateview(request):
     clientdata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.Contract,field='client_id',autoforeign=True,foreigndisplayfield='client_name').editor['options']['data'],ensure_ascii = False)
-    return render(request, "yard/fee/protocolfeeview.html",locals())
+    return render(request, "importhy/fee/protocolfeeview.html",locals())
 def protocolview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.Protocol,field='id')
     protocol_name = easyuihelp.EasyuiFieldUI(model=models.Protocol,field='protocol_name')
     write_date = easyuihelp.EasyuiFieldUI(model=models.Protocol,field='write_date')
     validate_date = easyuihelp.EasyuiFieldUI(model=models.Protocol,field='validate_date')
     remark = easyuihelp.EasyuiFieldUI(model=models.Protocol,field='remark',width=200)
-    return render(request, "yard/protocol/protocolview.html",locals())
+    return render(request, "importhy/protocol/protocolview.html",locals())
 def protocolfeeeleview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.FeeEle,field='id')
     ele_name = easyuihelp.EasyuiFieldUI(model=models.FeeEle,field='ele_name')
     init_data_sql = easyuihelp.EasyuiFieldUI(model=models.FeeEle,field='init_data_sql')
     remark = easyuihelp.EasyuiFieldUI(model=models.Protocol,field='remark',width=200)
-    return render(request, "yard/protocol/protocoleleview.html",locals())
+    return render(request, "importhy/protocol/protocoleleview.html",locals())
 def protocolfeeelelovview(request):
     ele_name = easyuihelp.EasyuiFieldUI(model=models.FeeEle,field='ele_name')
     id = easyuihelp.EasyuiFieldUI(model=models.FeeEleLov,field='id')
@@ -489,7 +489,7 @@ def protocolfeeelelovview(request):
     lov_cod = easyuihelp.EasyuiFieldUI(model=models.FeeEleLov,field='lov_cod')
     lov_name = easyuihelp.EasyuiFieldUI(model=models.FeeEleLov,field='lov_name')
     remark = easyuihelp.EasyuiFieldUI(model=models.FeeEleLov,field='remark',width=200)
-    return render(request, "yard/protocol/protocolfeeelelovview.html",locals())
+    return render(request, "importhy/protocol/protocolfeeelelovview.html",locals())
 
 def protocolmodview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.FeeMod,field='id')
@@ -507,7 +507,7 @@ def protocolmodview(request):
     mod_descript = easyuihelp.EasyuiFieldUI(model=models.FeeMod,field='mod_descript')
     deal_process = easyuihelp.EasyuiFieldUI(model=models.FeeMod,field='deal_process')
     remark = easyuihelp.EasyuiFieldUI(model=models.FeeMod,field='remark',width=200)
-    return render(request, "yard/protocol/protocolmodview.html",locals())
+    return render(request, "importhy/protocol/protocolmodview.html",locals())
 def protocolfeemodview(request):
     protocol_id = easyuihelp.EasyuiFieldUI(model=models.Protocol,field='id')
     protocol_protocol_name = easyuihelp.EasyuiFieldUI(model=models.Protocol,field="protocol_name",width=180)
@@ -522,7 +522,7 @@ def protocolfeemodview(request):
     mod_id = easyuihelp.EasyuiFieldUI(model=models.FeeMod,field='id')
     mod_mod_name = easyuihelp.EasyuiFieldUI(model=models.FeeMod,field='mod_name')
     mod_mod_descript = easyuihelp.EasyuiFieldUI(model=models.FeeMod,field='mod_descript',readonly=True,hidden=True)
-    return render(request, "yard/protocol/protocolmodmanagerview.html",locals())
+    return render(request, "importhy/protocol/protocolmodmanagerview.html",locals())
 def protocolratview(request):
     protocol_id = easyuihelp.EasyuiFieldUI(model=models.Protocol,field='id')
     protocol_protocol_name = easyuihelp.EasyuiFieldUI(model=models.Protocol,field="protocol_name",width=180)
@@ -536,10 +536,10 @@ def protocolratview(request):
     rat_mod_id = easyuihelp.EasyuiFieldUI(model=models.ProtocolFeeRat,field='mod_id',hidden=True,readonly=True)
     rat_feerat = easyuihelp.EasyuiFieldUI(model=models.ProtocolFeeRat,field='fee_rat')
     rat_discountrat = easyuihelp.EasyuiFieldUI(model=models.ProtocolFeeRat,field='discount_rat')
-    return render(request, "yard/protocol/protocolratview.html",locals())
+    return render(request, "importhy/protocol/protocolratview.html",locals())
 def protocolratcopyview(request):
     protocoldata = json.dumps(easyuihelp.EasyuiFieldUI(model=models.ProtocolFeeRat,field='protocol_id',autoforeign=True,foreigndisplayfield='protocol_name').editor['options']['data'],ensure_ascii = False)
-    return render(request, "yard/protocol/protocolratcopyview.html",locals())
+    return render(request, "importhy/protocol/protocolratcopyview.html",locals())
 
 
 '''
