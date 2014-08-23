@@ -6,7 +6,7 @@ from zdCommon.dbhelp import rawsql2json,rawsql4request
 from zdCommon.utils import log, logErr
 from zdCommon.dbhelp import  cursorExec2, json2upd
 from django.http import HttpResponse, HttpResponseRedirect
-from yard.settings import DOWNLOAD_PATH, DOWNLOAD_URL
+from importhy.settings import DOWNLOAD_PATH, DOWNLOAD_URL
 
 
 def update_user(request, adict):

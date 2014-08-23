@@ -2,7 +2,7 @@ __author__ = 'donghai'
 
 import os
 from datetime import datetime
-from yard.settings import BASE_DIR, DEBUG
+from importhy.settings import BASE_DIR, DEBUG
 import sys
 
 def log(aMsg, alogFile = BASE_DIR + 'djgw.log'):

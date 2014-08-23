@@ -7,8 +7,6 @@ class BaseModel(models.Model):
     remark = models.CharField('备注',blank=True,max_length=50,null=True)
     rec_nam = models.IntegerField('创建人员')
     rec_tim = models.DateTimeField('创建时间')
-    upd_nam = models.IntegerField('修改人员',blank=True,null=True)
-    upd_tim = models.DateTimeField('修改时间',blank=True,null=True)
     class Meta:
         abstract = True
 class Client(BaseModel):

@@ -54,22 +54,22 @@
 </script>
 <div class="easyui-layout" data-options="fit:true,border:false">
     <div data-options="region:'center',border:'false'">
-        {% include 'yard/contract/contractgrid.html' %}
+        {% include 'importhy/contract/contractgrid.html' %}
     </div>
     <div data-options="region:'south', split:'true',height:window.innerHeight * 0.6,border:false">
         <div class="easyui-tabs" data-options="fit:'true',headerWidth:300" id="contract-contractqueryview-tabs">
             <div title="委托动态">
-                {% include 'yard/contract/contractactiongrid.html' %}
+                {% include 'importhy/contract/contractactiongrid.html' %}
             </div>
             <div title="委托箱量">
-                {% include 'yard/contract/contractcntrgrid.html' %}
+                {% include 'importhy/contract/contractcntrgrid.html' %}
             </div>
 
             <div title="应收费用">
-                {% include 'yard/contract/prefeeingrid.html' %}
+                {% include 'importhy/contract/prefeeingrid.html' %}
             </div>
             <div title="应付费用">
-                {% include 'yard/contract/prefeeoutgrid.html' %}
+                {% include 'importhy/contract/prefeeoutgrid.html' %}
             </div>
         </div>
     </div>

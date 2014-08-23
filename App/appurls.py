@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     url(r'^lab/getfunc/$',"App.lab.getfunc", name='labgetfunc'),
     url(r'^lab/post/$',"App.lab.getJsonPost", name='labpost'),
     url(r'^lab/test/$',"App.lab.test", name='labtest'),
-    # http://127.0.0.1:8000/yard/lab/getfunc/?func=getJson1&&args=%22aaa%22
+    # http://127.0.0.1:8000/importhy/lab/getfunc/?func=getJson1&&args=%22aaa%22
 
 )
 

@@ -255,7 +255,7 @@ $(function () {
 </script>
 <div class="easyui-layout" data-options="fit:true,border:false">
     <div data-options="region:'center',border:'false'">
-        {% include 'yard/contract/contractform.html' %}
+        {% include 'importhy/contract/contractform.html' %}
         <div class="editform-toolbar">
             <a id="contract-contractprefeeview-search-button" href="#" class="easyui-linkbutton"
                data-options="iconCls:'icon-search',group:'contract-contractprefeeview-search'">查询</a>
@@ -273,10 +273,10 @@ $(function () {
     <div data-options="region:'south', split:'true',height:window.innerHeight * 0.4,border:false">
         <div class="easyui-tabs" data-options="fit:'true',headerWidth:300" id="contract-contractprefeeview-tabs">
             <div title="应收费用">
-                {% include 'yard/contract/prefeeingrid.html' %}
+                {% include 'importhy/contract/prefeeingrid.html' %}
             </div>
             <div title="应付费用">
-                {% include 'yard/contract/prefeeoutgrid.html' %}
+                {% include 'importhy/contract/prefeeoutgrid.html' %}
             </div>
         </div>
     </div>

@@ -65,7 +65,7 @@ class Application(tk.Frame):
             self.tab.select(2)                               
             try:
                 import psycopg2
-                conTarget = psycopg2.connect(host='localhost', port=5432, user='yardAdmin', password='zht+dh=sql2', database='yard')
+                conTarget = psycopg2.connect(host='localhost', port=5432, user='yardAdmin', password='zht+dh=sql2', database='importhy')
                 conTarget.autocommit = False
                 curTarget = conTarget.cursor()  
                 l_start = int(self.textS1.get(0.0, tk.END))

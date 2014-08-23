@@ -54,9 +54,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'yard.urls'
+ROOT_URLCONF = 'importhy.urls'
 
-WSGI_APPLICATION = 'yard.wsgi.application'
+WSGI_APPLICATION = 'importhy.wsgi.application'
 
 
 # Database
@@ -65,10 +65,10 @@ WSGI_APPLICATION = 'yard.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'yard',
+        'NAME': 'importhy',
         'USER': 'yardAdmin',
         'PASSWORD': 'zht+dh=sql2',
-        'HOST': '172.40.68.103',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 }

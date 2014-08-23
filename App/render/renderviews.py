@@ -110,7 +110,7 @@ def clientview(request):
     creditflag = easyuihelp.EasyuiFieldUI(model=models.Client,field='credit_flag')
     remarkObj = easyuihelp.EasyuiFieldUI(model=models.Client,field='remark',width=200)
     protocolid = easyuihelp.EasyuiFieldUI(model=models.Client,field='protocol_id',autoforeign=True,foreigndisplayfield='protocol_name')
-    return render(request, "yard/basedata/client.html",locals())
+    return render(request, "importhy/basedata/client.html",locals())
 def cntrtypeview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.CntrType,field='id')
     cntrtype = easyuihelp.EasyuiFieldUI(model=models.CntrType,field='cntr_type',width=100)
