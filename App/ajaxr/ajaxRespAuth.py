@@ -1,6 +1,7 @@
 __author__ = 'blaczom@163.com'
 
 import json
+from App.models.AuthModel import *
 from django.db import connection
 from zdCommon.dbhelp import rawsql2json,rawsql4request
 from zdCommon.utils import log, logErr
@@ -21,9 +22,16 @@ def update_user(request, adict):
     return l_rtn
 
 def logon(request):
+    '''
+        处理登录
+    :param request:	{"name":"用户名","password":"密码"}
+    :return: success - {"stateCod": 2, "msg": "登录成功。"}
+             fail - {"stateCod": -1, "msg": "登录失败。","error":["失败信息1","失败信息2",....]}
+    '''
     l_get = json.loads( request.POST['jpargs'] )
     ls_user = l_get["name"]
     ls_pass = l_get["password"]
+    user = User.objects.get(username = ls_user)
     l_cur = connection.cursor()
     l_cur.execute("select id from s_user where username = %s and password = %s ", [ls_user, ls_pass ])
     l_rtn = {}

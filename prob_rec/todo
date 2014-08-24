@@ -1,2 +1,35 @@
 todo logon
 登录三次错误锁定帐号
+
+todo ManyToManyField
+核销采用如下方式，第三者表,试试
+class Person(models.Model):
+    name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return self.name
+
+class Group(models.Model):
+    name = models.CharField(max_length=128)
+    members = models.ManyToManyField(Person, through='Membership')
+
+    def __str__(self):
+        return self.name
+
+class Membership(models.Model):
+    person = models.ForeignKey(Person)
+    group = models.ForeignKey(Group)
+    date_joined = models.DateField()
+    invite_reason = models.CharField(max_length=64)
+todo client datagrid user-defined columns order
+可自定义前端datagrid列顺序
+todo user-defined model.save()
+自定义BaseModel.save() 参考如下
+class Blog(models.Model):
+    name = models.CharField(max_length=100)
+    tagline = models.TextField()
+
+    def save(self, *args, **kwargs):
+        do_something()
+        super(Blog, self).save(*args, **kwargs) # Call the "real" save() method.
+        do_something_else() 例如 日志

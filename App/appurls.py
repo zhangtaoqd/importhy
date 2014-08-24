@@ -1,13 +1,14 @@
+from App.ajaxr import ajaxResp
+
 __author__ = 'zhangtao'
 from django.conf.urls import patterns, url
 from App.render import intfex
-from App import ajaxResp
 
 
 urlpatterns = patterns('',
     url(r'^$', intfex.index,name='index'),
-    url(r'^logon/$',"App.ajaxRespBase.logon",name='logon'),
-    url(r'^logout/$',"App.ajaxRespBase.logout",name='logout'),
+    url(r'^logon/$', "App.ajaxr.ajaxRespAuth.logon",name='logon'),
+    url(r'^logout/$', "App.ajaxr.ajaxRespAuth.logout",name='logout'),
 
     # 处理页面左边导航的功能。
     url('^dealmenureq/$', intfex.dealMenuReq,name='dealmenureq'),

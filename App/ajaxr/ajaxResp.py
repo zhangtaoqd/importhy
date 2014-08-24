@@ -2,7 +2,7 @@ __author__ = 'dddh'
 from zdCommon.sysjson import getMenuPrivilege, setMenuPrivilege, getFunc4User, checkPrivilege
 from zdCommon.dbhelp import rawsql2combodatajson
 from App.ajaxRespFee import *
-from App.ajaxRespBase import *
+from App.ajaxr.ajaxRespAuth import *
 from App.ajaxRespQuery import *
 
 ##########################################################        GET    ----
