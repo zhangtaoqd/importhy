@@ -36,6 +36,7 @@ AJax检索数据：(全部通过是POST模式访问。)
 AJax更新数据：(全部通过是POST模式访问。)
 jpargs:｛
        'reqtype':'update'      ----- DML功能发起。
+       "func":"权限维护",
        'rows': [ {
                 'op': 'insert',
                 'table': 'c_client',

@@ -1,16 +1,16 @@
 __author__ = 'dddh'
 from zdCommon.sysjson import getMenuPrivilege, setMenuPrivilege, getFunc4User, checkPrivilege
-from zdCommon.dbhelp import rawsql2combodatajson
+from zdCommon.dbhelp import rawsql2combodatajson,commonQuery,returnQueryJson
 from App.ajaxRespFee import *
 from App.ajaxr.ajaxRespAuth import *
 from App.ajaxRespQuery import *
-
+from App.models import AuthModel
 ##########################################################        GET    ----
 def getsysmenu(request):
     '''功能查询'''
     ldict = json.loads(request.POST['jpargs'])
-    ls_sql = "select " + ", ".join(ldict['cols']) + " from sys_menu  "
-    return HttpResponse(json.dumps(rawsql2json(*rawsql4request(ls_sql, ldict)), ensure_ascii=False))
+    values,rowCounts = commonQuery(AuthModel.SysMenu.objects.all(), ldict)
+    return HttpResponse(returnQueryJson(values,rowCounts))
 def getsysfunc(request):
     '''权限查询'''
     ldict = json.loads(request.POST['jpargs'])

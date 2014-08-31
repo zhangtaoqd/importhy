@@ -2,7 +2,7 @@ __author__ = 'zhangtao'
 # render 前台界面
 import json
 from django.shortcuts import render
-from App import models
+from App.models import AuthModel
 from zdCommon import easyuihelp
 
 from zdCommon.sysjson import getMenuList,getMenuListByUser
@@ -38,13 +38,13 @@ def filterview(request):
 def logview(request):
     return render(request,"importhy/option/logview.html")
 def sysmenuview(request):
-    id = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='id')
-    menuname = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='menuname')
-    menushowname = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='menushowname')
-    parent_id = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='parent_id',autoforeign=True,foreigndisplayfield='menushowname')
-    sortno = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='sortno')
-    sys_flag = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='sys_flag')
-    remark = easyuihelp.EasyuiFieldUI(model=models.SysMenu,field='remark')
+    id = easyuihelp.EasyuiFieldUI(model=AuthModel.SysMenu,field='id')
+    menuname = easyuihelp.EasyuiFieldUI(model=AuthModel.SysMenu,field='menuname')
+    menushowname = easyuihelp.EasyuiFieldUI(model=AuthModel.SysMenu,field='menushowname')
+    parent_id = easyuihelp.EasyuiFieldUI(model=AuthModel.SysMenu,field='parent',autoforeign=True,foreigndisplayfield='menushowname')
+    sortno = easyuihelp.EasyuiFieldUI(model=AuthModel.SysMenu,field='sortno')
+    sys_flag = easyuihelp.EasyuiFieldUI(model=AuthModel.SysMenu,field='sys_flag')
+    remark = easyuihelp.EasyuiFieldUI(model=AuthModel.SysMenu,field='remark')
     return render(request, 'importhy/sysdata/sysmenu.html',locals())
 def sysfuncview(request):
     id = easyuihelp.EasyuiFieldUI(model=models.SysFunc,field='id')

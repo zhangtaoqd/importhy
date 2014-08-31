@@ -5,7 +5,7 @@
 
         });
         logon.form.form('disableValidation');
-        $('input','#logon-form').val(null);
+        $('input', '#logon-form').val(null);
         logon.logonbutton = $('#logon-button').linkbutton({});
         logon.logonbutton.bind('click', function () {
             logon.form.form('enableValidation');
@@ -34,7 +34,7 @@
                             sy.logonform.window('close');
 
                         }
-                        if (stateCod == 3 ) { //注销 登录失败
+                        if (stateCod == 3) { //注销 登录失败
                             //关闭所有tabs页面，清空菜单导航
 
                         }
@@ -45,7 +45,7 @@
                         }
 
                     }
-                    $.ajaxSettings.success(returnData, returnMsg, ajaxObj,false);
+                    $.ajaxSettings.success(returnData, returnMsg, ajaxObj, false);
                 }
             });
         });
@@ -54,6 +54,11 @@
 </script>
 <div>
     <form id="logon-form" method="post" class="editform">
+        <div>
+            <label for="companyname">公司:</label>
+            <input class="easyui-validatebox" type="text" name="companyname" data-options="required:true"/>
+        </div>
+
         <div>
             <label for="name">用户:</label>
             <input class="easyui-validatebox" type="text" name="name" data-options="required:true"/>

@@ -108,7 +108,7 @@ CREATE TABLE sys_menu
   CONSTRAINT pk_sys_menu PRIMARY KEY (id),
   CONSTRAINT fk_sys_menu_parent FOREIGN KEY (parent_id)
       REFERENCES sys_menu (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+      ON UPDATE NO ACTION ON DELETE NO RESTRICT,
   CONSTRAINT uk_sys_menu_menu UNIQUE (menuname)
 )
 WITH (
@@ -477,6 +477,8 @@ CREATE TABLE s_user
   rec_tim timestamp without time zone NOT NULL,
   remark character varying(50) NOT NULL DEFAULT ''::character varying,
   lock boolean NOT NULL DEFAULT false, -- 锁住
+  logon_number smallint, -- 登录次数
+  logon_time timestamp without time zone, -- 尝试登录时间
   CONSTRAINT pk_s_user PRIMARY KEY (id),
   CONSTRAINT uk_s_user UNIQUE (username)
 )
@@ -490,6 +492,8 @@ COMMENT ON TABLE s_user
 COMMENT ON COLUMN s_user.username IS '用户名';;
 COMMENT ON COLUMN s_user.password IS '密码';;
 COMMENT ON COLUMN s_user.lock IS '锁住';;
+COMMENT ON COLUMN s_user.logon_number IS '登录次数';;
+COMMENT ON COLUMN s_user.logon_time IS '尝试登录时间';;
 
 
 INSERT INTO s_user VALUES (1, 'Admin', 'zht+dh=sql2',   '', false);;
@@ -498,10 +502,11 @@ INSERT INTO s_user VALUES (2, '管理员', {user_pw},  '', false);;
 SELECT pg_catalog.setval('s_user_id_seq', 2, true);;
 
 CREATE TRIGGER tri_s_user
-  BEFORE INSERT OR UPDATE OR DELETE
+  BEFORE INSERT OR UPDATE OF username, password, id OR DELETE
   ON s_user
   FOR EACH ROW
   EXECUTE PROCEDURE fun4tri_s_user();;
+
 
 CREATE TABLE s_post
 (

@@ -1,7 +1,6 @@
 __author__ = 'zhangtao'
 import json
 from datetime import date,datetime
-from django.core.serializers.json import DjangoJSONEncoder
 class ServerToClientJsonEncoder(json.JSONEncoder):
     def default(self,obj):
         if isinstance(obj,datetime):

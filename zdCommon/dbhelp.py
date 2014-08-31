@@ -4,11 +4,12 @@ __author__ = 'dh'
     and for the convinient, instead, we put them all around in the other files.
 '''
 import json
+import re
 from datetime import date,datetime
 from django.db import connection, transaction
-import re
-from zdCommon.utils import logErr, log
 
+from zdCommon.utils import logErr, log
+from zdCommon.jsonhelp import ServerToClientJsonEncoder
 tbDefCache = {}  # table的定义缓存。 write here could share the data with other session .
 def getColType(atable, aCol):
     global tbDefCache
@@ -57,10 +58,103 @@ def correctjsonfield(obj, atypecode):
 def strip(aStr):
     return aStr.strip(" ") if aStr else ""
 
+
+def commonQuery(aQuerySet,aRequestDict):
+    '''
+    通用查询
+    :param aQuerySet: 指定model.objects.all()
+    :param aRequestDict: request参数,见interface文件
+    :return: (查询分页ValuesQuerySet ,查询总行数rowCount)
+    '''
+    values = aQuerySet
+    li_page = int(aRequestDict.get('page', 1))
+    li_rows = int(aRequestDict.get('rows', 50))
+    ld_sort = aRequestDict.get('sort', {})
+    ld_filter = aRequestDict.get('filter', {})
+    ld_cols = aRequestDict.get('cols',[])
+    filter_kwargs = {}
+    exclude_kwargs = {}
+    sort_args = []
+    for f in ld_filter:
+        if f['cod'] == None or len(f['cod']) == 0:
+            raise Exception("无法识别的属性，请重新输入")
+        if f['value'] == None:
+            raise Exception("无法识别的属性值，请重新输入")
+        if f['operatorTyp'] == '等于':
+            filter_kwargs[f['cod'] + '__exact'] = f['value']
+        elif f['operatorTyp'] == '大于':
+            filter_kwargs[f['cod'] + '__gt'] = f['value']
+        elif f['operatorTyp'] == '小于':
+            filter_kwargs[f['cod'] + '__lt'] = f['value']
+        elif f['operatorTyp'] == '大于等于':
+            filter_kwargs[f['cod'] + '__gte'] = f['value']
+        elif f['operatorTyp'] == '小于等于':
+            filter_kwargs[f['cod'] + '__lte'] = f['value']
+        elif f['operatorTyp'] == '不等于':
+            exclude_kwargs[f['cod'] + '__exact'] = f['value']
+        elif f['operatorTyp'] == '包含':
+            filter_kwargs[f['cod'] + '__contains'] = f['value']
+        elif f['operatorTyp'] == '不包含':
+            exclude_kwargs[f['cod'] + '__contains'] = f['value']
+        elif f['operatorTyp'] == '属于':
+            filter_kwargs[f['cod'] + '__in'] = f['value'].split(',')
+        elif f['operatorTyp'] == '不属于':
+            exclude_kwargs[f['cod'] + '__in'] = f['value'].split(',')
+        elif f['operatorTyp'] == '介于':
+            v_array = f['value'].split(',')
+            if len(v_array) != 2:
+                raise Exception("缺少属性值，请重新输入")
+            filter_kwargs[f['cod'] + '__range'] = f['value']
+        elif f['operatorTyp'] == '不介于':
+            v_array = f['value'].split(',')
+            if len(v_array) != 2:
+                raise Exception("缺少属性值，请重新输入")
+            exclude_kwargs[f['cod'] + '__range'] = f['value']
+        else:
+            logErr("无法识别的操作符号%s" % f['operatorTyp'])
+            raise Exception("无法识别的操作符号，请通知管理员")
+    if len(exclude_kwargs) > 0:
+        values = values.exclude(**exclude_kwargs)
+    if len(filter_kwargs) > 0:
+        values = values.filter(**filter_kwargs)
+    rowsCount = values.count()
+    for s in ld_sort:
+        if s['cod'] == None :
+            raise Exception("无法识别的排序属性，请重新输入")
+        if s['order_typ'] == None:
+            raise Exception("无法识别的属性值，请重新输入")
+        if s['order_typ'] == '升序':
+            sort_args.append(s['cod'])
+        elif s['order_typ'] == '降序':
+            sort_args.append('-' + s['cod'])
+        else:
+            logErr("无法识别的排序类型%s" % s['order_typ'])
+            raise Exception("无法识别的排序类型，请通知管理员")
+    if len(sort_args) > 0:
+        values = values.order_by(*sort_args)
+    values = values[(li_page-1)*li_rows:li_page*li_rows]
+    values = values.values(*ld_cols)
+    return values,rowsCount
+def returnQueryJson(aQuerySet, aRowsCount):
+    '''
+        根据aQuerySet语句，返回数据和记录总数。.
+    '''
+
+    l_rtn = {"msg": "查询完毕", "error":[] }
+    try:
+        l_rtn.update( { "stateCod": 1 if len(aQuerySet) > 0 else 201  , "total":aRowsCount, "rows": list(aQuerySet) } )
+    except Exception as e:
+        logErr("查询失败：%s" % str(e.args))
+        raise e
+    return json.dumps(l_rtn,ensure_ascii=False,cls=ServerToClientJsonEncoder)
+
 def rawsql4request(aSql, aRequestDict):
+    '''
+        delete
+    '''
     ldict_req = aRequestDict
     l_page = int(ldict_req.get('page', 1))
-    l_rows = int(ldict_req.get('rows', 10))
+    l_rows = int(ldict_req.get('rows', 50))
     #l_sort = str(ldict_req.get('sort', '')).replace("'", '\"')        # json必须是双引号。否则loads错误。
     #l_filter = str(ldict_req.get('filter', '')).replace("'", '\"')
     l_sort = ldict_req.get('sort', {})

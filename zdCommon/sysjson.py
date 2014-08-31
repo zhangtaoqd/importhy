@@ -1,9 +1,13 @@
 __author__ = 'dh'
 
-from zdCommon.dbhelp import cursorSelect
-from django.db import connection
-from zdCommon.utils import logErr, log
 import json
+
+from django.db import connection
+
+from App.models import SysMenu,PostMenu,PostUser
+from zdCommon.dbhelp import cursorSelect
+from zdCommon.utils import logErr, log
+
 
 def loginOnly():
     pass
@@ -11,41 +15,45 @@ def loginOnly():
 
 def getMenuList():
     '''导航菜单 返回除根节点外的所有节点对象数组'''
-    l_menu1 = cursorSelect('select id, menuname, menushowname from sys_menu where parent_id = 0 and id <> 0 order by sortno;')
+    l_menu1 = SysMenu.objects.filter(parent=0).exclude(id=0).order_by('sortno').values('id','menuname','menushowname')
     ldict_1 = []
     if len(l_menu1) > 0:  # 有1级菜单，循环读出到dict中。
         for i_m1 in l_menu1:
-            l_menu2 = cursorSelect('select id,menuname, menushowname from sys_menu where parent_id = %d order by sortno;' % i_m1[0])
+            l_menu2 = SysMenu.objects.filter(parent=i_m1['id']).order_by('sortno').values('id','menuname','menushowname')
             ldict_2 = []
             if len(l_menu2) > 0 :
                 for i_m2 in l_menu2:
-                    ldict_2.append({"id": i_m2[0], "text": i_m2[2], "attributes": i_m2[1]})
+                    ldict_2.append({"id": i_m2['id'], "text": i_m2['menushowname'], "attributes": i_m2['menuname']})
             else:
                 pass # no child
-            ldict_1.append( { "id": i_m1[0], "text": i_m1[2], "attributes": i_m1[1], 'children': ldict_2  } )
+            ldict_1.append( { "id": i_m1['id'], "text": i_m1['menushowname'], "attributes": i_m1['menuname'], 'children': ldict_2  } )
     else:
         pass   # no top menu ... how that posible ....
     return(ldict_1)
 
+
 def getMenuListByUser(aUserId):
     '''
-        根据用户id得到2级菜单结构。
+        根据用户id得到菜单结构,排除系统菜单sys_menu.sys_falg = true。
     '''
-    ls_admin = "" if aUserId == "1" else 'and sys_flag=false '
-    ls_sqlmenu = "select menu_id from s_postmenu where post_id in (select post_id from s_postuser where user_id = %s)" % str(aUserId)
-    l_menu1 = cursorSelect('select id, menuname, menushowname from sys_menu where parent_id = 0 ' + ls_admin + ' and id in (%s) order by sortno;' % ls_sqlmenu)
+    if aUserId == 1:
+        return getMenuList()
+    l_post = PostUser.objects.filter(user=aUserId).values_list('post',flat=True)
+    l_menu1 = PostMenu.objects.filter(post__in=l_post,menu__sys_flag=False,menu__parent=0).\
+        order_by('menu','menu__sortno').\
+        distinct('menu','menu__sortno').\
+        values('menu','menu__menushowname','menu__menuname')
     ldict_1 = []
     if len(l_menu1) > 0:  # 有1级菜单，循环读出到dict中。
         for i_m1 in l_menu1:
-            ls_get =  ('select id,menuname, menushowname from sys_menu where parent_id = %d ' + ls_admin + ' and id in(%s) order by sortno;') % (i_m1[0], ls_sqlmenu)
-            l_menu2 = cursorSelect(ls_get)
+            l_menu2 = SysMenu.objects.filter(parent=i_m1['menu'],sys_flag=False).order_by('sortno').values('id','menuname','menushowname')
             ldict_2 = []
             if len(l_menu2) > 0 :
                 for i_m2 in l_menu2:
-                    ldict_2.append({"id": i_m2[0], "text": i_m2[2], "attributes": i_m2[1]})
+                    ldict_2.append({"id": i_m2['id'], "text": i_m2['menushowname'], "attributes": i_m2['menuname']})
             else:
                 pass # no child
-            ldict_1.append( { "id": i_m1[0], "text": i_m1[2], "attributes": i_m1[1], 'children': ldict_2  } )
+            ldict_1.append( { "id": i_m1['menu'], "text": i_m1['menu__menushowname'], "attributes": i_m1['menu__menuname'], 'children': ldict_2  } )
     else:
         pass   # no top menu ... how that posible ....
     return(ldict_1)

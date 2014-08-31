@@ -1,12 +1,15 @@
 __author__ = 'blaczom@163.com'
 
 import json
-from App.models.AuthModel import *
+from datetime import datetime
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
+from django.http import HttpResponse
+
+from App.models import *
 from zdCommon.dbhelp import rawsql2json,rawsql4request
-from zdCommon.utils import log, logErr
 from zdCommon.dbhelp import  cursorExec2, json2upd
-from django.http import HttpResponse, HttpResponseRedirect
 from importhy.settings import DOWNLOAD_PATH, DOWNLOAD_URL
 
 
@@ -20,37 +23,71 @@ def update_user(request, adict):
             i_row['cols'].update( { 'password': 'ok' } )
     l_rtn.update( json2upd(adict) )
     return l_rtn
+def setSessionLogonFail(request):
+    request.session['userid'] = None
+    request.session['username'] = None
+    request.session['logon'] = False
 
 def logon(request):
     '''
-        处理登录
-    :param request:	{"name":"用户名","password":"密码"}
+        登录
+        1.验证此客户+应用是否可用
+        2.验证此应用登录,每客户一天最多登录失败3次
+    :param request:	{"companyname":"公司代码","name":"用户名","password":"密码"}
     :return: success - {"stateCod": 2, "msg": "登录成功。"}
              fail - {"stateCod": -1, "msg": "登录失败。","error":["失败信息1","失败信息2",....]}
     '''
+
     l_get = json.loads( request.POST['jpargs'] )
+    ls_company = l_get["companyname"]
     ls_user = l_get["name"]
     ls_pass = l_get["password"]
-    user = User.objects.get(username = ls_user)
-    l_cur = connection.cursor()
-    l_cur.execute("select id from s_user where username = %s and password = %s ", [ls_user, ls_pass ])
-    l_rtn = {}
-    if l_cur.cursor.rowcount > 0 :
-        l_userid = l_cur.fetchone()[0]
-        request.session['userid'] = l_userid
-        request.session['logon'] = True
-        l_rtn = { "stateCod" : 2, "msg": "登录成功。"}
-    else:
-        request.session['userid'] = ''
-        request.session['logon'] = False
-        l_rtn = { "stateCod": -2 , "msg": "登录失败，用户名不存在或者密码错误。"}
+    # if ls_company == "L":
+    #     DATABASES["default"]["HOST"] = '127.0.0.1'
+    #     DATABASES["default"]["NAME"] = 'importhy'
+    # else:
+    #     DATABASES["default"]["HOST"] = '172.40.68.103'
+    #     DATABASES["default"]["NAME"] = 'yard'
+    try:
+        l_rtn = {}
+        user = User.objects.get(username=ls_user)
+        if user.lock == True:
+            setSessionLogonFail(request)
+            l_rtn = { "stateCod": -2 , "msg": "用户已锁定，请联系管理员解锁"}
+            raise Exception
+        if user.password == ls_pass:
+            request.session['userid'] = user.id
+            request.session['username'] = user.username
+            request.session['logon'] = True
+            user.logon_number = 0
+            user.logon_time = datetime.now()
+            user.save(update_fields=['logon_number','logon_time'])
+            l_rtn = { "stateCod" : 2, "msg": "登录成功。"}
+        else:
+            setSessionLogonFail(request)
+            user.logon_number = 1 if (user.logon_number == None or
+                                      (user.logon_time.date() != datetime.now().date())) else (user.logon_number+1)
+            user.logon_time = datetime.now()
+            if user.logon_number >= 3:
+                user.logon_number = None
+                user.lock = True
+                l_rtn = { "stateCod": -2 ,
+                          "msg": "登录失败，用户锁定，请联系管理员解锁"}
+            else:
+                l_rtn = { "stateCod": -2 ,
+                          "msg": "登录失败，密码错误。剩余登录次数:%s" % str(3 - user.logon_number)}
+            user.save(update_fields=['logon_number','logon_time','lock'])
+    except ObjectDoesNotExist as e:
+        l_rtn = { "stateCod": -2 , "msg": "登录失败，用户名不存在。"}
+    except Exception as e:
+        if len(l_rtn) == 0:
+            l_rtn = { "stateCod": -2,"msg":e.args}
     return HttpResponse(json.dumps(l_rtn,ensure_ascii = False))
 
-
 def logout(request):
-    request.session['userid'] = ''
-    request.session['logon'] = False
+    setSessionLogonFail(request)
     return HttpResponse(json.dumps({ "stateCod": 3 },ensure_ascii = False))
+
 
 # jpargs:{"func":"密码修改","ex_parm":{"oldpw":"ok","newpw":"123"}}
 def changePassword(request,ldict):

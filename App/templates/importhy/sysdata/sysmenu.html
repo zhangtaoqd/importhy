@@ -20,10 +20,10 @@
                 {cod: 'id', operatorTyp: '不等于', value: 0}
             ],
             sortFields: [
-                {cod: 'parent_id', order_typ: '升序'},
+                {cod: 'parent', order_typ: '升序'},
                 {cod: 'sortno', order_typ: '升序'}
             ],
-            groupField: 'parent_id',
+            groupField: 'parent',
             groupFormatter: function (value, rows) {
                 var groupField = $(this).datagrid('options').groupField;
                 var editor = $(this).datagrid('getColumnOption', groupField).editor;
