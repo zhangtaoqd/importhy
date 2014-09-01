@@ -1,8 +1,10 @@
 __author__ = 'zhangtao'
-
+__all__ = ['SysCode','SysMenu','SysFunc','SysMenuFunc','User','Post','PostUser','PostMenu','PostMenuFunc',
+           'PreFee','ActFee','FilterHead','FilterBody','Rpt','RptItem','RptItemFee','Protocol',
+           'FeeEle','FeeEleLov','FeeMod','ProtocolMod','ProtocolFeeRat','Client','CntrType','Action',
+           'Cargo','CargoType','Place','Dispatch','FeeCod','PayType','Contract','ContractAction','ContractCntr']
 from django.db import models
 from django.db.models import DO_NOTHING
-
 
 class BaseModel(models.Model):
     ''''''
@@ -11,8 +13,6 @@ class BaseModel(models.Model):
     rec_tim = models.DateTimeField('创建时间')
     class Meta:
         abstract = True
-
-
 
 class SysCode(BaseModel):
     id = models.AutoField('pk',primary_key=True)
@@ -82,7 +82,6 @@ class PostUser(BaseModel):
         return self.post.postname + '/' + self.user.username
     class Meta:
         db_table = 's_postuser'
-
 class PostMenu(BaseModel):
     id = models.AutoField('pk',primary_key=True)
     post = models.ForeignKey('Post',verbose_name='岗位',related_name='+',db_column='post_id',on_delete=DO_NOTHING)
@@ -214,7 +213,6 @@ class FeeEleLov(BaseModel):
         return self.lov_name
     class Meta:
         db_table = 'p_fee_ele_lov'
-
 class FeeMod(BaseModel):
     id = models.AutoField('pk',primary_key=True)
     mod_name = models.CharField('计费模式名称',max_length=20)

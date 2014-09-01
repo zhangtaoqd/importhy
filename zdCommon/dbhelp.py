@@ -7,7 +7,7 @@ import json
 import re
 from datetime import date,datetime
 from django.db import connection, transaction
-
+from App import models
 from zdCommon.utils import logErr, log
 from zdCommon.jsonhelp import ServerToClientJsonEncoder
 tbDefCache = {}  # table的定义缓存。 write here could share the data with other session .
@@ -411,6 +411,8 @@ def getTableInfo(aTableName):
             raise Exception("遇到不认识的类型代码d%，请查询：SELECT typname, oid FROM pg_type;" % atypecode)
         l_dict.update({ i[0] : ls  })
     return l_dict
+
+
 
 def json2exec(ajson, aCursor, artn, a2Replace):   # artn['effectnum'] + 1
     l_oldUUID = ""
