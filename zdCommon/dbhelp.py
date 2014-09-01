@@ -422,7 +422,6 @@ def getModelByTableName(aTableName):
     if aTableName == None:
         return None
     if aTableName in tbDefCache:
-        print('缓存')
         return tbDefCache[aTableName]
     m=sys.modules['App.models']#得到这个模块
     attstr=dir(m)#得到属性的列表
@@ -433,7 +432,6 @@ def getModelByTableName(aTableName):
                 and issubclass(att,models.BaseModel):
             if att._meta.db_table == aTableName:
                 tbDefCache.update({aTableName:att})
-                print('先找')
                 return att
     return None
 def json2exec(ajson, aCursor, artn, a2Replace):   # artn['effectnum'] + 1
