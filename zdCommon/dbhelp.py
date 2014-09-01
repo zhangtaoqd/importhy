@@ -3,7 +3,7 @@ __author__ = 'dh'
     this only support postgresql .infact , all the database relative SQL should wirte in here.
     and for the convinient, instead, we put them all around in the other files.
 '''
-import json
+import json,sys
 import re
 from datetime import date,datetime
 from django.db import connection, transaction
@@ -412,8 +412,30 @@ def getTableInfo(aTableName):
         l_dict.update({ i[0] : ls  })
     return l_dict
 
-
-
+def getModelByTableName(aTableName):
+    '''
+    根据表名称查找model,查找顺序：
+      先从tbDefCache缓存中查找，没有的再在App.models模块中查找，并更新tbDefCache
+    :param aTableName: 字符型 表名称
+    :return: 对应的model
+    '''
+    if aTableName == None:
+        return None
+    if aTableName in tbDefCache:
+        print('缓存')
+        return tbDefCache[aTableName]
+    m=sys.modules['App.models']#得到这个模块
+    attstr=dir(m)#得到属性的列表
+    for s in attstr:#迭代之
+        att=getattr(m,s)
+        #如果是类，而且是Father的子类
+        if str(type(att))=="<class 'django.db.models.base.ModelBase'>" \
+                and issubclass(att,models.BaseModel):
+            if att._meta.db_table == aTableName:
+                tbDefCache.update({aTableName:att})
+                print('先找')
+                return att
+    return None
 def json2exec(ajson, aCursor, artn, a2Replace):   # artn['effectnum'] + 1
     l_oldUUID = ""
     if a2Replace:
