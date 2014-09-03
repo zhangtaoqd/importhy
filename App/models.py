@@ -3,17 +3,34 @@ __all__ = ['SysCode','SysMenu','SysFunc','SysMenuFunc','User','Post','PostUser',
            'PreFee','ActFee','FilterHead','FilterBody','Rpt','RptItem','RptItemFee','Protocol',
            'FeeEle','FeeEleLov','FeeMod','ProtocolMod','ProtocolFeeRat','Client','CntrType','Action',
            'Cargo','CargoType','Place','Dispatch','FeeCod','PayType','Contract','ContractAction','ContractCntr']
+import datetime
 from django.db import models
 from django.db.models import DO_NOTHING
+
+BoolCharacter=(('Y','是'),('N','否'))
 
 class BaseModel(models.Model):
     ''''''
     remark = models.CharField('备注',blank=True,max_length=50,null=True)
     rec_nam = models.IntegerField('创建人员')
     rec_tim = models.DateTimeField('创建时间')
+    def __getitem__(self,k):
+        return self.__getattribute__(k)
+    def __setitem__(self, key, value):
+        if issubclass(type(self._meta.get_field_by_name(key)[0]),models.fields.DateTimeField):
+            if isinstance(value,str):
+                self.__setattr__(key,datetime.datetime.strptime(value,'%Y-%m-%d %H:%M:%S'))
+            else:
+                raise Exception("日期时间型参数错误")
+        elif issubclass(type(self._meta.get_field_by_name(key)[0]),models.fields.DateField):
+            if isinstance(value,str):
+                self.__setattr__(key,datetime.datetime.strptime(value,'%Y-%m-%d').date())
+            else:
+                raise Exception("日期型参数错误")
+        else:
+            self.__setattr__(key,value)
     class Meta:
         abstract = True
-
 class SysCode(BaseModel):
     id = models.AutoField('pk',primary_key=True)
     fld_eng = models.CharField('英文字段名',max_length=20)
@@ -33,7 +50,7 @@ class SysMenu(BaseModel):
     parent = models.ForeignKey('SysMenu',limit_choices_to={'parent_id':0},related_name='+',
                                   verbose_name='父功能',db_column='parent_id',on_delete=DO_NOTHING)
     sortno = models.SmallIntegerField('序号',blank=True,null=True)
-    sys_flag = models.NullBooleanField('系统功能标识',blank=True,null=True)
+    sys_flag = models.CharField('系统功能标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
     def __str__(self):
         return self.menushowname
     class Meta:
@@ -57,8 +74,8 @@ class SysMenuFunc(BaseModel):
 class User(BaseModel):
     id = models.AutoField('pk',primary_key=True)
     username = models.CharField('用户',max_length=10)
-    password = models.CharField('密码',max_length=40)
-    lock = models.NullBooleanField('锁住',blank=True,null=True)
+    pw = models.CharField('密码',max_length=40)
+    locked = models.CharField('锁住',max_length=1,choices=BoolCharacter,blank=True,null=True)
     logon_number = models.IntegerField('登录次数',blank=True,null=True)
     logon_time = models.DateTimeField('登录时间',blank=True,null=True)
     def __str__(self):
@@ -86,7 +103,7 @@ class PostMenu(BaseModel):
     id = models.AutoField('pk',primary_key=True)
     post = models.ForeignKey('Post',verbose_name='岗位',related_name='+',db_column='post_id',on_delete=DO_NOTHING)
     menu = models.ForeignKey('SysMenu',verbose_name='功能',related_name='+',db_column='menu_id',on_delete=DO_NOTHING)
-    active = models.NullBooleanField('显示',blank=True,null=True)
+    active = models.CharField('显示',max_length=1,choices=BoolCharacter,blank=True,null=True)
     def __str__(self):
         return self.post.postname + '/' + self.menu.menuname
     class Meta:
@@ -110,11 +127,11 @@ class PreFee(BaseModel):
     amount = models.DecimalField('金额',blank=True,null=True,max_digits=10,decimal_places=2)
     fee_tim = models.DateTimeField('费用时间')
     fee_financial_tim = models.DateTimeField('财务统计时间')
-    lock_flag = models.NullBooleanField('锁定',blank=True,null=True)
+    lock_flag = models.CharField('锁定',max_length=1,choices=BoolCharacter,blank=True,null=True)
     ex_feeid = models.CharField('生成方式',max_length=1,choices=(('O','原生'),('E','拆分')))
     ex_from = models.CharField('来源号',max_length=36,blank=True,null=True)
     ex_over = models.CharField('完结号',max_length=36,blank=True,null=True)
-    audit_id =  models.NullBooleanField('核销',blank=True,null=True)
+    audit_id =  models.CharField('核销',max_length=1,choices=BoolCharacter,blank=True,null=True)
     audit_tim = models.DateTimeField('核销时间')
     currency_cod = models.CharField('货币',max_length=3,choices=(('RMB','人民币'),('USD','美元')))
     create_flag = models.CharField('费用产生方式',max_length=1,choices=(('M','手工录入'),('P','协议生成')))
@@ -135,7 +152,7 @@ class ActFee(BaseModel):
     ex_feeid = models.CharField('生成标记',max_length=1,choices=(('O','原生'),('E','拆分')))
     ex_from = models.CharField('来源号',max_length=36,blank=True,null=True)
     ex_over = models.CharField('完结号',max_length=36,blank=True,null=True)
-    audit_id =  models.NullBooleanField('核销',blank=True,null=True)
+    audit_id =  models.CharField('核销',max_length=1,choices=BoolCharacter,blank=True,null=True)
     audit_tim = models.DateTimeField('核销时间')
     currency_cod = models.CharField('货币',max_length=3,choices=(('RMB','人民币'),('USD','美元')))
     def __str__(self):
@@ -238,7 +255,7 @@ class ProtocolMod(BaseModel):
     fee_id = models.ForeignKey('FeeCod',verbose_name='费用名称',related_name='+',db_column='fee_id')
     mod_id = models.ForeignKey('FeeMod',verbose_name='模式',related_name='+',db_column='mod_id')
     sort_no = models.IntegerField('序号',blank=True,null=True)
-    active_flag = models.NullBooleanField('激活')
+    active_flag = models.CharField('激活',max_length=1,choices=BoolCharacter,blank=True,null=True)
     class Meta:
         db_table = 'p_protocol_fee_mod'
 class ProtocolFeeRat(BaseModel):
@@ -264,14 +281,14 @@ class ProtocolFeeRat(BaseModel):
 class Client(BaseModel):
     id = models.AutoField('pk',primary_key=True)
     client_name = models.CharField('客户名称',max_length=50,unique=True)
-    client_flag = models.NullBooleanField('委托方标识')
-    custom_flag = models.NullBooleanField('报关行标识')
-    ship_corp_flag = models.NullBooleanField('船公司标识')
-    yard_flag = models.NullBooleanField('场站标识')
-    port_flag = models.NullBooleanField('码头标识')
-    financial_flag = models.NullBooleanField('财务往来单位标识')
-    landtrans_flag = models.NullBooleanField('车队标识')
-    credit_flag = models.NullBooleanField('信用证公司标识')
+    client_flag = models.CharField('委托方标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
+    custom_flag = models.CharField('报关行标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
+    ship_corp_flag = models.CharField('船公司标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
+    yard_flag = models.CharField('场站标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
+    port_flag = models.CharField('码头标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
+    financial_flag = models.CharField('财务往来单位标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
+    landtrans_flag = models.CharField('车队标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
+    credit_flag = models.CharField('信用证公司标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
     protocol_id = models.ForeignKey('Protocol',blank=True,null=True,verbose_name='协议',related_name='+',db_column='protocol_id')
     def __str__(self):
         return self.client_name
@@ -288,7 +305,7 @@ class CntrType(BaseModel):
 class Action(BaseModel):
     id = models.AutoField('pk',primary_key=True)
     action_name = models.CharField('动态名称',max_length=20)
-    require_flag = models.NullBooleanField('必有标识',blank=True,null=True)
+    require_flag = models.CharField('必有标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
     sortno = models.SmallIntegerField('序号')
     def __str__(self):
         return self.action_name
@@ -325,8 +342,8 @@ class Dispatch(BaseModel):
 class FeeCod(BaseModel):
     id = models.AutoField('pk',primary_key=True)
     fee_name = models.CharField('费用名称',max_length=20)
-    protocol_flag = models.NullBooleanField('协议费用标识')
-    pair_flag = models.NullBooleanField('代付标识',blank=True,null=True)
+    protocol_flag = models.CharField('协议费用标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
+    pair_flag = models.CharField('代付标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
     def __str__(self):
         return self.fee_name
     class Meta:
@@ -355,7 +372,7 @@ class Contract(BaseModel):
     port_id = models.ForeignKey('Client',blank=True,null=True,verbose_name='码头',limit_choices_to={'port_flag':True},related_name='+',db_column='port_id')
     yard_id = models.ForeignKey('Client',blank=True,null=True,verbose_name='还箱场站',limit_choices_to={'yard_flag':True},related_name='+',db_column='yard_id')
     finish_time = models.DateTimeField('完成时间',blank=True,null=True)
-    finish_flag = models.NullBooleanField('完成标识',blank=True,null=True)
+    finish_flag = models.CharField('完成标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
     vslvoy = models.CharField('船名航次',max_length=40,blank=True,null=True)
     contract_no = models.CharField('合同号',max_length=20,blank=True,null=True)
     dispatch_place = models.ForeignKey('Dispatch',verbose_name='发货地',related_name='+',db_column='dispatch_place')
@@ -378,7 +395,7 @@ class ContractAction(BaseModel):
     id = models.AutoField('pk',primary_key=True)
     contract_id = models.ForeignKey('Contract',related_name='contract_contractaction',verbose_name='委托',db_column='contract_id')
     action_id = models.ForeignKey('Action',related_name='+',verbose_name='委托动态',db_column='action_id')
-    finish_flag = models.NullBooleanField('完成标识',blank=True,null=True)
+    finish_flag = models.CharField('完成标识',max_length=1,choices=BoolCharacter,blank=True,null=True)
     finish_time = models.DateTimeField('完成时间',blank=True,null=True)
     def __str__(self):
         return self.contract_id.bill_no + '/' + self.action_id.action_name

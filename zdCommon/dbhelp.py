@@ -146,6 +146,81 @@ def returnQueryJson(aQuerySet, aRowsCount):
     except Exception as e:
         logErr("查询失败：%s" % str(e.args))
         raise e
+    return json.dumps(l_rtn,ensure_ascii=False,cls=ServerToClientJsonEncoder).replace('true','"true"').replace('false','"false"')
+def commonUpdate(aDict,aRec_nam,aRec_tim,aRtn = None):
+    '''
+    通用update
+    :param rDict:request参数 见文件interface
+    :return:见文件interface
+    '''
+    if aRtn == None:
+        aRtn = {
+            'stateCod':202,
+            'msg':'修改成功',
+            'changeid':{}
+        }
+    l_rows = aDict['rows']
+    try:
+        for item in l_rows:
+            tm = getModelByTableName(item['table'])
+            if tm == None:
+                raise Exception("表参数错误")
+            if item['op'] == 'insert':
+                l_cols = item['cols']
+                l_cols.pop('id',0)
+                l_cols.update({'rec_nam':aRec_nam,'rec_tim':aRec_tim})
+                o = tm(**l_cols)
+                o.save()
+                l_newid = o.id
+                aRtn['changeid'].update({
+                        item['uuid']:l_newid
+                })
+                if len(item['uuid']) > 10 and 'rows' in item['subs']:
+                    for s_item in item['subs']['rows']:
+                        for (k,v) in s_item['cols'].items():
+                            if v == item['uuid']:
+                                s_item['cols'][k] = l_newid
+
+            elif item['op'] in ['update','updatedirty']:
+                l_cols = item['cols']
+                l_cols.pop('id',0)
+                l_oldid = item['id']
+                o = tm.objects.get(id=l_oldid)
+                for k,v in l_cols.items():
+                    if item['op'] == 'update':
+                        if o[k] == v[1]:
+                            o[k] = v[0]
+                        else:
+                            raise Exception("更新数据已发生变动，修改数据失败")
+                    else:
+                        o[k] = v[0]
+                o.save(update_fields=list(l_cols.keys()))
+            elif item['op'] == 'delete':
+                l_oldid = item['id']
+                o = tm.objects.get(id=l_oldid)
+                o.delete()
+            else:
+                raise Exception("修改类型错误")
+            if 'rows' in item['subs']:
+                commonUpdate(item['subs'],aRec_nam,aRec_tim,aRtn)
+    except Exception as e:
+        logErr("错误：%s" % str(e.args))
+        raise e
+    return aRtn
+def returnUpdateJson(aResult):
+    l_rtn = {"error": [],
+             "msg":"修改失败",
+             "stateCod": -4 ,
+             "effectnum": 0 ,
+             "changeid" : {},
+             "result":{}
+    }
+    try:
+        l_rtn.update(aResult)
+    except Exception as e:
+        logErr("数据库执行错误：%s" % str(e.args))
+        l_rtn.update({"stateCod": -4, "error": str(l_rtn['error']), "msg":"执行失败" })
+        raise e
     return json.dumps(l_rtn,ensure_ascii=False,cls=ServerToClientJsonEncoder)
 
 def rawsql4request(aSql, aRequestDict):

@@ -39,14 +39,14 @@ def getMenuListByUser(aUserId):
     if aUserId == 1:
         return getMenuList()
     l_post = PostUser.objects.filter(user=aUserId).values_list('post',flat=True)
-    l_menu1 = PostMenu.objects.filter(post__in=l_post,menu__sys_flag=False,menu__parent=0).\
+    l_menu1 = PostMenu.objects.filter(post__in=l_post,menu__sys_flag='N',menu__parent=0).\
         order_by('menu','menu__sortno').\
         distinct('menu','menu__sortno').\
         values('menu','menu__menushowname','menu__menuname')
     ldict_1 = []
     if len(l_menu1) > 0:  # 有1级菜单，循环读出到dict中。
         for i_m1 in l_menu1:
-            l_menu2 = SysMenu.objects.filter(parent=i_m1['menu'],sys_flag=False).order_by('sortno').values('id','menuname','menushowname')
+            l_menu2 = SysMenu.objects.filter(parent=i_m1['menu'],sys_flag='N').order_by('sortno').values('id','menuname','menushowname')
             ldict_2 = []
             if len(l_menu2) > 0 :
                 for i_m2 in l_menu2:

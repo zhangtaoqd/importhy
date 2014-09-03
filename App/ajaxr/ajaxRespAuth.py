@@ -51,11 +51,11 @@ def logon(request):
     try:
         l_rtn = {}
         user = User.objects.get(username=ls_user)
-        if user.lock == True:
+        if user.locked == 'Y':
             setSessionLogonFail(request)
             l_rtn = { "stateCod": -2 , "msg": "用户已锁定，请联系管理员解锁"}
             raise Exception
-        if user.password == ls_pass:
+        if user.pw == ls_pass:
             request.session['userid'] = user.id
             request.session['username'] = user.username
             request.session['logon'] = True
@@ -70,13 +70,13 @@ def logon(request):
             user.logon_time = datetime.now()
             if user.logon_number >= 3:
                 user.logon_number = None
-                user.lock = True
+                user.locked = 'Y'
                 l_rtn = { "stateCod": -2 ,
                           "msg": "登录失败，用户锁定，请联系管理员解锁"}
             else:
                 l_rtn = { "stateCod": -2 ,
                           "msg": "登录失败，密码错误。剩余登录次数:%s" % str(3 - user.logon_number)}
-            user.save(update_fields=['logon_number','logon_time','lock'])
+            user.save(update_fields=['logon_number','logon_time','locked'])
     except ObjectDoesNotExist as e:
         l_rtn = { "stateCod": -2 , "msg": "登录失败，用户名不存在。"}
     except Exception as e:

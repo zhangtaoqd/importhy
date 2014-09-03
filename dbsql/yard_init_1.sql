@@ -104,7 +104,7 @@ CREATE TABLE sys_menu
   parent_id integer DEFAULT 0, -- 父功能ID
   menushowname character varying(50) NOT NULL, -- 菜单显示名称
   sortno smallint, -- 序号
-  sys_flag boolean NOT NULL DEFAULT false, -- 系统功能，禁止用户一切操作
+  sys_flag character(1) NOT NULL DEFAULT 'N', -- 系统功能，禁止用户一切操作
   CONSTRAINT pk_sys_menu PRIMARY KEY (id),
   CONSTRAINT fk_sys_menu_parent FOREIGN KEY (parent_id)
       REFERENCES sys_menu (id) MATCH SIMPLE
@@ -123,55 +123,55 @@ COMMENT ON COLUMN sys_menu.parent_id IS '父功能ID';;
 COMMENT ON COLUMN sys_menu.menushowname IS '菜单显示名称';;
 COMMENT ON COLUMN sys_menu.sortno IS '序号';;
 COMMENT ON COLUMN sys_menu.sys_flag IS '系统功能，禁止用户一切操作';;
-INSERT INTO sys_menu VALUES (0, '根节点', 1, '2014-02-24 10:57:39.013142', '', 0, '根节点', 1, true);;
-INSERT INTO sys_menu VALUES (4, '系统管理', 1, '2014-02-24 08:56:51.619241', '', 0, '系统管理', 1, true);;
-INSERT INTO sys_menu VALUES (8, '基础数据管理', 1, '2014-02-25 11:00:30', '', 0, '基础数据管理', 3, false);;
-INSERT INTO sys_menu VALUES (13, '进口货运', 1, '2014-02-25 11:05:42',  '', 0, '进口货运', 4, false);;
-INSERT INTO sys_menu VALUES (21, '商务', 1, '2014-02-25 11:30:27', , '', 0, '商务', 5, false);;
-INSERT INTO sys_menu VALUES (43, '协议管理', 1, '2014-06-05 14:50:31',  '', 0, '协议管理', 6, false);;
-INSERT INTO sys_menu VALUES (33, '系统配置管理', 1, '2014-04-24 15:51:39', '', 0, '系统配置管理', 2, false);;
+INSERT INTO sys_menu VALUES (0, '根节点', 1, '2014-02-24 10:57:39.013142', '', 0, '根节点', 1, 'Y');;
+INSERT INTO sys_menu VALUES (4, '系统管理', 1, '2014-02-24 08:56:51.619241', '', 0, '系统管理', 1, 'Y');;
+INSERT INTO sys_menu VALUES (8, '基础数据管理', 1, '2014-02-25 11:00:30', '', 0, '基础数据管理', 3, 'N');;
+INSERT INTO sys_menu VALUES (13, '进口货运', 1, '2014-02-25 11:05:42',  '', 0, '进口货运', 4, 'N');;
+INSERT INTO sys_menu VALUES (21, '商务', 1, '2014-02-25 11:30:27', , '', 0, '商务', 5, 'N');;
+INSERT INTO sys_menu VALUES (43, '协议管理', 1, '2014-06-05 14:50:31',  '', 0, '协议管理', 6, 'N');;
+INSERT INTO sys_menu VALUES (33, '系统配置管理', 1, '2014-04-24 15:51:39', '', 0, '系统配置管理', 2, 'N');;
 
-INSERT INTO sys_menu VALUES (5, '权限维护', 1, '2014-02-24 09:04:26.771803', '', 4, '权限维护', 2, true);;
-INSERT INTO sys_menu VALUES (6, '功能权限维护', 1, '2014-02-24 09:05:06.975367',  '', 4, '功能权限维护', 3, true);;
-INSERT INTO sys_menu VALUES (7, '系统参数维护', 1, '2014-02-25 10:58:28',  '', 4, '系统参数维护', 4, true);;
-INSERT INTO sys_menu VALUES (18, '委托维护', 1, '2014-02-25 11:19:59',  '', 13, '委托维护', 1, false);;
-INSERT INTO sys_menu VALUES (3, '功能维护', 1, '2014-02-24 08:53:47.818424',  '', 4, '功能维护', 1, true);;
-INSERT INTO sys_menu VALUES (32, '委托查询', 1, '2014-03-24 15:44:35',  '', 13, '委托查询', 3, false);;
-INSERT INTO sys_menu VALUES (19, '控货', 1, '2014-02-25 11:28:14',  '', 13, '控货', 6, false);;
-INSERT INTO sys_menu VALUES (20, '委托费用维护', 1, '2014-02-25 11:29:48',  '', 13, '委托费用维护', 2, false);;
-INSERT INTO sys_menu VALUES (31, '收款/付款', 1, '2014-03-19 09:21:20',  '', 21, '收款/付款', 1, false);;
-INSERT INTO sys_menu VALUES (22, '核销', 1, '2014-02-25 11:39:56',  '', 21, '核销', 2, false);;
-INSERT INTO sys_menu VALUES (23, '取消核销', 1, '2014-02-25 11:39:56',  '', 21, '取消核销', 3, false);;
-INSERT INTO sys_menu VALUES (25, '核销查询', 1, '2014-02-25 15:10:24',  '', 21, '核销查询', 4, false);;
-INSERT INTO sys_menu VALUES (34, '密码修改', 1, '2014-04-24 15:53:50',  '', 33, '密码修改', 1, false);;
-INSERT INTO sys_menu VALUES (39, '账单', 1, '2014-05-06 16:37:55',  '', 21, '账单', 5, false);;
-INSERT INTO sys_menu VALUES (40, '业务明细报表', 1, '2014-05-08 15:12:17', '', 13, '业务明细报表', 4, false);;
-INSERT INTO sys_menu VALUES (41, '业务汇总报表', 1, '2014-05-09 13:05:49',  '', 13, '业务汇总报表', 5, false);;
-INSERT INTO sys_menu VALUES (42, '费用报表定义', 1, '2014-05-20 15:09:45',  '', 21, '费用报表定义', 6, false);;
+INSERT INTO sys_menu VALUES (5, '权限维护', 1, '2014-02-24 09:04:26.771803', '', 4, '权限维护', 2, 'Y');;
+INSERT INTO sys_menu VALUES (6, '功能权限维护', 1, '2014-02-24 09:05:06.975367',  '', 4, '功能权限维护', 3, 'Y');;
+INSERT INTO sys_menu VALUES (7, '系统参数维护', 1, '2014-02-25 10:58:28',  '', 4, '系统参数维护', 4, 'Y');;
+INSERT INTO sys_menu VALUES (18, '委托维护', 1, '2014-02-25 11:19:59',  '', 13, '委托维护', 1, 'N');;
+INSERT INTO sys_menu VALUES (3, '功能维护', 1, '2014-02-24 08:53:47.818424',  '', 4, '功能维护', 1, 'Y');;
+INSERT INTO sys_menu VALUES (32, '委托查询', 1, '2014-03-24 15:44:35',  '', 13, '委托查询', 3, 'N');;
+INSERT INTO sys_menu VALUES (19, '控货', 1, '2014-02-25 11:28:14',  '', 13, '控货', 6, 'N');;
+INSERT INTO sys_menu VALUES (20, '委托费用维护', 1, '2014-02-25 11:29:48',  '', 13, '委托费用维护', 2, 'N');;
+INSERT INTO sys_menu VALUES (31, '收款/付款', 1, '2014-03-19 09:21:20',  '', 21, '收款/付款', 1, 'N');;
+INSERT INTO sys_menu VALUES (22, '核销', 1, '2014-02-25 11:39:56',  '', 21, '核销', 2, 'N');;
+INSERT INTO sys_menu VALUES (23, '取消核销', 1, '2014-02-25 11:39:56',  '', 21, '取消核销', 3, 'N');;
+INSERT INTO sys_menu VALUES (25, '核销查询', 1, '2014-02-25 15:10:24',  '', 21, '核销查询', 4, 'N');;
+INSERT INTO sys_menu VALUES (34, '密码修改', 1, '2014-04-24 15:53:50',  '', 33, '密码修改', 1, 'N');;
+INSERT INTO sys_menu VALUES (39, '账单', 1, '2014-05-06 16:37:55',  '', 21, '账单', 5, 'N');;
+INSERT INTO sys_menu VALUES (40, '业务明细报表', 1, '2014-05-08 15:12:17', '', 13, '业务明细报表', 4, 'N');;
+INSERT INTO sys_menu VALUES (41, '业务汇总报表', 1, '2014-05-09 13:05:49',  '', 13, '业务汇总报表', 5, 'N');;
+INSERT INTO sys_menu VALUES (42, '费用报表定义', 1, '2014-05-20 15:09:45',  '', 21, '费用报表定义', 6, 'N');;
 
-INSERT INTO sys_menu VALUES (44, '协议维护', 1, '2014-06-05 14:51:19',  '', 43, '协议维护', 1, false);;
-INSERT INTO sys_menu VALUES (15, '委托动态类型维护', 1, '2014-02-25 11:15:17',  '', 8, '委托动态类型维护', 6, false);;
-INSERT INTO sys_menu VALUES (29, '付款方式维护', 1, '2014-03-03 14:41:29',  '', 8, '付款方式维护', 8, false);;
-INSERT INTO sys_menu VALUES (30, '客户维护', 1, '2014-03-15 21:43:10',  '', 8, '客户维护', 9, false);;
+INSERT INTO sys_menu VALUES (44, '协议维护', 1, '2014-06-05 14:51:19',  '', 43, '协议维护', 1, 'N');;
+INSERT INTO sys_menu VALUES (15, '委托动态类型维护', 1, '2014-02-25 11:15:17',  '', 8, '委托动态类型维护', 6, 'N');;
+INSERT INTO sys_menu VALUES (29, '付款方式维护', 1, '2014-03-03 14:41:29',  '', 8, '付款方式维护', 8, 'N');;
+INSERT INTO sys_menu VALUES (30, '客户维护', 1, '2014-03-15 21:43:10',  '', 8, '客户维护', 9, 'N');;
 
-INSERT INTO sys_menu VALUES (9, '用户维护', 1, '2014-02-25 11:03:01',  '', 33, '用户维护', 2, false);;
-INSERT INTO sys_menu VALUES (10, '岗位维护', 1, '2014-02-25 11:03:01',  '', 33, '岗位维护', 3, false);;
-INSERT INTO sys_menu VALUES (11, '岗位用户维护', 1, '2014-02-25 11:03:01',  '', 33, '岗位用户维护', 4, false);;
-INSERT INTO sys_menu VALUES (12, '岗位权限维护', 1, '2014-02-25 11:03:01', '', 33, '岗位权限维护', 5, false);;
-INSERT INTO sys_menu VALUES (45, '协议要素维护', 1, '2014-06-13 15:47:15',  '', 4, '协议要素维护', 5, true);;
-INSERT INTO sys_menu VALUES (47, '协议模式定义', 1, '2014-06-17 10:37:33',  '', 4, '协议模式定义', 6, true);;
-INSERT INTO sys_menu VALUES (48, '协议费用模式维护', 1, '2014-06-19 09:45:41',  '', 43, '协议费用模式维护', 3, true);;
-INSERT INTO sys_menu VALUES (46, '协议要素内容维护', 1, '2014-06-13 17:05:36', '', 43, '协议要素内容维护', 2, false);;
-INSERT INTO sys_menu VALUES (49, '协议费率维护', 1, '2014-06-19 14:02:37',  '', 43, '协议费率维护', 4, false);;
-INSERT INTO sys_menu VALUES (14, '箱型维护', 1, '2014-02-25 11:13:33',  '', 8, '箱型维护', 1, false);;
-INSERT INTO sys_menu VALUES (35, '发货地维护', 1, '2014-04-24 18:12:20',  '', 8, '发货地维护', 2, false);;
-INSERT INTO sys_menu VALUES (38, '产地维护', 1, '2014-05-05 18:01:46',  '', 8, '产地维护', 3, false);;
-INSERT INTO sys_menu VALUES (37, '货物分类维护', 1, '2014-05-05 17:48:18',  '', 8, '货物分类维护', 4, false);;
-INSERT INTO sys_menu VALUES (36, '货物维护', 1, '2014-05-05 17:39:26', '', 8, '货物维护', 5, false);;
-INSERT INTO sys_menu VALUES (16, '费用名称维护', 1, '2014-02-25 11:18:14',  '', 8, '费用名称维护', 7, false);;
-INSERT INTO sys_menu VALUES (51, '协议费用生成', 1, '2014-02-25 11:18:14',  '', 21, '协议费用生成', 7, false);;
-INSERT INTO sys_menu VALUES (52, '协议费率复制', 1, '2014-02-25 11:18:14',  '', 43, '协议费率复制', 5, false);;
-INSERT INTO sys_menu VALUES (53, '日志', 1, '2014-02-25 11:18:14', '', 33, '日志', 6, false);;
+INSERT INTO sys_menu VALUES (9, '用户维护', 1, '2014-02-25 11:03:01',  '', 33, '用户维护', 2, 'N');;
+INSERT INTO sys_menu VALUES (10, '岗位维护', 1, '2014-02-25 11:03:01',  '', 33, '岗位维护', 3, 'N');;
+INSERT INTO sys_menu VALUES (11, '岗位用户维护', 1, '2014-02-25 11:03:01',  '', 33, '岗位用户维护', 4, 'N');;
+INSERT INTO sys_menu VALUES (12, '岗位权限维护', 1, '2014-02-25 11:03:01', '', 33, '岗位权限维护', 5, 'N');;
+INSERT INTO sys_menu VALUES (45, '协议要素维护', 1, '2014-06-13 15:47:15',  '', 4, '协议要素维护', 5, 'Y');;
+INSERT INTO sys_menu VALUES (47, '协议模式定义', 1, '2014-06-17 10:37:33',  '', 4, '协议模式定义', 6, 'Y');;
+INSERT INTO sys_menu VALUES (48, '协议费用模式维护', 1, '2014-06-19 09:45:41',  '', 43, '协议费用模式维护', 3, 'Y');;
+INSERT INTO sys_menu VALUES (46, '协议要素内容维护', 1, '2014-06-13 17:05:36', '', 43, '协议要素内容维护', 2, 'N');;
+INSERT INTO sys_menu VALUES (49, '协议费率维护', 1, '2014-06-19 14:02:37',  '', 43, '协议费率维护', 4, 'N');;
+INSERT INTO sys_menu VALUES (14, '箱型维护', 1, '2014-02-25 11:13:33',  '', 8, '箱型维护', 1, 'N');;
+INSERT INTO sys_menu VALUES (35, '发货地维护', 1, '2014-04-24 18:12:20',  '', 8, '发货地维护', 2, 'N');;
+INSERT INTO sys_menu VALUES (38, '产地维护', 1, '2014-05-05 18:01:46',  '', 8, '产地维护', 3, 'N');;
+INSERT INTO sys_menu VALUES (37, '货物分类维护', 1, '2014-05-05 17:48:18',  '', 8, '货物分类维护', 4, 'N');;
+INSERT INTO sys_menu VALUES (36, '货物维护', 1, '2014-05-05 17:39:26', '', 8, '货物维护', 5, 'N');;
+INSERT INTO sys_menu VALUES (16, '费用名称维护', 1, '2014-02-25 11:18:14',  '', 8, '费用名称维护', 7, 'N');;
+INSERT INTO sys_menu VALUES (51, '协议费用生成', 1, '2014-02-25 11:18:14',  '', 21, '协议费用生成', 7, 'N');;
+INSERT INTO sys_menu VALUES (52, '协议费率复制', 1, '2014-02-25 11:18:14',  '', 43, '协议费率复制', 5, 'N');;
+INSERT INTO sys_menu VALUES (53, '日志', 1, '2014-02-25 11:18:14', '', 33, '日志', 6, 'N');;
 SELECT pg_catalog.setval('sys_menu_id_seq', 53, true);;
 
 CREATE TABLE sys_func
@@ -472,11 +472,11 @@ CREATE TABLE s_user
 (
   id serial NOT NULL,
   username character varying(10) NOT NULL, -- 用户名
-  password character varying(40) NOT NULL, -- 密码
+  pw character varying(40) NOT NULL, -- 密码
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   remark character varying(50) NOT NULL DEFAULT ''::character varying,
-  lock boolean NOT NULL DEFAULT false, -- 锁住
+  locked character(1) NOT NULL DEFAULT 'N', -- 锁住
   logon_number smallint, -- 登录次数
   logon_time timestamp without time zone, -- 尝试登录时间
   CONSTRAINT pk_s_user PRIMARY KEY (id),
@@ -490,19 +490,19 @@ ALTER TABLE s_user
 COMMENT ON TABLE s_user
   IS '用户表';;
 COMMENT ON COLUMN s_user.username IS '用户名';;
-COMMENT ON COLUMN s_user.password IS '密码';;
-COMMENT ON COLUMN s_user.lock IS '锁住';;
+COMMENT ON COLUMN s_user.pw IS '密码';;
+COMMENT ON COLUMN s_user.locked IS '锁住';;
 COMMENT ON COLUMN s_user.logon_number IS '登录次数';;
 COMMENT ON COLUMN s_user.logon_time IS '尝试登录时间';;
 
 
-INSERT INTO s_user VALUES (1, 'Admin', 'zht+dh=sql2',   '', false);;
-INSERT INTO s_user VALUES (2, '管理员', {user_pw},  '', false);;
+INSERT INTO s_user VALUES (1, 'Admin', 'zht+dh=sql2',   '', 'N');;
+INSERT INTO s_user VALUES (2, '管理员', {user_pw},  '', 'N');;
 
 SELECT pg_catalog.setval('s_user_id_seq', 2, true);;
 
 CREATE TRIGGER tri_s_user
-  BEFORE INSERT OR UPDATE OF username, password, id OR DELETE
+  BEFORE INSERT OR UPDATE OF username, pw, id OR DELETE
   ON s_user
   FOR EACH ROW
   EXECUTE PROCEDURE fun4tri_s_user();;
@@ -628,7 +628,7 @@ CREATE TABLE s_postmenu
 (
   post_id integer NOT NULL, -- 岗位ID
   menu_id integer NOT NULL, -- 功能ID
-  active boolean NOT NULL DEFAULT true, -- 显示(激活)
+  active character(1) NOT NULL DEFAULT 'Y', -- 显示(激活)
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   remark character varying(50) NOT NULL DEFAULT ''::character varying,
@@ -652,25 +652,25 @@ COMMENT ON COLUMN s_postmenu.post_id IS '岗位ID';;
 COMMENT ON COLUMN s_postmenu.menu_id IS '功能ID';;
 COMMENT ON COLUMN s_postmenu.active IS '显示(激活)';;
 
-INSERT INTO s_postmenu VALUES (1, 33, true, 1, '2014-07-01 00:48:06.217065',  '', 1);;
-INSERT INTO s_postmenu VALUES (1, 34, true, 1, '2014-07-01 00:48:06.217065',  '', 2);;
-INSERT INTO s_postmenu VALUES (1, 9, true, 1, '2014-07-01 00:48:06.217065',  '', 3);;
-INSERT INTO s_postmenu VALUES (1, 10, true, 1, '2014-07-01 00:48:06.217065',  '', 4);;
-INSERT INTO s_postmenu VALUES (1, 11, true, 1, '2014-07-01 00:48:06.217065',  '', 5);;
-INSERT INTO s_postmenu VALUES (1, 12, true, 1, '2014-07-01 00:48:06.217065',  '', 6);;
+INSERT INTO s_postmenu VALUES (1, 33, 'Y', 1, '2014-07-01 00:48:06.217065',  '', 1);;
+INSERT INTO s_postmenu VALUES (1, 34, 'Y', 1, '2014-07-01 00:48:06.217065',  '', 2);;
+INSERT INTO s_postmenu VALUES (1, 9, 'Y', 1, '2014-07-01 00:48:06.217065',  '', 3);;
+INSERT INTO s_postmenu VALUES (1, 10, 'Y', 1, '2014-07-01 00:48:06.217065',  '', 4);;
+INSERT INTO s_postmenu VALUES (1, 11, 'Y', 1, '2014-07-01 00:48:06.217065',  '', 5);;
+INSERT INTO s_postmenu VALUES (1, 12, 'Y', 1, '2014-07-01 00:48:06.217065',  '', 6);;
 SELECT pg_catalog.setval('s_postmenu_id_seq', 7, true);;
 
 CREATE OR REPLACE FUNCTION fun4tri_s_postmenu()
   RETURNS trigger AS
 $BODY$
 declare 
-     menu_sys_flag boolean;
+     menu_sys_flag sys_menu.sys_flag%TYPE;
 begin
 
      if TG_OP = 'INSERT' then     
 	select sys_flag into menu_sys_flag from sys_menu
 	where id = NEW.menu_id;
-	if menu_sys_flag = true then
+	if menu_sys_flag = 'Y' then
 		raise exception '禁止添加系统功能';
 	end if;
      
@@ -882,17 +882,17 @@ CREATE TABLE c_client
 (
   id serial NOT NULL,
   client_name character varying(50) NOT NULL, -- 客户名称
-  client_flag boolean NOT NULL DEFAULT false, -- 委托方标识
-  custom_flag boolean NOT NULL DEFAULT false, -- 报关行标识
-  ship_corp_flag boolean NOT NULL DEFAULT false, -- 船公司标识
-  yard_flag boolean NOT NULL DEFAULT false, -- 场站标识
-  port_flag boolean NOT NULL DEFAULT false, -- 码头标识
-  financial_flag boolean NOT NULL DEFAULT false, -- 财务往来单位标识
+  client_flag character(1) NOT NULL DEFAULT 'N', -- 委托方标识
+  custom_flag character(1) NOT NULL DEFAULT 'N', -- 报关行标识
+  ship_corp_flag character(1) NOT NULL DEFAULT 'N', -- 船公司标识
+  yard_flag character(1) NOT NULL DEFAULT 'N', -- 场站标识
+  port_flag character(1) NOT NULL DEFAULT 'N', -- 码头标识
+  financial_flag character(1) NOT NULL DEFAULT 'N', -- 财务往来单位标识
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   remark character varying(50) NOT NULL DEFAULT ''::character varying,
-  landtrans_flag boolean NOT NULL DEFAULT false, -- 车队标示
-  credit_flag boolean NOT NULL DEFAULT false, -- 信用证单位标识
+  landtrans_flag character(1) NOT NULL DEFAULT 'N', -- 车队标示
+  credit_flag character(1) NOT NULL DEFAULT 'N', -- 信用证单位标识
   protocol_id integer, -- 协议ID
   CONSTRAINT pk_c_client PRIMARY KEY (id),
   CONSTRAINT fk_c_client_protocol FOREIGN KEY (protocol_id)
@@ -950,7 +950,7 @@ CREATE TABLE c_contract_action
   remark character varying(50) NOT NULL DEFAULT ''::character varying,
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  require_flag boolean NOT NULL DEFAULT false, -- 必备标识
+  require_flag character(1) NOT NULL DEFAULT 'N', -- 必备标识
   sortno smallint NOT NULL, -- 动态序号
   CONSTRAINT pk_c_contract_action PRIMARY KEY (id),
   CONSTRAINT uk_c_contract_action UNIQUE (action_name),
@@ -967,16 +967,16 @@ COMMENT ON COLUMN c_contract_action.action_name IS '动态名称';;
 COMMENT ON COLUMN c_contract_action.require_flag IS '必备标识';;
 COMMENT ON COLUMN c_contract_action.sortno IS '动态序号';;
 
-INSERT INTO c_contract_action VALUES (1, '报检', '', 1, '2014-03-03 14:12:04',  true, 1);;
-INSERT INTO c_contract_action VALUES (3, '押箱', '', 1, '2014-03-03 14:12:04',  true, 3);;
-INSERT INTO c_contract_action VALUES (4, '验货', '', 1, '2014-03-03 14:12:04',  true, 4);;
-INSERT INTO c_contract_action VALUES (5, '熏蒸', '', 1, '2014-03-03 14:12:04',  false, 5);;
-INSERT INTO c_contract_action VALUES (6, '取样', '', 1, '2014-03-03 14:12:04',  false, 6);;
-INSERT INTO c_contract_action VALUES (8, '拆箱完成', '', 1, '2014-03-03 14:12:04',  true, 8);;
-INSERT INTO c_contract_action VALUES (9, '检尺', '', 1, '2014-03-03 14:12:04',  true, 9);;
-INSERT INTO c_contract_action VALUES (10, '还箱', '', 1, '2014-03-03 14:12:04',  true, 10);;
-INSERT INTO c_contract_action VALUES (2, '报关', '', 1, '2014-03-03 14:12:04',  true, 2);;
-INSERT INTO c_contract_action VALUES (7, '拆箱', '', 1, '2014-03-03 14:12:04',  true, 7);;
+INSERT INTO c_contract_action VALUES (1, '报检', '', 1, '2014-03-03 14:12:04',  'Y', 1);;
+INSERT INTO c_contract_action VALUES (3, '押箱', '', 1, '2014-03-03 14:12:04',  'Y', 3);;
+INSERT INTO c_contract_action VALUES (4, '验货', '', 1, '2014-03-03 14:12:04',  'Y', 4);;
+INSERT INTO c_contract_action VALUES (5, '熏蒸', '', 1, '2014-03-03 14:12:04',  'N', 5);;
+INSERT INTO c_contract_action VALUES (6, '取样', '', 1, '2014-03-03 14:12:04',  'N', 6);;
+INSERT INTO c_contract_action VALUES (8, '拆箱完成', '', 1, '2014-03-03 14:12:04',  'Y', 8);;
+INSERT INTO c_contract_action VALUES (9, '检尺', '', 1, '2014-03-03 14:12:04',  'Y', 9);;
+INSERT INTO c_contract_action VALUES (10, '还箱', '', 1, '2014-03-03 14:12:04',  'Y', 10);;
+INSERT INTO c_contract_action VALUES (2, '报关', '', 1, '2014-03-03 14:12:04',  'Y', 2);;
+INSERT INTO c_contract_action VALUES (7, '拆箱', '', 1, '2014-03-03 14:12:04',  'Y', 7);;
 
 SELECT pg_catalog.setval('c_contract_action_id_seq', 10, true);;
 CREATE TABLE c_dispatch
@@ -1040,11 +1040,11 @@ CREATE TABLE c_fee
 (
   id serial NOT NULL,
   fee_name character varying(20) NOT NULL, -- 费用名称
-  protocol_flag boolean NOT NULL DEFAULT false, -- 协议费用标识
+  protocol_flag character(1) NOT NULL DEFAULT 'N', -- 协议费用标识
   remark character varying(50) NOT NULL DEFAULT ''::character varying, -- 备注
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  pair_flag boolean NOT NULL DEFAULT false, -- true 插入应付自动生成应收，模拟代收代付
+  pair_flag character(1) NOT NULL DEFAULT 'N', -- 'Y' 插入应付自动生成应收，模拟代收代付
   CONSTRAINT pk_c_fee PRIMARY KEY (id),
   CONSTRAINT uk_c_fee UNIQUE (fee_name)
 )
@@ -1058,16 +1058,16 @@ COMMENT ON TABLE c_fee
 COMMENT ON COLUMN c_fee.fee_name IS '费用名称';;
 COMMENT ON COLUMN c_fee.protocol_flag IS '协议费用标识';;
 COMMENT ON COLUMN c_fee.remark IS '备注';;
-COMMENT ON COLUMN c_fee.pair_flag IS 'true 插入应付自动生成应收，模拟代收代付';;
-INSERT INTO c_fee VALUES (1, '包干费', true, '', 1, '2014-03-04 08:26:50',  false);;
-INSERT INTO c_fee VALUES (2, '码头超期费', false, '', 1, '2014-03-04 08:26:50',  true);;
-INSERT INTO c_fee VALUES (3, '码头堆存费', false, '', 1, '2014-03-04 08:29:03',  true);;
-INSERT INTO c_fee VALUES (4, '码头搬移费', false, '', 1, '2014-03-04 08:29:03',  true);;
-INSERT INTO c_fee VALUES (5, '海关验货费', false, '', 1, '2014-03-04 08:29:03',  false);;
-INSERT INTO c_fee VALUES (6, '商检熏蒸费', false, '', 1, '2014-03-04 08:29:03',  true);;
-INSERT INTO c_fee VALUES (7, '商检熏蒸场地费', false, '', 1, '2014-03-04 08:29:03',  true);;
-INSERT INTO c_fee VALUES (8, '商检熏蒸拖车费', false, '', 1, '2014-03-04 08:29:03',  true);;
-INSERT INTO c_fee VALUES (11, '滞报金', false, '', 1, '2014-04-28 15:21:54',  true);;
+COMMENT ON COLUMN c_fee.pair_flag IS 'Y 插入应付自动生成应收，模拟代收代付';;
+INSERT INTO c_fee VALUES (1, '包干费', 'Y', '', 1, '2014-03-04 08:26:50',  'N');;
+INSERT INTO c_fee VALUES (2, '码头超期费', 'N', '', 1, '2014-03-04 08:26:50',  'Y');;
+INSERT INTO c_fee VALUES (3, '码头堆存费', 'N', '', 1, '2014-03-04 08:29:03',  'Y');;
+INSERT INTO c_fee VALUES (4, '码头搬移费', 'N', '', 1, '2014-03-04 08:29:03',  'Y');;
+INSERT INTO c_fee VALUES (5, '海关验货费', 'N', '', 1, '2014-03-04 08:29:03',  'N');;
+INSERT INTO c_fee VALUES (6, '商检熏蒸费', 'N', '', 1, '2014-03-04 08:29:03',  'Y');;
+INSERT INTO c_fee VALUES (7, '商检熏蒸场地费', 'N', '', 1, '2014-03-04 08:29:03',  'Y');;
+INSERT INTO c_fee VALUES (8, '商检熏蒸拖车费', 'N', '', 1, '2014-03-04 08:29:03',  'Y');;
+INSERT INTO c_fee VALUES (11, '滞报金', 'N', '', 1, '2014-04-28 15:21:54',  'Y');;
 SELECT pg_catalog.setval('c_fee_id_seq', 11, true);;
 CREATE TABLE c_pay_type
 (
@@ -1187,7 +1187,7 @@ CREATE TABLE contract
   ship_corp_id integer, -- 船公司
   port_id integer, -- 码头id
   yard_id integer, -- 场站id
-  finish_flag boolean DEFAULT false, -- 委托完结标识
+  finish_flag character(1) NOT NULL DEFAULT 'N', -- 委托完结标识
   finish_time date, -- 委托完结时间
   remark character varying(50) NOT NULL DEFAULT ''::character varying, -- 备注
   rec_nam integer NOT NULL, -- 创建人员
@@ -1300,13 +1300,13 @@ DECLARE
 	count_fee integer;
 BEGIN
 	if TG_OP = 'DELETE' then
-	   if OLD.finish_flag = true then
+	   if OLD.finish_flag = 'Y' then
 		RAISE EXCEPTION '委托锁定不能删除';
 	   end if;
 	   return OLD;
 	end if;
 	if TG_OP = 'UPDATE' then
-	   if OLD.finish_flag = true and NEW.finish_flag = true then
+	   if OLD.finish_flag = 'Y' and NEW.finish_flag = 'Y' then
 		RAISE EXCEPTION '委托锁定不能修改';
 	   end if;
 	end if;
@@ -1329,7 +1329,7 @@ CREATE TABLE contract_action
   id serial NOT NULL,
   contract_id integer NOT NULL, -- 委托id
   action_id integer NOT NULL, -- 计划id
-  finish_flag boolean NOT NULL DEFAULT false, -- 完成标识
+  finish_flag character(1) NOT NULL DEFAULT 'N', -- 完成标识
   finish_time timestamp without time zone, -- 完成时间
   remark character varying(50) NOT NULL DEFAULT ''::character varying, -- 备注
   rec_nam integer NOT NULL, -- 创建人员
@@ -1360,11 +1360,11 @@ COMMENT ON COLUMN contract_action.rec_tim IS '创建时间';;
 CREATE OR REPLACE FUNCTION fun4tri_contract_action()
   RETURNS trigger AS
 $BODY$declare
-	contract_lock boolean;
+	contract_lock contract.finish_flag%TYPE;
 begin
 	select finish_flag into contract_lock from contract 
-	where id = NEW.contract_id;
-	if contract_lock = true then
+	where id = OLD.contract_id;
+	if contract_lock = 'Y' then
 		raise exception '委托已锁定';
 	end if;
 		if TG_OP = 'UPDATE' then
@@ -1429,7 +1429,7 @@ CREATE TABLE pre_fee
   client_id integer NOT NULL, -- 客户ID
   amount numeric(10,2), -- 金额
   fee_tim timestamp without time zone NOT NULL, -- 费用产生时间
-  lock_flag boolean NOT NULL DEFAULT false, -- 费用锁定
+  lock_flag character(1) NOT NULL DEFAULT 'N', -- 费用锁定
   fee_financial_tim timestamp without time zone, -- 财务统计时间
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
@@ -1437,7 +1437,7 @@ CREATE TABLE pre_fee
   ex_from character varying(36) NOT NULL DEFAULT ''::character varying, -- 来源号
   ex_over character varying(36) NOT NULL DEFAULT ''::character varying, -- 结单号
   ex_feeid character varying(1) NOT NULL DEFAULT 'O'::character varying, -- 生成标记'O'原生'E'核销拆分
-  audit_id boolean NOT NULL DEFAULT false,
+  audit_id character(1) NOT NULL DEFAULT 'N',
   audit_tim timestamp without time zone, -- 核销时间
   currency_cod character varying(3) NOT NULL DEFAULT 'RMB'::character varying, -- 货币种类
   create_flag character varying(1) NOT NULL DEFAULT 'M'::character varying, -- 费用产生方式 'M'-手工录入 'P'-协议计费
@@ -1491,7 +1491,7 @@ CREATE TABLE act_fee
   ex_from character varying(36) NOT NULL DEFAULT ''::character varying, -- 来源号
   ex_over character varying(36) NOT NULL DEFAULT ''::character varying, -- 完结号
   ex_feeid character varying(1) NOT NULL DEFAULT 'O'::character varying, -- 生成标识'O'原生 'E'核销拆分
-  audit_id boolean DEFAULT false,
+  audit_id character(1) NOT NULL DEFAULT 'N',
   audit_tim timestamp without time zone, -- 核销时间
   accept_no character varying(30) NOT NULL DEFAULT ''::character varying, -- 承兑号
   currency_cod character varying(3) NOT NULL DEFAULT 'RMB'::character varying, -- 货币种类
@@ -1656,7 +1656,7 @@ CREATE TABLE p_protocol_fee_mod
   remark character varying(50) NOT NULL DEFAULT ''::character varying,
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  active_flag boolean NOT NULL DEFAULT true, -- 激活
+  active_flag character(1) NOT NULL DEFAULT 'Y', -- 激活
   CONSTRAINT pk_p_protocol_fee_mod PRIMARY KEY (id),
   CONSTRAINT fk_p_protocol_fee_mod_f FOREIGN KEY (fee_id)
       REFERENCES c_fee (id) MATCH SIMPLE
@@ -1777,7 +1777,7 @@ declare
 		and p.fee_typ = 'O'
 		and p.ex_feeid = 'O'
 		and p.fee_cod = c.id
-		and c.pair_flag = true
+		and c.pair_flag = 'Y'
 		and p.fee_cod not in(
 			select ip.fee_cod from pre_fee ip
 			where ip.contract_id = cp_contract_id and ip.fee_typ = 'I'
@@ -1785,7 +1785,7 @@ declare
 	cur_fee_mod cursor(cp_protocol_id integer) for
 		select p.fee_id,p.mod_id
 		from p_protocol_fee_mod p
-		where p.protocol_id = cp_protocol_id and p.active_flag;
+		where p.protocol_id = cp_protocol_id and p.active_flag = 'Y';
 	vi_count integer;
 	vi_protocol_id c_client.protocol_id%TYPE;
 	vc_mod_process p_fee_mod.deal_process%TYPE;
@@ -1800,7 +1800,7 @@ begin
 	vt_financial_date := vcur_contract.finish_time;
 	--检查委托是否已进行过协议计费
 	select count(1) into vi_count from pre_fee p
-	where p.contract_id = vcur_contract.id and p.create_flag = 'P' and (p.lock_flag or p.audit_id or (p.ex_feeid = 'E'));
+	where p.contract_id = vcur_contract.id and p.create_flag = 'P' and (p.lock_flag = 'Y' or p.audit_id = 'Y' or (p.ex_feeid = 'E'));
 	if vi_count > 0 then
 		return 'ERR:提单号' || vcur_contract.bill_no || '已有协议费用核销或锁定';
 	end if;

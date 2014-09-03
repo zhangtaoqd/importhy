@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     #url(r'^admin/', include(admin.site.urls)),
     #url(r'^importhy/',include('App.yardurls')),
     url(r'^',include('App.appurls')),
+
 )
 
 urlpatterns += patterns('django.contrib.staticfiles.views',

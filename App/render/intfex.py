@@ -4,13 +4,14 @@ __doc__ ='''
 '''
 from django.http import HttpResponse
 from App.render.renderviews import *
-
+from django.shortcuts import render
 
 def index(request):
     '''主界面访问'''
     return indexview(request)
 
-
+def test1(request):
+    return render(request, "importhy/test.html")
 def dealMenuReq(request):
     '''
         浏览器端点击菜单访问的Get模式处理。参数｛menutext｝

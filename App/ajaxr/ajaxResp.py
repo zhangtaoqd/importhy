@@ -1,21 +1,23 @@
 __author__ = 'dddh'
+import datetime
+from django.db import connection
 from zdCommon.sysjson import getMenuPrivilege, setMenuPrivilege, getFunc4User, checkPrivilege
-from zdCommon.dbhelp import rawsql2combodatajson,commonQuery,returnQueryJson
+from zdCommon.dbhelp import rawsql2combodatajson,commonQuery,returnQueryJson,commonUpdate,returnUpdateJson
 from App.ajaxRespFee import *
 from App.ajaxr.ajaxRespAuth import *
 from App.ajaxRespQuery import *
-from App.models import AuthModel
+from App.models import *
 ##########################################################        GET    ----
 def getsysmenu(request):
     '''功能查询'''
     ldict = json.loads(request.POST['jpargs'])
-    values,rowCounts = commonQuery(AuthModel.SysMenu.objects.all(), ldict)
+    values,rowCounts = commonQuery(SysMenu.objects.all(), ldict)
     return HttpResponse(returnQueryJson(values,rowCounts))
 def getsysfunc(request):
     '''权限查询'''
     ldict = json.loads(request.POST['jpargs'])
-    ls_sql = "select " + ", ".join(ldict['cols']) + " from sys_func "
-    return HttpResponse(json.dumps(rawsql2json(*rawsql4request(ls_sql, ldict)), ensure_ascii=False))
+    values,rowCounts = commonQuery(SysFunc.objects.all(), ldict)
+    return HttpResponse(returnQueryJson(values,rowCounts))
 def getsysmenufunc(request):
     '''功能权限查询'''
     ldict = json.loads(request.POST['jpargs'])
@@ -246,19 +248,24 @@ def updateRaw(request):
     ''' 客户维护  '''
     ldict = json.loads(request.POST['jpargs'])
     return HttpResponse(json.dumps(json2upd(ldict), ensure_ascii=False))
-
+def updateData(request):
+    ldict = json.loads(request.POST['jpargs'])
+    ltime = datetime.now()
+    lRtn = commonUpdate(ldict,request.session['userid'],ltime)
+    return HttpResponse(returnUpdateJson(lRtn))
 #####################################################  common interface ----------
 def dealPAjax(request):
     ls_err = ""
-    if ('userid' not in request.session):
-        l_rtn = {
-            'error': [],
-            'msg': '登录过期，请重新登录',
-            'stateCod': -101
-        }
-        return ( HttpResponse(json.dumps(l_rtn, ensure_ascii=False)))
-    ls_userid = str(request.session['userid'])
+    l_rtn = {}
     try:
+        if ('userid' not in request.session):
+            l_rtn = {
+                'error': [],
+                'msg': '登录过期，请重新登录',
+                'stateCod': -101
+            }
+            return ( HttpResponse(json.dumps(l_rtn, ensure_ascii=False)))
+        ls_userid = str(request.session['userid'])
         ldict = json.loads(request.POST['jpargs'])
         log(ldict)
         # 判断是否有调用的权限。
@@ -394,7 +401,7 @@ def dealPAjax(request):
                 return HttpResponse(json.dumps(l_rtn, ensure_ascii=False))
             ########################################################## update
             elif ldict['func'] == '功能维护':
-                return (updateRaw(request))
+                return (updateData(request))
             elif ldict['func'] == '权限维护':
                 return (updateRaw(request))
             elif ldict['func'] == '功能权限维护':
@@ -522,6 +529,11 @@ def dealPAjax(request):
         logErr("ajaxResp.dealPAjax执行错误：%s" % str(e.args))
         ls_err = str(e.args)
     # 前面没有正确返回，这里返回一个错误。
+    finally:
+        #sql日志
+        for q in connection.queries:
+            log(q)
+
     l_rtn = {
         "error": [ls_err],
         "msg": ldict['func'] + "执行失败",

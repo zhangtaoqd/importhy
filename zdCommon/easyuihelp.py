@@ -1,6 +1,6 @@
 __author__ = 'zhangtao'
 from django.db import models
-
+from App.models import BoolCharacter
 
 class EasyuiFieldUI:
     '''
@@ -182,29 +182,49 @@ class EasyuiFieldUI:
             #self.width = self.fObj.max_length * 5
             #self.width = columnWidth
             if self.fObj.choices is not None and len(self.fObj.choices) > 0:
-                dataList = []
-                for item in self.fObj.choices:
-                    columnWidth = max(len(item[1]),columnWidth)
-                    dataList.append({
-                        'value':item[0],
-                        'text':item[1]
-                    })
-                self.editor = {
-                    'type': 'combobox',
-                    'options': {
-                        'valueField': 'value',
-                        'textField': 'text',
-                        'data': dataList
+                if self.fObj.choices == BoolCharacter:
+                    self.align = 'center'
+                    self.halign = 'center'
+                    #self.width = len(self.title) * 18
+                    self.editor = {
+                        'type': 'checkbox',
+                        'options': {
+                            'on': 'Y',
+                            'off': 'N'
+                        }
                     }
-                }
-                self.formatter = ''' function(value,rowData,index){
+                    self.formatter = '''function (value, rowData, rowIndex) {
+                            if (value != null && value == "Y") {
+                                return '<input type="checkbox" disabled="true" value="Y" checked="checked" />';
+                            } else {
+                                return '<input type="checkbox" disabled="true" value="N"/>';
+                            }
+                    }'''
+
+                else:
+                    dataList = []
+                    for item in self.fObj.choices:
+                        columnWidth = max(len(item[1]),columnWidth)
+                        dataList.append({
+                            'value':item[0],
+                            'text':item[1]
+                        })
+                    self.editor = {
+                        'type': 'combobox',
+                        'options': {
+                            'valueField': 'value',
+                            'textField': 'text',
+                            'data': dataList
+                        }
+                    }
+                    self.formatter = ''' function(value,rowData,index){
                                      for (var i = 0,ilen = this.editor.options.data.length; i < ilen ; i++){
                                          if (this.editor.options.data[i].value == value){
                                             return this.editor.options.data[i].text;
                                          }
                                      }
                                      return value;
-                                }'''
+                                    }'''
             else:
                 if self.fObj.max_length > 300 :
                     self.editor = {

@@ -3,7 +3,7 @@
     url('^dealmenureq/$', renderviews.dealMenuReq,name='dealmenureq'),
     dealmenureq/?menutext=菜单功能名称
 ##############################################
-AJax检索数据：(全部通过是POST模式访问。)
+AJax检索数据：(全部通过是POST模式访问。)  通用查询
     url('^dealPAjax/$', ajaxResp.dealPAjax,name='dealPAjax'),
     jpargs: {
                 "reqtype":"query",
@@ -61,11 +61,19 @@ jpargs: {
         'rows': [ {  'op': 'delete',    'table': 'c_client',  'id': 25, 'subs': { }  } ....  ]
         }
 ------------------------- 统一返回格式：-----------------
+update:
        {
              "msg":"",
              "stateCod":0 、 -10、 -100、-1000 。
              "error": ['', '', '']....
              "effectnum": 1
+       }
+insert:
+       {"msg": "",
+        "error": [],
+        "changeid": {"C6497D85-4950-0001-98F3-79AD150417CF": 16},
+        #"effectnum": 4,
+        "stateCod": 202
        }
 ############################################################################
 *************************************

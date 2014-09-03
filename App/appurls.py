@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     url(r'^$', intfex.index,name='index'),
     url(r'^logon/$', "App.ajaxr.ajaxRespAuth.logon",name='logon'),
     url(r'^logout/$', "App.ajaxr.ajaxRespAuth.logout",name='logout'),
-
+    url(r'^test/$', intfex.test1,name='test1'),
     # 处理页面左边导航的功能。
     url('^dealmenureq/$', intfex.dealMenuReq,name='dealmenureq'),
     url('^dealPAjax/$', ajaxResp.dealPAjax,name='dealPAjax'),
