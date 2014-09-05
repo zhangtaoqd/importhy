@@ -9,7 +9,7 @@ from datetime import date,datetime
 from django.db import connection, transaction
 from App import models
 from zdCommon.utils import logErr, log
-from zdCommon.jsonhelp import ServerToClientJsonEncoder
+
 tbDefCache = {}  # table的定义缓存。 write here could share the data with other session .
 def getColType(atable, aCol):
     global tbDefCache
@@ -53,175 +53,41 @@ def correctjsonfield(obj, atypecode):
             logErr("无法识别的数据库对象类型代码d%，请查询：SELECT typname, oid FROM pg_type;" % atypecode)
             raise Exception("无法识别的数据库对象类型d%，请通知管理员。" % atypecode)
     return ""
+def getModelByTableName(aTableName):
+    '''
+    根据表名称查找model,查找顺序：
+      先从tbDefCache缓存中查找，没有的再在App.models模块中查找，并更新tbDefCache
+    :param aTableName: 字符型 表名称
+    :return: 对应的model
+    '''
+    if aTableName == None:
+        return None
+    if aTableName in tbDefCache:
+        return tbDefCache[aTableName]
+    m=sys.modules['App.models']#得到这个模块
+    attstr=dir(m)#得到属性的列表
+    for s in attstr:#迭代之
+        att=getattr(m,s)
+        #如果是类，而且是Father的子类
+        if str(type(att))=="<class 'django.db.models.base.ModelBase'>" \
+                and issubclass(att,models.BaseModel):
+            if att._meta.db_table == aTableName:
+                tbDefCache.update({aTableName:att})
+                return att
+    return None
 
+class ServerToClientJsonEncoder(json.JSONEncoder):
+    def default(self,obj):
+        if isinstance(obj,datetime):
+            return obj.strftime('%Y-%m-%d %H:%M:%S')
+        elif isinstance(obj,date):
+            return obj.strftime('%Y-%m-%d')
+        else:
+            return json.JSONEncoder.default(self,obj)
 
 def strip(aStr):
     return aStr.strip(" ") if aStr else ""
 
-
-def commonQuery(aQuerySet,aRequestDict):
-    '''
-    通用查询
-    :param aQuerySet: 指定model.objects.all()
-    :param aRequestDict: request参数,见interface文件
-    :return: (查询分页ValuesQuerySet ,查询总行数rowCount)
-    '''
-    values = aQuerySet
-    li_page = int(aRequestDict.get('page', 1))
-    li_rows = int(aRequestDict.get('rows', 50))
-    ld_sort = aRequestDict.get('sort', {})
-    ld_filter = aRequestDict.get('filter', {})
-    ld_cols = aRequestDict.get('cols',[])
-    filter_kwargs = {}
-    exclude_kwargs = {}
-    sort_args = []
-    for f in ld_filter:
-        if f['cod'] == None or len(f['cod']) == 0:
-            raise Exception("无法识别的属性，请重新输入")
-        if f['value'] == None:
-            raise Exception("无法识别的属性值，请重新输入")
-        if f['operatorTyp'] == '等于':
-            filter_kwargs[f['cod'] + '__exact'] = f['value']
-        elif f['operatorTyp'] == '大于':
-            filter_kwargs[f['cod'] + '__gt'] = f['value']
-        elif f['operatorTyp'] == '小于':
-            filter_kwargs[f['cod'] + '__lt'] = f['value']
-        elif f['operatorTyp'] == '大于等于':
-            filter_kwargs[f['cod'] + '__gte'] = f['value']
-        elif f['operatorTyp'] == '小于等于':
-            filter_kwargs[f['cod'] + '__lte'] = f['value']
-        elif f['operatorTyp'] == '不等于':
-            exclude_kwargs[f['cod'] + '__exact'] = f['value']
-        elif f['operatorTyp'] == '包含':
-            filter_kwargs[f['cod'] + '__contains'] = f['value']
-        elif f['operatorTyp'] == '不包含':
-            exclude_kwargs[f['cod'] + '__contains'] = f['value']
-        elif f['operatorTyp'] == '属于':
-            filter_kwargs[f['cod'] + '__in'] = f['value'].split(',')
-        elif f['operatorTyp'] == '不属于':
-            exclude_kwargs[f['cod'] + '__in'] = f['value'].split(',')
-        elif f['operatorTyp'] == '介于':
-            v_array = f['value'].split(',')
-            if len(v_array) != 2:
-                raise Exception("缺少属性值，请重新输入")
-            filter_kwargs[f['cod'] + '__range'] = f['value']
-        elif f['operatorTyp'] == '不介于':
-            v_array = f['value'].split(',')
-            if len(v_array) != 2:
-                raise Exception("缺少属性值，请重新输入")
-            exclude_kwargs[f['cod'] + '__range'] = f['value']
-        else:
-            logErr("无法识别的操作符号%s" % f['operatorTyp'])
-            raise Exception("无法识别的操作符号，请通知管理员")
-    if len(exclude_kwargs) > 0:
-        values = values.exclude(**exclude_kwargs)
-    if len(filter_kwargs) > 0:
-        values = values.filter(**filter_kwargs)
-    rowsCount = values.count()
-    for s in ld_sort:
-        if s['cod'] == None :
-            raise Exception("无法识别的排序属性，请重新输入")
-        if s['order_typ'] == None:
-            raise Exception("无法识别的属性值，请重新输入")
-        if s['order_typ'] == '升序':
-            sort_args.append(s['cod'])
-        elif s['order_typ'] == '降序':
-            sort_args.append('-' + s['cod'])
-        else:
-            logErr("无法识别的排序类型%s" % s['order_typ'])
-            raise Exception("无法识别的排序类型，请通知管理员")
-    if len(sort_args) > 0:
-        values = values.order_by(*sort_args)
-    values = values[(li_page-1)*li_rows:li_page*li_rows]
-    values = values.values(*ld_cols)
-    return values,rowsCount
-def returnQueryJson(aQuerySet, aRowsCount):
-    '''
-        根据aQuerySet语句，返回数据和记录总数。.
-    '''
-
-    l_rtn = {"msg": "查询完毕", "error":[] }
-    try:
-        l_rtn.update( { "stateCod": 1 if len(aQuerySet) > 0 else 201  , "total":aRowsCount, "rows": list(aQuerySet) } )
-    except Exception as e:
-        logErr("查询失败：%s" % str(e.args))
-        raise e
-    return json.dumps(l_rtn,ensure_ascii=False,cls=ServerToClientJsonEncoder).replace('true','"true"').replace('false','"false"')
-def commonUpdate(aDict,aRec_nam,aRec_tim,aRtn = None):
-    '''
-    通用update
-    :param rDict:request参数 见文件interface
-    :return:见文件interface
-    '''
-    if aRtn == None:
-        aRtn = {
-            'stateCod':202,
-            'msg':'修改成功',
-            'changeid':{}
-        }
-    l_rows = aDict['rows']
-    try:
-        for item in l_rows:
-            tm = getModelByTableName(item['table'])
-            if tm == None:
-                raise Exception("表参数错误")
-            if item['op'] == 'insert':
-                l_cols = item['cols']
-                l_cols.pop('id',0)
-                l_cols.update({'rec_nam':aRec_nam,'rec_tim':aRec_tim})
-                o = tm(**l_cols)
-                o.save()
-                l_newid = o.id
-                aRtn['changeid'].update({
-                        item['uuid']:l_newid
-                })
-                if len(item['uuid']) > 10 and 'rows' in item['subs']:
-                    for s_item in item['subs']['rows']:
-                        for (k,v) in s_item['cols'].items():
-                            if v == item['uuid']:
-                                s_item['cols'][k] = l_newid
-
-            elif item['op'] in ['update','updatedirty']:
-                l_cols = item['cols']
-                l_cols.pop('id',0)
-                l_oldid = item['id']
-                o = tm.objects.get(id=l_oldid)
-                for k,v in l_cols.items():
-                    if item['op'] == 'update':
-                        if o[k] == v[1]:
-                            o[k] = v[0]
-                        else:
-                            raise Exception("更新数据已发生变动，修改数据失败")
-                    else:
-                        o[k] = v[0]
-                o.save(update_fields=list(l_cols.keys()))
-            elif item['op'] == 'delete':
-                l_oldid = item['id']
-                o = tm.objects.get(id=l_oldid)
-                o.delete()
-            else:
-                raise Exception("修改类型错误")
-            if 'rows' in item['subs']:
-                commonUpdate(item['subs'],aRec_nam,aRec_tim,aRtn)
-    except Exception as e:
-        logErr("错误：%s" % str(e.args))
-        raise e
-    return aRtn
-def returnUpdateJson(aResult):
-    l_rtn = {"error": [],
-             "msg":"修改失败",
-             "stateCod": -4 ,
-             "effectnum": 0 ,
-             "changeid" : {},
-             "result":{}
-    }
-    try:
-        l_rtn.update(aResult)
-    except Exception as e:
-        logErr("数据库执行错误：%s" % str(e.args))
-        l_rtn.update({"stateCod": -4, "error": str(l_rtn['error']), "msg":"执行失败" })
-        raise e
-    return json.dumps(l_rtn,ensure_ascii=False,cls=ServerToClientJsonEncoder)
 
 def rawsql4request(aSql, aRequestDict):
     '''

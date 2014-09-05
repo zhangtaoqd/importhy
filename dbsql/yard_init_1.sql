@@ -1040,7 +1040,6 @@ CREATE TABLE c_fee
 (
   id serial NOT NULL,
   fee_name character varying(20) NOT NULL, -- 费用名称
-  protocol_flag character(1) NOT NULL DEFAULT 'N', -- 协议费用标识
   remark character varying(50) NOT NULL DEFAULT ''::character varying, -- 备注
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
@@ -1056,18 +1055,17 @@ ALTER TABLE c_fee
 COMMENT ON TABLE c_fee
   IS '基础代码费用名称';;
 COMMENT ON COLUMN c_fee.fee_name IS '费用名称';;
-COMMENT ON COLUMN c_fee.protocol_flag IS '协议费用标识';;
 COMMENT ON COLUMN c_fee.remark IS '备注';;
 COMMENT ON COLUMN c_fee.pair_flag IS 'Y 插入应付自动生成应收，模拟代收代付';;
-INSERT INTO c_fee VALUES (1, '包干费', 'Y', '', 1, '2014-03-04 08:26:50',  'N');;
-INSERT INTO c_fee VALUES (2, '码头超期费', 'N', '', 1, '2014-03-04 08:26:50',  'Y');;
-INSERT INTO c_fee VALUES (3, '码头堆存费', 'N', '', 1, '2014-03-04 08:29:03',  'Y');;
-INSERT INTO c_fee VALUES (4, '码头搬移费', 'N', '', 1, '2014-03-04 08:29:03',  'Y');;
-INSERT INTO c_fee VALUES (5, '海关验货费', 'N', '', 1, '2014-03-04 08:29:03',  'N');;
-INSERT INTO c_fee VALUES (6, '商检熏蒸费', 'N', '', 1, '2014-03-04 08:29:03',  'Y');;
-INSERT INTO c_fee VALUES (7, '商检熏蒸场地费', 'N', '', 1, '2014-03-04 08:29:03',  'Y');;
-INSERT INTO c_fee VALUES (8, '商检熏蒸拖车费', 'N', '', 1, '2014-03-04 08:29:03',  'Y');;
-INSERT INTO c_fee VALUES (11, '滞报金', 'N', '', 1, '2014-04-28 15:21:54',  'Y');;
+INSERT INTO c_fee VALUES (1, '包干费',  '', 1, '2014-03-04 08:26:50',  'N');;
+INSERT INTO c_fee VALUES (2, '码头超期费',  '', 1, '2014-03-04 08:26:50',  'Y');;
+INSERT INTO c_fee VALUES (3, '码头堆存费',  '', 1, '2014-03-04 08:29:03',  'Y');;
+INSERT INTO c_fee VALUES (4, '码头搬移费',  '', 1, '2014-03-04 08:29:03',  'Y');;
+INSERT INTO c_fee VALUES (5, '海关验货费',  '', 1, '2014-03-04 08:29:03',  'N');;
+INSERT INTO c_fee VALUES (6, '商检熏蒸费',  '', 1, '2014-03-04 08:29:03',  'Y');;
+INSERT INTO c_fee VALUES (7, '商检熏蒸场地费', '', 1, '2014-03-04 08:29:03',  'Y');;
+INSERT INTO c_fee VALUES (8, '商检熏蒸拖车费',  '', 1, '2014-03-04 08:29:03',  'Y');;
+INSERT INTO c_fee VALUES (11, '滞报金',  '', 1, '2014-04-28 15:21:54',  'Y');;
 SELECT pg_catalog.setval('c_fee_id_seq', 11, true);;
 CREATE TABLE c_pay_type
 (
@@ -1194,23 +1192,23 @@ CREATE TABLE contract
   rec_tim timestamp without time zone NOT NULL, -- 创建时间
   vslvoy character varying(40) NOT NULL DEFAULT ''::character varying, -- 船名航次
   contract_no character varying(20) NOT NULL DEFAULT ''::character varying, -- 合同号
-  dispatch_place integer NOT NULL, -- 发货地ID
+  dispatch_place_id integer NOT NULL, -- 发货地ID
   custom_title1 character varying(30) NOT NULL DEFAULT ''::character varying, -- 报关抬头1
   custom_title2 character varying(30) NOT NULL DEFAULT ''::character varying, -- 报关抬头2
   landtrans_id integer, -- 陆运车队ID
   check_yard_id integer, -- 查验场站ID
   unbox_yard_id integer, -- 拆箱场站
   credit_id integer, -- 信用证公司ID
-  cargo_name integer, -- 货物名称ID
-  origin_place integer, -- 产地ID
-  cargo_type integer, -- 货物分类ID
+  cargo_name_id integer, -- 货物名称ID
+  origin_place_id integer, -- 产地ID
+  cargo_type_id integer, -- 货物分类ID
   cntr_freedays integer, -- 箱使天数
   pre_inport_date date, --预计到港日期
   CONSTRAINT pk_contract PRIMARY KEY (id),
-  CONSTRAINT fk_contract_cargoname FOREIGN KEY (cargo_name)
+  CONSTRAINT fk_contract_cargoname FOREIGN KEY (cargo_name_id)
       REFERENCES c_cargo (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_contract_cargotype FOREIGN KEY (cargo_type)
+  CONSTRAINT fk_contract_cargotype FOREIGN KEY (cargo_type_id)
       REFERENCES c_cargo_type (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
   CONSTRAINT fk_contract_checkyard FOREIGN KEY (check_yard_id)
@@ -1225,13 +1223,13 @@ CREATE TABLE contract
   CONSTRAINT fk_contract_custom FOREIGN KEY (custom_id)
       REFERENCES c_client (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_contract_dispatch FOREIGN KEY (dispatch_place)
+  CONSTRAINT fk_contract_dispatch FOREIGN KEY (dispatch_place_id)
       REFERENCES c_dispatch (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
   CONSTRAINT fk_contract_landtrans FOREIGN KEY (landtrans_id)
       REFERENCES c_client (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_contract_originplace FOREIGN KEY (origin_place)
+  CONSTRAINT fk_contract_originplace FOREIGN KEY (origin_place_id)
       REFERENCES c_place (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
   CONSTRAINT fk_contract_port FOREIGN KEY (port_id)
@@ -1276,16 +1274,16 @@ COMMENT ON COLUMN contract.rec_nam IS '创建人员';;
 COMMENT ON COLUMN contract.rec_tim IS '创建时间';;
 COMMENT ON COLUMN contract.vslvoy IS '船名航次';;
 COMMENT ON COLUMN contract.contract_no IS '合同号';;
-COMMENT ON COLUMN contract.dispatch_place IS '发货地ID';;
+COMMENT ON COLUMN contract.dispatch_place_id IS '发货地ID';;
 COMMENT ON COLUMN contract.custom_title1 IS '报关抬头1';;
 COMMENT ON COLUMN contract.custom_title2 IS '报关抬头2';;
 COMMENT ON COLUMN contract.landtrans_id IS '陆运车队ID';;
 COMMENT ON COLUMN contract.check_yard_id IS '查验场站ID';;
 COMMENT ON COLUMN contract.unbox_yard_id IS '拆箱场站';;
 COMMENT ON COLUMN contract.credit_id IS '信用证公司ID';;
-COMMENT ON COLUMN contract.cargo_name IS '货物名称ID';;
-COMMENT ON COLUMN contract.origin_place IS '产地ID';;
-COMMENT ON COLUMN contract.cargo_type IS '货物分类ID';;
+COMMENT ON COLUMN contract.cargo_name_id IS '货物名称ID';;
+COMMENT ON COLUMN contract.origin_place_id IS '产地ID';;
+COMMENT ON COLUMN contract.cargo_type_id IS '货物分类ID';;
 COMMENT ON COLUMN contract.cntr_freedays IS '箱使天数';;
 COMMENT ON COLUMN contract.pre_inport_date IS '预计到港日期';;
 CREATE INDEX fki_contract_custom
@@ -1393,14 +1391,14 @@ CREATE TABLE contract_cntr
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   remark character varying(50) NOT NULL DEFAULT ''::character varying,
-  cntr_type integer NOT NULL, -- 箱型
+  cntr_type_id integer NOT NULL, -- 箱型
   contract_id integer NOT NULL, -- 委托ID
   check_num integer, -- 查验箱量
   CONSTRAINT pk_contract_cntr PRIMARY KEY (id),
   CONSTRAINT fk_contract_cntr_contract FOREIGN KEY (contract_id)
       REFERENCES contract (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE CASCADE,
-  CONSTRAINT fk_contract_cntr_type FOREIGN KEY (cntr_type)
+  CONSTRAINT fk_contract_cntr_type FOREIGN KEY (cntr_type_id)
       REFERENCES c_cntr_type (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT
 )
@@ -1412,7 +1410,7 @@ ALTER TABLE contract_cntr
 COMMENT ON TABLE contract_cntr
   IS '委托箱量';;
 COMMENT ON COLUMN contract_cntr.cntr_num IS '箱量';;
-COMMENT ON COLUMN contract_cntr.cntr_type IS '箱型';;
+COMMENT ON COLUMN contract_cntr.cntr_type_id IS '箱型';;
 COMMENT ON COLUMN contract_cntr.contract_id IS '委托ID';;
 COMMENT ON COLUMN contract_cntr.check_num IS '查验箱量';;
 CREATE TRIGGER tri_contract_cntr
@@ -1437,7 +1435,7 @@ CREATE TABLE pre_fee
   ex_from character varying(36) NOT NULL DEFAULT ''::character varying, -- 来源号
   ex_over character varying(36) NOT NULL DEFAULT ''::character varying, -- 结单号
   ex_feeid character varying(1) NOT NULL DEFAULT 'O'::character varying, -- 生成标记'O'原生'E'核销拆分
-  audit_id character(1) NOT NULL DEFAULT 'N',
+  audit_flag character(1) NOT NULL DEFAULT 'N',
   audit_tim timestamp without time zone, -- 核销时间
   currency_cod character varying(3) NOT NULL DEFAULT 'RMB'::character varying, -- 货币种类
   create_flag character varying(1) NOT NULL DEFAULT 'M'::character varying, -- 费用产生方式 'M'-手工录入 'P'-协议计费
@@ -1491,7 +1489,7 @@ CREATE TABLE act_fee
   ex_from character varying(36) NOT NULL DEFAULT ''::character varying, -- 来源号
   ex_over character varying(36) NOT NULL DEFAULT ''::character varying, -- 完结号
   ex_feeid character varying(1) NOT NULL DEFAULT 'O'::character varying, -- 生成标识'O'原生 'E'核销拆分
-  audit_id character(1) NOT NULL DEFAULT 'N',
+  audit_flag character(1) NOT NULL DEFAULT 'N',
   audit_tim timestamp without time zone, -- 核销时间
   accept_no character varying(30) NOT NULL DEFAULT ''::character varying, -- 承兑号
   currency_cod character varying(3) NOT NULL DEFAULT 'RMB'::character varying, -- 货币种类
@@ -1580,47 +1578,47 @@ CREATE TABLE p_fee_mod
   remark character varying(50) NOT NULL DEFAULT ''::character varying,
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  col_1 integer, -- 模式要素1
-  col_2 integer, -- 模式要素2
-  col_3 integer, -- 模式要素3
-  col_4 integer, -- 模式要素4
-  col_5 integer, -- 模式要素5
-  col_6 integer, -- 模式要素6
-  col_7 integer, -- 模式要素7
-  col_8 integer, -- 模式要素8
-  col_9 integer, -- 模式要素9
-  col_10 integer, -- 模式要素10
+  col_1_id integer, -- 模式要素1
+  col_2_id integer, -- 模式要素2
+  col_3_id integer, -- 模式要素3
+  col_4_id integer, -- 模式要素4
+  col_5_id integer, -- 模式要素5
+  col_6_id integer, -- 模式要素6
+  col_7_id integer, -- 模式要素7
+  col_8_id integer, -- 模式要素8
+  col_9_id integer, -- 模式要素9
+  col_10_id integer, -- 模式要素10
   mod_descript character varying(200) NOT NULL DEFAULT ''::character varying, -- 模式描述
 	deal_process character varying(50) NOT NULL DEFAULT ''::character varying, -- 模式绑定存储过程
   CONSTRAINT pk_p_fee_mod PRIMARY KEY (id),
-  CONSTRAINT fk_p_fee_mod_1 FOREIGN KEY (col_1)
+  CONSTRAINT fk_p_fee_mod_1 FOREIGN KEY (col_1_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_p_fee_mod_10 FOREIGN KEY (col_10)
+  CONSTRAINT fk_p_fee_mod_10 FOREIGN KEY (col_10_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_p_fee_mod_2 FOREIGN KEY (col_2)
+  CONSTRAINT fk_p_fee_mod_2 FOREIGN KEY (col_2_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_p_fee_mod_3 FOREIGN KEY (col_3)
+  CONSTRAINT fk_p_fee_mod_3 FOREIGN KEY (col_3_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_p_fee_mod_4 FOREIGN KEY (col_4)
+  CONSTRAINT fk_p_fee_mod_4 FOREIGN KEY (col_4_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_p_fee_mod_5 FOREIGN KEY (col_5)
+  CONSTRAINT fk_p_fee_mod_5 FOREIGN KEY (col_5_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_p_fee_mod_6 FOREIGN KEY (col_6)
+  CONSTRAINT fk_p_fee_mod_6 FOREIGN KEY (col_6_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_p_fee_mod_7 FOREIGN KEY (col_7)
+  CONSTRAINT fk_p_fee_mod_7 FOREIGN KEY (col_7_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_p_fee_mod_8 FOREIGN KEY (col_8)
+  CONSTRAINT fk_p_fee_mod_8 FOREIGN KEY (col_8_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
-  CONSTRAINT fk_p_fee_mod_9 FOREIGN KEY (col_9)
+  CONSTRAINT fk_p_fee_mod_9 FOREIGN KEY (col_9_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE RESTRICT,
   CONSTRAINT uk_p_fee_mod UNIQUE (mod_name)
@@ -1633,16 +1631,16 @@ ALTER TABLE p_fee_mod
 COMMENT ON TABLE p_fee_mod
   IS '费用模式头表';;
 COMMENT ON COLUMN p_fee_mod.mod_name IS '费用模式名称';;
-COMMENT ON COLUMN p_fee_mod.col_1 IS '模式要素1';;
-COMMENT ON COLUMN p_fee_mod.col_2 IS '模式要素2';;
-COMMENT ON COLUMN p_fee_mod.col_3 IS '模式要素3';;
-COMMENT ON COLUMN p_fee_mod.col_4 IS '模式要素4';;
-COMMENT ON COLUMN p_fee_mod.col_5 IS '模式要素5';;
-COMMENT ON COLUMN p_fee_mod.col_6 IS '模式要素6';;
-COMMENT ON COLUMN p_fee_mod.col_7 IS '模式要素7';;
-COMMENT ON COLUMN p_fee_mod.col_8 IS '模式要素8';;
-COMMENT ON COLUMN p_fee_mod.col_9 IS '模式要素9';;
-COMMENT ON COLUMN p_fee_mod.col_10 IS '模式要素10';;
+COMMENT ON COLUMN p_fee_mod.col_1_id IS '模式要素1';;
+COMMENT ON COLUMN p_fee_mod.col_2_id IS '模式要素2';;
+COMMENT ON COLUMN p_fee_mod.col_3_id IS '模式要素3';;
+COMMENT ON COLUMN p_fee_mod.col_4_id IS '模式要素4';;
+COMMENT ON COLUMN p_fee_mod.col_5_id IS '模式要素5';;
+COMMENT ON COLUMN p_fee_mod.col_6_id IS '模式要素6';;
+COMMENT ON COLUMN p_fee_mod.col_7_id IS '模式要素7';;
+COMMENT ON COLUMN p_fee_mod.col_8_id IS '模式要素8';;
+COMMENT ON COLUMN p_fee_mod.col_9_id IS '模式要素9';;
+COMMENT ON COLUMN p_fee_mod.col_10_id IS '模式要素10';;
 COMMENT ON COLUMN p_fee_mod.mod_descript IS '模式描述';;
 COMMENT ON COLUMN p_fee_mod.deal_process IS '模式绑定存储过程';;
 

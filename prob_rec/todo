@@ -1,4 +1,4 @@
-todo logon
+todo logon 完成
 登录三次错误锁定帐号
 
 todo ManyToManyField
@@ -33,11 +33,11 @@ class Blog(models.Model):
         do_something()
         super(Blog, self).save(*args, **kwargs) # Call the "real" save() method.
         do_something_else() 例如 日志
-todo model class Meta verbose_name
+todo model class Meta verbose_name 完成
 设置model class Meta的verbose_name属性
-todo ForeignKey on_delete
+todo ForeignKey on_delete  完成
 规划好外键字段的on_delete属性,可利用后台的外键约束
-todo ForeignKey type fieldname
+todo ForeignKey type fieldname 完成
 ForeignKey类型字段名去掉_id
-todo test django model transaction
+todo test django model transaction 完成
 测试django事务

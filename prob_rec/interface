@@ -8,8 +8,8 @@ AJax检索数据：(全部通过是POST模式访问。)  通用查询
     jpargs: {
                 "reqtype":"query",
                 "func":"权限查询",    # 检索标识。
-                "page":1,
-                "rows":20,
+                "page":1,    #空 返回全部数据
+                "rows":20,   #空 返回全部数据
                 "cols":["id","funcname","remark"]
                 'filter':'[ {
                     'cod':'client_name',
@@ -58,7 +58,7 @@ jpargs:   {
 **********************************************    前台delete：
 jpargs: {
         'reqtype':'update',
-        'rows': [ {  'op': 'delete',    'table': 'c_client',  'id': 25, 'subs': { }  } ....  ]
+        'rows': [ {  'op': 'delete',    'table': 'c_client',  'id': [25,26,27], 'subs': { }  } ....  ]
         }
 ------------------------- 统一返回格式：-----------------
 update:

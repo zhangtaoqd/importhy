@@ -1,4 +1,18 @@
-\u6570\u636E\u5E93\u8BF4\u660E
-1.\u65E5\u5FD7\u67E5\u8BE2\u6709\u5173\u6570\u636E\u5E93\u7EA6\u5B9A
-  \u6709\u6CE8\u91CA\u7684\u8868\u548C\u5B57\u6BB5\uFF0C\u5728\u67E5\u8BE2\u6761\u4EF6\u4E2D\u51FA\u73B0\u3002
-  \u6709\u5916\u952E\u5173\u8054\u7684\uFF0C\u4ECE\u5916\u952E\u6CE8\u91CA\u4E2D\u53D6\u663E\u793A\u7684\u5B57\u6BB5\uFF0C\u4F8B\u5982fk_contract_cargonamede \u7684\u6CE8\u91CA\u5199cargo_name
+1.外键字段名称加'_id',例如下表中的post_id,user_id：
+    CREATE TABLE s_postuser
+    (
+      post_id integer NOT NULL, -- 岗位ID
+      user_id integer NOT NULL, -- 用户ID
+      rec_nam integer NOT NULL,
+      rec_tim timestamp without time zone NOT NULL,
+      remark character varying(50) NOT NULL DEFAULT ''::character varying,
+      id serial NOT NULL,
+      CONSTRAINT pk_s_postuser PRIMARY KEY (id),
+      CONSTRAINT fk_s_postuser_post FOREIGN KEY (post_id)
+          REFERENCES s_post (id) MATCH SIMPLE
+          ON UPDATE NO ACTION ON DELETE CASCADE,
+      CONSTRAINT fk_s_postuser_user FOREIGN KEY (user_id)
+          REFERENCES s_user (id) MATCH SIMPLE
+          ON UPDATE NO ACTION ON DELETE CASCADE,
+      CONSTRAINT uk_s_postuser UNIQUE (post_id, user_id)
+    )

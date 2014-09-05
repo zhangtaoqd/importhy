@@ -536,10 +536,10 @@ $.extend($.fn.datagrid.defaults, {
             queryParam.cols.push('id');
         }
         if (queryParam.page == undefined) {
-            queryParam.page = -1;
+            //queryParam.page = -1;
         }
         if (queryParam.rows == undefined) {
-            queryParam.rows = -1;
+            //queryParam.rows = -1;
         }
         opts.loadNumber++;
         if (opts.autoLoad == false && opts.loadNumber == 1) {
@@ -832,13 +832,17 @@ $.extend($.fn.datagrid.methods, {
         var deleteArray = new Array();
         var updateArray = new Array();
         var insertArray = new Array();
+        var delidArray = new Array();
         if (type == 'delete' || type == 'all') {
             var deletedRows = $(jq).datagrid('getChanges', 'deleted');
             for (var i = 0, ilen = deletedRows.length; i < ilen; i++) {
+                delidArray.push(deletedRows[i].id);
+            }
+            if (delidArray.length > 0) {
                 deleteArray.push({
                     op: 'delete',
                     table: $(jq).datagrid('options').dataTable,
-                    id: deletedRows[i].id,
+                    id: delidArray,
                     subs: {}
                 });
             }

@@ -4,14 +4,188 @@ import json
 
 from django.db import connection
 
-from App.models import SysMenu,PostMenu,PostUser
-from zdCommon.dbhelp import cursorSelect
+from App.models import SysMenu,SysMenuFunc,PostMenu,PostUser,PostMenuFunc
+from zdCommon.dbhelp import cursorSelect,getModelByTableName,ServerToClientJsonEncoder
 from zdCommon.utils import logErr, log
 
 
 def loginOnly():
     pass
 
+
+
+def commonQuery(aQuerySet,aRequestDict):
+    '''
+    通用查询
+    :param aQuerySet: 指定model.objects.all()
+    :param aRequestDict: request参数,见interface文件
+    :return: (查询分页ValuesQuerySet ,查询总行数rowCount)
+    '''
+    values = aQuerySet
+    if 'page' not in aRequestDict:
+        li_page = None
+    else:
+        li_page = int(aRequestDict.get('page', 1))
+    if 'rows' not in aRequestDict:
+        li_rows = None
+    else:
+        li_rows = int(aRequestDict.get('rows', 50))
+
+    ld_sort = aRequestDict.get('sort', {})
+    ld_filter = aRequestDict.get('filter', {})
+    ld_cols = aRequestDict.get('cols',[])
+    filter_kwargs = {}
+    exclude_kwargs = {}
+    sort_args = []
+    for f in ld_filter:
+        if f['cod'] == None or len(f['cod']) == 0:
+            raise Exception("无法识别的属性，请重新输入")
+        if f['value'] == None:
+            raise Exception("无法识别的属性值，请重新输入")
+        if f['operatorTyp'] == '等于':
+            filter_kwargs[f['cod'] + '__exact'] = f['value']
+        elif f['operatorTyp'] == '大于':
+            filter_kwargs[f['cod'] + '__gt'] = f['value']
+        elif f['operatorTyp'] == '小于':
+            filter_kwargs[f['cod'] + '__lt'] = f['value']
+        elif f['operatorTyp'] == '大于等于':
+            filter_kwargs[f['cod'] + '__gte'] = f['value']
+        elif f['operatorTyp'] == '小于等于':
+            filter_kwargs[f['cod'] + '__lte'] = f['value']
+        elif f['operatorTyp'] == '不等于':
+            exclude_kwargs[f['cod'] + '__exact'] = f['value']
+        elif f['operatorTyp'] == '包含':
+            filter_kwargs[f['cod'] + '__contains'] = f['value']
+        elif f['operatorTyp'] == '不包含':
+            exclude_kwargs[f['cod'] + '__contains'] = f['value']
+        elif f['operatorTyp'] == '属于':
+            filter_kwargs[f['cod'] + '__in'] = f['value'].split(',')
+        elif f['operatorTyp'] == '不属于':
+            exclude_kwargs[f['cod'] + '__in'] = f['value'].split(',')
+        elif f['operatorTyp'] == '介于':
+            v_array = f['value'].split(',')
+            if len(v_array) != 2:
+                raise Exception("缺少属性值，请重新输入")
+            filter_kwargs[f['cod'] + '__range'] = f['value']
+        elif f['operatorTyp'] == '不介于':
+            v_array = f['value'].split(',')
+            if len(v_array) != 2:
+                raise Exception("缺少属性值，请重新输入")
+            exclude_kwargs[f['cod'] + '__range'] = f['value']
+        else:
+            logErr("无法识别的操作符号%s" % f['operatorTyp'])
+            raise Exception("无法识别的操作符号，请通知管理员")
+    if len(exclude_kwargs) > 0:
+        values = values.exclude(**exclude_kwargs)
+    if len(filter_kwargs) > 0:
+        values = values.filter(**filter_kwargs)
+    rowsCount = values.count()
+    for s in ld_sort:
+        if s['cod'] == None :
+            raise Exception("无法识别的排序属性，请重新输入")
+        if s['order_typ'] == None:
+            raise Exception("无法识别的属性值，请重新输入")
+        if s['order_typ'] == '升序':
+            sort_args.append(s['cod'])
+        elif s['order_typ'] == '降序':
+            sort_args.append('-' + s['cod'])
+        else:
+            logErr("无法识别的排序类型%s" % s['order_typ'])
+            raise Exception("无法识别的排序类型，请通知管理员")
+    if len(sort_args) > 0:
+        values = values.order_by(*sort_args)
+    if li_page != None and li_rows != None:
+        values = values[(li_page-1)*li_rows:li_page*li_rows]
+    values = values.values(*ld_cols)
+    return (values,rowsCount)
+def returnQueryJson(aQuerySet, aRowsCount):
+    '''
+        根据aQuerySet语句，返回数据和记录总数。.
+    '''
+
+    l_rtn = {"msg": "查询完毕", "error":[] }
+    try:
+        l_rtn.update( { "stateCod": 1 if len(aQuerySet) > 0 else 201  , "total":aRowsCount, "rows": list(aQuerySet) } )
+    except Exception as e:
+        logErr("查询失败：%s" % str(e.args))
+        raise e
+    return json.dumps(l_rtn,ensure_ascii=False,cls=ServerToClientJsonEncoder).replace('true','"true"').replace('false','"false"')
+def commonUpdate(aDict,aRec_nam,aRec_tim,aRtn = None):
+    '''
+    通用update
+    :param rDict:request参数 见文件interface
+    :return:见文件interface
+    '''
+    if aRtn == None:
+        aRtn = {
+            'stateCod':202,
+            'msg':'修改成功',
+            'changeid':{}
+        }
+    l_rows = aDict['rows']
+    try:
+        for item in l_rows:
+            tm = getModelByTableName(item['table'])
+            if tm == None:
+                raise Exception("表参数错误")
+            if item['op'] == 'insert':
+                l_cols = item['cols']
+                l_cols.pop('id',0)
+                l_cols.update({'rec_nam':aRec_nam,'rec_tim':aRec_tim})
+                o = tm(**l_cols)
+                o.save()
+                l_newid = o.id
+                aRtn['changeid'].update({
+                        item['uuid']:l_newid
+                })
+                if len(item['uuid']) > 10 and 'rows' in item['subs']:
+                    for s_item in item['subs']['rows']:
+                        for (k,v) in s_item['cols'].items():
+                            if v == item['uuid']:
+                                s_item['cols'][k] = l_newid
+
+            elif item['op'] in ['update','updatedirty']:
+                l_cols = item['cols']
+                l_cols.pop('id',0)
+                l_oldid = item['id']
+                o = tm.objects.get(id=l_oldid)
+                for k,v in l_cols.items():
+                    if item['op'] == 'update':
+                        if o[k] == v[1]:
+                            o[k] = v[0]
+                        else:
+                            raise Exception("更新数据已发生变动，修改数据失败")
+                    else:
+                        o[k] = v[0]
+                o.save(update_fields=list(l_cols.keys()))
+            elif item['op'] == 'delete':
+                l_oldid = item['id']
+                tm.objects.filter(id__in=l_oldid).delete()
+                #o = tm.objects.get(id=l_oldid)
+                #o.delete()
+            else:
+                raise Exception("修改类型错误")
+            if 'rows' in item['subs']:
+                commonUpdate(item['subs'],aRec_nam,aRec_tim,aRtn)
+    except Exception as e:
+        logErr("错误：%s" % str(e.args))
+        raise e
+    return aRtn
+def returnUpdateJson(aResult):
+    l_rtn = {"error": [],
+             "msg":"修改失败",
+             "stateCod": -4 ,
+             "effectnum": 0 ,
+             "changeid" : {},
+             "result":{}
+    }
+    try:
+        l_rtn.update(aResult)
+    except Exception as e:
+        logErr("数据库执行错误：%s" % str(e.args))
+        l_rtn.update({"stateCod": -4, "error": str(l_rtn['error']), "msg":"执行失败" })
+        raise e
+    return json.dumps(l_rtn,ensure_ascii=False,cls=ServerToClientJsonEncoder)
 
 def getMenuList():
     '''导航菜单 返回除根节点外的所有节点对象数组'''
@@ -30,7 +204,6 @@ def getMenuList():
     else:
         pass   # no top menu ... how that posible ....
     return(ldict_1)
-
 
 def getMenuListByUser(aUserId):
     '''
@@ -57,6 +230,40 @@ def getMenuListByUser(aUserId):
     else:
         pass   # no top menu ... how that posible ....
     return(ldict_1)
+
+def getMenuPrivilege(aPostid):
+    l_postid = int(aPostid)
+    l_menu1 = SysMenu.objects.filter(parent=0,sys_flag='N').exclude(id=0).\
+        order_by('sortno').values('id','menushowname')
+    ldict_1 = []
+    for m1 in l_menu1:
+        l_menu2 = SysMenu.objects.filter(parent=m1['id']).order_by('sortno').values('id','menushowname')
+        ldict_2 = []
+        for m2 in l_menu2:
+            l_func = SysMenuFunc.objects.filter(menu=m2['id']).values('func','func__funcname')
+            ldict_3 = []
+            for f in l_func:
+                l_oldval = False
+                l_fCount = PostMenuFunc.objects.filter(post=l_postid,menu=m2['id'],func=f['func']).count()
+                if l_fCount > 0:
+                    l_oldval = True
+                l_attr = { "type": "func", "id": str(f['func']), "oldval": l_oldval }
+                l_id = "m" + str(m2['id']) + "f" + str(f['func'])
+                ldict_3.append( { "id": l_id, "text": f['func__funcname'], "checked": l_oldval, "attributes": l_attr } )   #把菜单有的权限列出来
+            l_oldval = False
+            l_m2Count = PostMenu.objects.filter(post=l_postid,menu=m2['id']).count()
+            if l_m2Count > 0:
+                l_oldval = True
+            l_attr = { "type": "menu", "id": str(m2['id']), "oldval": l_oldval }
+            ldict_2.append({"id": m2['id'], "text": m2['menushowname'], "attributes": l_attr, "children": ldict_3 } ) # , "checked": l_oldval  }  )
+        l_oldval = False
+        l_m1Count = PostMenu.objects.filter(post=l_postid,menu=m1['id']).count()  # menu的func功能。
+        if l_m1Count > 0 :
+            l_oldval = True
+        l_attr = { "type": "menu", "id": str(m1['id']) , "oldval": l_oldval }
+        ldict_1.append( { "id": m1['id'], "text": m1['menushowname'], "attributes": l_attr, 'children': ldict_2 } ) # , "checked": l_oldval  } )
+    l_rtn = { "msg":"查询成功", "stateCod": 1, "error": [], "rows": ldict_1 }
+    return(l_rtn)
 
 def checkPrivilege(aDict):
     #  according to  aDict["func"]  ,check the aDict["rows"]    'op': 'insert',
@@ -112,53 +319,7 @@ def getAuth4post(aPostId, aMenuId):
     # select a.func_id , b.funcname from s_postmenufunc as a  , sys_func  as b where menu_id = 9 and post_id = 2 and a.id = b.id
 
 
-def getMenuPrivilege(aPostid):
-    l_postid = int(aPostid)
-    l_func = dict(cursorSelect('select id, funcname from sys_func'))
-    #l_funcid = [i[0] for i in l_func]       # 得到功能id 的list
-    #l_funcname = [i[1] for i in l_func]       # 得到功能名称 的list
-    l_rtn = { }
-    l_menu1 = cursorSelect('select id, menuname, menushowname from sys_menu where parent_id = 0 and id <> 0 and sys_flag = false order by sortno;')
-    ldict_1 = []
-    if len(l_menu1) > 0:  # 有1级菜单，循环读出到dict中。
-        for i_m1 in l_menu1:
-            l_menu2 = cursorSelect('select id,menuname, menushowname from sys_menu where parent_id = %d order by sortno;' % i_m1[0])
-            ldict_2 = []
-            if len(l_menu2) > 0 :
-                for i_m2 in l_menu2:
-                    l_menu3 = cursorSelect('select func_id from sys_menu_func where menu_id = %d' % i_m2[0])  # menu下的func功能。
-                    ldict_3 = []
-                    if len(l_menu3) > 0 :
-                        for i_m3 in l_menu3:   # 列出menu下的func权限，看看当前post有没有这个权限。   checked    indeterminate unckecked
-                            l_oldval = False
-                            l_countfunc = cursorSelect('select count(1) from s_postmenufunc where post_id=%d and menu_id=%d and func_id=%d' % (l_postid, i_m2[0], i_m3[0]))  # menu下的func功能。
-                            if l_countfunc[0][0] > 0 :
-                                l_oldval = True
-                            l_attr = { "type": "func", "id": str(i_m3[0]), "oldval": l_oldval }
-                            l_id = "m" + str(i_m2[0]) + "f" + str(i_m3[0])
-                            ldict_3.append( { "id": l_id, "text": l_func[i_m3[0]], "checked": l_oldval, "attributes": l_attr } )   #把菜单有的权限列出来
-                    else:
-                        pass
 
-                    l_oldval = False
-                    l_countmenu2 = cursorSelect('select count(1) from s_postmenu where post_id=%d and menu_id=%d' % (l_postid, i_m2[0]))  # menu下的func功能。
-                    if l_countmenu2[0][0] > 0 :
-                        l_oldval = True
-                    l_attr = { "type": "menu", "id": str(i_m2[0]), "oldval": l_oldval }
-                    ldict_2.append({"id": i_m2[0], "text": i_m2[2], "attributes": l_attr, "children": ldict_3 } ) # , "checked": l_oldval  }  )
-            else:
-                pass # no child
-            l_oldval = False
-            l_countmenu1 = cursorSelect('select count(1) from s_postmenu where post_id=%d and menu_id=%d' % (l_postid, i_m1[0]))  # menu的func功能。
-            if l_countmenu1[0][0] > 0 :
-                l_oldval = True
-            l_attr = { "type": "menu", "id": str(i_m1[0]) , "oldval": l_oldval }
-            ldict_1.append( { "id": i_m1[0], "text": i_m1[2], "attributes": l_attr, 'children': ldict_2 } ) # , "checked": l_oldval  } )
-    else:
-        pass   # no top menu ... how that posible ....
-    #log(ldict_1)
-    l_rtn = { "msg":"查询成功", "stateCod": 1, "error": [], "rows": ldict_1   }
-    return(l_rtn)
 
 def setMenuPrivilege(request):
     ldict = json.loads( request.POST['jpargs'] )

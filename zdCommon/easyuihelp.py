@@ -236,6 +236,7 @@ class EasyuiFieldUI:
                     }
             self.width = columnWidth * 18
         if isinstance(self.fObj, (models.ForeignKey,)):
+            self.field = self.fObj.db_column
             columnWidth = len(self.title)
             if self.autoforeign is not None and self.autoforeign:
                 dataList = []
