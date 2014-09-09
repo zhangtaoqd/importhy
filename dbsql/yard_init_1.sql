@@ -100,7 +100,7 @@ CREATE TABLE sys_menu
   menuname character varying(50) NOT NULL, -- 功能名称
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   parent_id integer DEFAULT 0, -- 父功能ID
   menushowname character varying(50) NOT NULL, -- 菜单显示名称
   sortno smallint, -- 序号
@@ -179,9 +179,9 @@ CREATE TABLE sys_func
   funcname character varying(50) NOT NULL, -- 权限名称
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   id serial NOT NULL,
-  ref_tables character varying(100) NOT NULL DEFAULT ''::character varying, -- 涉及表，多表用‘，’分隔
+  ref_tables character varying(100), -- 涉及表，多表用‘，’分隔
   CONSTRAINT pk_sys_func PRIMARY KEY (id),
   CONSTRAINT uk_sys_func_func UNIQUE (funcname)
 )
@@ -288,7 +288,7 @@ CREATE TABLE sys_menu_func
   func_id integer NOT NULL, -- 权限ID
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   CONSTRAINT pk_sys_menu_func PRIMARY KEY (id),
   CONSTRAINT fk_sys_menufunc_func FOREIGN KEY (func_id)
       REFERENCES sys_func (id) MATCH SIMPLE
@@ -414,10 +414,10 @@ CREATE TABLE sys_code
   fld_eng character varying(20) NOT NULL, -- 英文字段名
   fld_chi character varying(30) NOT NULL, -- 中文字段名
   cod_name character varying(20) NOT NULL, -- 值名称
-  fld_ext1 character varying(20) NOT NULL DEFAULT ''::character varying, -- 字段扩展1
+  fld_ext1 character varying(20), -- 字段扩展1
   seq smallint NOT NULL, -- 序号
-  fld_ext2 character varying(20) NOT NULL DEFAULT ''::character varying, -- 字段扩展值2
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  fld_ext2 character varying(20), -- 字段扩展值2
+  remark character varying(50),
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   CONSTRAINT pk_sys_code PRIMARY KEY (id),
@@ -475,7 +475,7 @@ CREATE TABLE s_user
   pw character varying(40) NOT NULL, -- 密码
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   locked character(1) NOT NULL DEFAULT 'N', -- 锁住
   logon_number smallint, -- 登录次数
   logon_time timestamp without time zone, -- 尝试登录时间
@@ -514,7 +514,7 @@ CREATE TABLE s_post
   postname character varying(20) NOT NULL, -- 岗位名称
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   CONSTRAINT pk_s_post PRIMARY KEY (id),
   CONSTRAINT uk_s_post UNIQUE (postname)
 )
@@ -568,7 +568,7 @@ CREATE TABLE s_postuser
   user_id integer NOT NULL, -- 用户ID
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   id serial NOT NULL,
   CONSTRAINT pk_s_postuser PRIMARY KEY (id),
   CONSTRAINT fk_s_postuser_post FOREIGN KEY (post_id)
@@ -631,7 +631,7 @@ CREATE TABLE s_postmenu
   active character(1) NOT NULL DEFAULT 'Y', -- 显示(激活)
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   id serial NOT NULL,
   CONSTRAINT pk_s_postmenu PRIMARY KEY (id),
   CONSTRAINT fk_s_postmenu_menu FOREIGN KEY (menu_id)
@@ -711,7 +711,7 @@ CREATE TABLE s_postmenufunc
   func_id integer NOT NULL, -- 功能ID
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   CONSTRAINT pk_s_postmenufunc PRIMARY KEY (id),
   CONSTRAINT fk_s_postmenufunc FOREIGN KEY (menu_id)
       REFERENCES sys_menu (id) MATCH SIMPLE
@@ -756,11 +756,11 @@ CREATE TRIGGER tri_s_postmenufunc
 CREATE TABLE s_filter_head
 (
   id serial NOT NULL,
-  datagrid character varying(100) NOT NULL DEFAULT ''::character varying, -- datagrid名称
+  datagrid character varying(100) NOT NULL, -- datagrid名称
   filter_type character(1) NOT NULL DEFAULT 'G'::character varying, -- 'G'-全局 'P'-个人
   filter_owner integer, -- 查询条件所有者
   filter_name character varying(50) NOT NULL, -- 查询条件名称
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   CONSTRAINT pk_s_filter PRIMARY KEY (id)
@@ -792,15 +792,15 @@ CREATE TABLE s_filter_body
 (
   id serial NOT NULL,
   filter_id integer NOT NULL,
-  content_col character varying(30) NOT NULL DEFAULT ''::character varying, -- 条件字段名
-  content_value character varying(50) NOT NULL DEFAULT ''::character varying, -- 条件值
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  content_col character varying(30) NOT NULL , -- 条件字段名
+  content_value character varying(50) NOT NULL , -- 条件值
+  remark character varying(50),
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   content_type character(1) NOT NULL DEFAULT 'W'::bpchar, -- 内容类型'W'-where 'S'-order 'C'-col
-  content_condition character varying(10) NOT NULL DEFAULT ''::character varying, -- 内容条件
-  value_text character varying(100) NOT NULL DEFAULT ''::character varying,
-  display_value character varying(100) NOT NULL DEFAULT ''::character varying,
+  content_condition character varying(10) NOT NULL, -- 内容条件
+  value_text character varying(100) NOT NULL DEFAULT,
+  display_value character varying(100) NOT NULL DEFAULT ,
   CONSTRAINT pk_s_filter_body PRIMARY KEY (id),
   CONSTRAINT fk_filter_id FOREIGN KEY (filter_id)
       REFERENCES s_filter_head (id) MATCH SIMPLE
@@ -818,7 +818,7 @@ COMMENT ON COLUMN s_filter_body.content_condition IS '内容条件';;
 CREATE TABLE c_cargo_type
 (
   id serial NOT NULL,
-  type_name character varying(20) NOT NULL DEFAULT ''::character varying, -- 货物分类名称
+  type_name character varying(20) NOT NULL , -- 货物分类名称
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   remark character varying(50),
@@ -841,7 +841,7 @@ CREATE TABLE c_cargo
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   remark character varying(50),
-  cargo_name character varying(20) NOT NULL DEFAULT ''::character varying,
+  cargo_name character varying(20) NOT NULL ,
   CONSTRAINT pk_c_cargo PRIMARY KEY (id),
   CONSTRAINT uk_c_cargo UNIQUE (cargo_name)
 )
@@ -890,7 +890,7 @@ CREATE TABLE c_client
   financial_flag character(1) NOT NULL DEFAULT 'N', -- 财务往来单位标识
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   landtrans_flag character(1) NOT NULL DEFAULT 'N', -- 车队标示
   credit_flag character(1) NOT NULL DEFAULT 'N', -- 信用证单位标识
   protocol_id integer, -- 协议ID
@@ -922,10 +922,10 @@ CREATE TABLE c_cntr_type
 (
   id serial NOT NULL,
   cntr_type character varying(4) NOT NULL, -- 箱型代码
-  cntr_type_name character varying(20) NOT NULL DEFAULT ''::character varying, -- 箱型名称
+  cntr_type_name character varying(20) NOT NULL , -- 箱型名称
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   CONSTRAINT pk_c_cntr_type PRIMARY KEY (id),
   CONSTRAINT uk_c_cntr_type UNIQUE (cntr_type)
 )
@@ -947,7 +947,7 @@ CREATE TABLE c_contract_action
 (
   id serial NOT NULL,
   action_name character varying(20) NOT NULL, -- 动态名称
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50) ,
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   require_flag character(1) NOT NULL DEFAULT 'N', -- 必备标识
@@ -982,8 +982,8 @@ SELECT pg_catalog.setval('c_contract_action_id_seq', 10, true);;
 CREATE TABLE c_dispatch
 (
   id serial NOT NULL,
-  place_name character varying(30) NOT NULL DEFAULT ''::character varying, -- 发货地名称
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  place_name character varying(30) NOT NULL , -- 发货地名称
+  remark character varying(50),
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   CONSTRAINT pk_c_dispatch PRIMARY KEY (id),
@@ -1004,7 +1004,7 @@ SELECT pg_catalog.setval('c_dispatch_id_seq', 2, true);;
 CREATE TABLE c_place
 (
   id serial NOT NULL,
-  place_name character varying(20) NOT NULL DEFAULT ''::character varying,
+  place_name character varying(20) NOT NULL ,
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   remark character varying(50),
@@ -1040,7 +1040,7 @@ CREATE TABLE c_fee
 (
   id serial NOT NULL,
   fee_name character varying(20) NOT NULL, -- 费用名称
-  remark character varying(50) NOT NULL DEFAULT ''::character varying, -- 备注
+  remark character varying(50), -- 备注
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   pair_flag character(1) NOT NULL DEFAULT 'N', -- 'Y' 插入应付自动生成应收，模拟代收代付
@@ -1073,7 +1073,7 @@ CREATE TABLE c_pay_type
   pay_name character varying(20) NOT NULL, -- 付款方式名陈
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   CONSTRAINT pk_c_pay_type PRIMARY KEY (id),
   CONSTRAINT uk_c_pay_type UNIQUE (pay_name)
 )
@@ -1187,14 +1187,14 @@ CREATE TABLE contract
   yard_id integer, -- 场站id
   finish_flag character(1) NOT NULL DEFAULT 'N', -- 委托完结标识
   finish_time date, -- 委托完结时间
-  remark character varying(50) NOT NULL DEFAULT ''::character varying, -- 备注
+  remark character varying(50), -- 备注
   rec_nam integer NOT NULL, -- 创建人员
   rec_tim timestamp without time zone NOT NULL, -- 创建时间
   vslvoy character varying(40) NOT NULL DEFAULT ''::character varying, -- 船名航次
-  contract_no character varying(20) NOT NULL DEFAULT ''::character varying, -- 合同号
+  contract_no character varying(20) , -- 合同号
   dispatch_place_id integer NOT NULL, -- 发货地ID
-  custom_title1 character varying(30) NOT NULL DEFAULT ''::character varying, -- 报关抬头1
-  custom_title2 character varying(30) NOT NULL DEFAULT ''::character varying, -- 报关抬头2
+  custom_title1 character varying(30), -- 报关抬头1
+  custom_title2 character varying(30), -- 报关抬头2
   landtrans_id integer, -- 陆运车队ID
   check_yard_id integer, -- 查验场站ID
   unbox_yard_id integer, -- 拆箱场站
@@ -1329,7 +1329,7 @@ CREATE TABLE contract_action
   action_id integer NOT NULL, -- 计划id
   finish_flag character(1) NOT NULL DEFAULT 'N', -- 完成标识
   finish_time timestamp without time zone, -- 完成时间
-  remark character varying(50) NOT NULL DEFAULT ''::character varying, -- 备注
+  remark character varying(50), -- 备注
   rec_nam integer NOT NULL, -- 创建人员
   rec_tim timestamp without time zone NOT NULL, -- 创建时间
   CONSTRAINT pk_contract_action PRIMARY KEY (id),
@@ -1390,7 +1390,7 @@ CREATE TABLE contract_cntr
   cntr_num integer, -- 箱量
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   cntr_type_id integer NOT NULL, -- 箱型
   contract_id integer NOT NULL, -- 委托ID
   check_num integer, -- 查验箱量
@@ -1431,13 +1431,13 @@ CREATE TABLE pre_fee
   fee_financial_tim timestamp without time zone, -- 财务统计时间
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   ex_from character varying(36) NOT NULL DEFAULT ''::character varying, -- 来源号
   ex_over character varying(36) NOT NULL DEFAULT ''::character varying, -- 结单号
   ex_feeid character varying(1) NOT NULL DEFAULT 'O'::character varying, -- 生成标记'O'原生'E'核销拆分
   audit_flag character(1) NOT NULL DEFAULT 'N',
   audit_tim timestamp without time zone, -- 核销时间
-  currency_cod character varying(3) NOT NULL DEFAULT 'RMB'::character varying, -- 货币种类
+  currency_cod character varying(3) DEFAULT 'RMB'::character varying, -- 货币种类
   create_flag character varying(1) NOT NULL DEFAULT 'M'::character varying, -- 费用产生方式 'M'-手工录入 'P'-协议计费
   CONSTRAINT pk_pre_fee PRIMARY KEY (id),
   CONSTRAINT fk_pre_fee_client FOREIGN KEY (client_id)
@@ -1479,20 +1479,20 @@ CREATE TABLE act_fee
   client_id integer NOT NULL, -- 客户ID
   fee_typ character(1) NOT NULL, -- 已收/已付 I/O
   amount numeric(10,2) NOT NULL,
-  invoice_no character varying(30) NOT NULL DEFAULT ''::character varying, -- 发票号
-  check_no character varying(30) NOT NULL DEFAULT ''::character varying, -- 支票号
+  invoice_no character varying(30) , -- 发票号
+  check_no character varying(30) , -- 支票号
   pay_type integer NOT NULL, -- 付款方式
   fee_tim timestamp without time zone NOT NULL, -- 付款时间
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50) ,
   ex_from character varying(36) NOT NULL DEFAULT ''::character varying, -- 来源号
   ex_over character varying(36) NOT NULL DEFAULT ''::character varying, -- 完结号
   ex_feeid character varying(1) NOT NULL DEFAULT 'O'::character varying, -- 生成标识'O'原生 'E'核销拆分
   audit_flag character(1) NOT NULL DEFAULT 'N',
   audit_tim timestamp without time zone, -- 核销时间
-  accept_no character varying(30) NOT NULL DEFAULT ''::character varying, -- 承兑号
-  currency_cod character varying(3) NOT NULL DEFAULT 'RMB'::character varying, -- 货币种类
+  accept_no character varying(30), -- 承兑号
+  currency_cod character varying(3)  DEFAULT 'RMB'::character varying, -- 货币种类
   CONSTRAINT pk_act_fee PRIMARY KEY (id),
   CONSTRAINT fk_act_fee_client FOREIGN KEY (client_id)
       REFERENCES c_client (id) MATCH SIMPLE
@@ -1548,7 +1548,7 @@ CREATE TABLE p_fee_ele
 (
   id serial NOT NULL,
   ele_name character varying(30) NOT NULL, -- 要素名称
-  init_data_sql character varying(100) NOT NULL DEFAULT ''::character varying, -- 初始化要素内容sql语句
+  init_data_sql character varying(100), -- 初始化要素内容sql语句
   remark character varying(50),
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
@@ -1575,7 +1575,7 @@ CREATE TABLE p_fee_mod
 (
   id serial NOT NULL,
   mod_name character varying(20) NOT NULL, -- 费用模式名称
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   col_1_id integer, -- 模式要素1
@@ -1588,8 +1588,8 @@ CREATE TABLE p_fee_mod
   col_8_id integer, -- 模式要素8
   col_9_id integer, -- 模式要素9
   col_10_id integer, -- 模式要素10
-  mod_descript character varying(200) NOT NULL DEFAULT ''::character varying, -- 模式描述
-	deal_process character varying(50) NOT NULL DEFAULT ''::character varying, -- 模式绑定存储过程
+  mod_descript character varying(200), -- 模式描述
+	deal_process character varying(50), -- 模式绑定存储过程
   CONSTRAINT pk_p_fee_mod PRIMARY KEY (id),
   CONSTRAINT fk_p_fee_mod_1 FOREIGN KEY (col_1_id)
       REFERENCES p_fee_ele (id) MATCH SIMPLE
@@ -1651,7 +1651,7 @@ CREATE TABLE p_protocol_fee_mod
   fee_id integer NOT NULL, -- 费用名称id
   mod_id integer NOT NULL, -- 模式id
   sort_no integer , -- 模式序号
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   active_flag character(1) NOT NULL DEFAULT 'Y', -- 激活
@@ -1685,19 +1685,19 @@ CREATE TABLE p_protocol_rat
   protocol_id integer NOT NULL, -- 协议id
   fee_id integer NOT NULL, -- 费用id
   mod_id integer NOT NULL, -- 模式id
-  fee_ele1 character varying(10) NOT NULL DEFAULT ''::character varying,
-  fee_ele2 character varying(10) NOT NULL DEFAULT ''::character varying,
-  fee_ele3 character varying(10) NOT NULL DEFAULT ''::character varying,
-  fee_ele4 character varying(10) NOT NULL DEFAULT ''::character varying,
-  fee_ele5 character varying(10) NOT NULL DEFAULT ''::character varying,
-  fee_ele6 character varying(10) NOT NULL DEFAULT ''::character varying,
-  fee_ele7 character varying(10) NOT NULL DEFAULT ''::character varying,
-  fee_ele8 character varying(10) NOT NULL DEFAULT ''::character varying,
-  fee_ele9 character varying(10) NOT NULL DEFAULT ''::character varying,
-  fee_ele10 character varying(10) NOT NULL DEFAULT ''::character varying,
+  fee_ele1 character varying(10),
+  fee_ele2 character varying(10),
+  fee_ele3 character varying(10),
+  fee_ele4 character varying(10),
+  fee_ele5 character varying(10),
+  fee_ele6 character varying(10),
+  fee_ele7 character varying(10),
+  fee_ele8 character varying(10),
+  fee_ele9 character varying(10),
+  fee_ele10 character varying(10),
   fee_rat numeric(8,2) NOT NULL DEFAULT 0, -- 费率
   discount_rat numeric(8,2), -- 折扣金额
-  remark character varying(50) NOT NULL DEFAULT ''::character varying,
+  remark character varying(50),
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   CONSTRAINT pk_p_protocol_rat PRIMARY KEY (id),

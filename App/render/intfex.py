@@ -42,11 +42,18 @@ def dealMenuReq(request):
         return(sysmenufuncview(request))
     elif ls_args == '系统参数维护':
         return(syscodview(request))
-#########委托业务
-    elif ls_args == '用户维护':
-        return(userview(request))
+    elif ls_args == '协议要素维护':
+        return(protocolfeeeleview(request))
+    elif ls_args == '协议模式定义':
+        return(protocolmodview(request))
+
+############系统配置管理
     elif ls_args == '密码修改':
         return(pwupdateview(request))
+    elif ls_args == '用户维护':
+        return(userview(request))
+
+#########委托业务
     elif ls_args == '岗位维护':
         return(postview(request))
     elif ls_args == '岗位用户维护':
@@ -102,12 +109,8 @@ def dealMenuReq(request):
     ######## 协议 ##############
     elif ls_args == '协议维护':
         return(protocolview(request))
-    elif ls_args == '协议要素维护':
-        return(protocolfeeeleview(request))
     elif ls_args == '协议要素内容维护':
         return(protocolfeeelelovview(request))
-    elif ls_args == '协议模式定义':
-        return(protocolmodview(request))
     elif ls_args == '协议费用模式维护':
         return(protocolfeemodview(request))
     elif ls_args == '协议费率维护':

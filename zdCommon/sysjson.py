@@ -321,11 +321,15 @@ def getAuth4post(aPostId, aMenuId):
 
 
 
-def setMenuPrivilege(request):
-    ldict = json.loads( request.POST['jpargs'] )
+def setMenuPrivilege(aDict):
     '''
-    jpargs:{"reqtype":"sysfunc",
-        "func":"menufuncpost",
+    aDict:{
+        'jpargs':json.loads(request.POST['jpargs'])   通用update参数，见文件interface,
+        'userid':request.session['userid']) 当前操作员id
+        'time':request时间
+    }
+    jpargs:{"reqtype":"update",
+        "func":"岗位权限维护",
         "rows": [  {"op":"insert",
                     "table":"menu",
                     "menuid":"3",
@@ -336,54 +340,35 @@ def setMenuPrivilege(request):
                     "menuid":"4",
                     "funcid":-1,
                     "postid":"3"    }
-                ] }
+                ]  rows have not 'update'  }
     s_postmenu( the post menu see or not );   s_postmenufunc ( if the post have the right to do somthing . )
     sys_menu  --  sys_menu_func   -- sys_func
+
     '''
-    l_rtn = {   "error": [""],
-                "msg":"",
-                "stateCod":  0 ,
-                "effectnum": 0 ,
-                "changeid" : {'uuid1':'id1'} }
+    ldict = aDict['jpargs']
+    l_rtn = {   "msg":"", "stateCod":  0 }
     l_JsonRows = ldict['rows']
-    lb_err  = False
-    li_count = 0
-    try:
-        l_cur = connection.cursor()
-        for i_row in  l_JsonRows:
-            ls_sql = ""
-            if i_row['table'] == "menu":     # insert
-                if i_row['op'] == "insert":  # ii
-                    ls_sql = "insert into s_postmenu(post_id, menu_id, rec_nam, rec_tim) values(%s, %s, %s, now() )" % ( str(i_row['postid']), str(i_row['menuid']), "1" )
-                elif i_row['op'] == "delete":  # ii
-                    ls_sql = "delete from s_postmenu where post_id = %s and menu_id = %s " % ( str(i_row['postid']), str(i_row['menuid']) )
-                else:
-                    pass
-            elif i_row['table'] == "func":
-                if i_row['op'] == "insert":  # ii
-                    ls_sql = "insert into s_postmenufunc(post_id, menu_id, func_id, rec_nam, rec_tim) values(%s, %s, %s, %s, now() )" % ( str(i_row['postid']), str(i_row['menuid']), str(i_row['funcid']), "1" )
-                elif i_row['op'] == "delete":  # ii
-                    ls_sql = "delete from s_postmenufunc where post_id = %s and menu_id = %s and func_id = %s" % ( str(i_row['postid']), str(i_row['menuid']),  str(i_row['funcid']) )
-                else:
-                    pass
+
+    for i_row in  l_JsonRows:
+        if i_row['table'] == "menu":     # insert
+            if i_row['op'] == "insert":  # ii
+                l_pm = PostMenu(post_id=i_row['postid'],menu_id=i_row['menuid'],rec_nam=aDict['userid'],rec_tim=aDict['time'],active='Y')
+                l_pm.save()
+            elif i_row['op'] == "delete":  # ii
+                l_pm = PostMenu.objects.filter(post_id=i_row['postid'],menu_id=i_row['menuid']).delete()
             else:
                 pass
-            log(ls_sql)
-            l_cur.execute(ls_sql)
-            li_count += l_cur.cursor.rowcount
-    except Exception as e:
-        l_rtn["error"].append("注意：" + str(e.args))
-        lb_err = True
-        logErr("数据库执行错误：%s" % str(e.args))
-    finally:
-        l_cur.close()
-    if lb_err :
-        l_rtn["msg"] = "执行失败。"
-        l_rtn["stateCod"] = -1
-    else:
-        l_rtn["msg"] = "执行成功。"
-        l_rtn["stateCod"] = 202
-    l_rtn["effectnum"] = str(li_count)
-    log(l_rtn)
+        elif i_row['table'] == "func":
+            if i_row['op'] == "insert":  # ii
+                l_pmf = PostMenuFunc(post_id=i_row['postid'],menu_id=i_row['menuid'],func_id=i_row['funcid'],rec_nam=aDict['userid'],rec_tim=aDict['time'])
+                l_pmf.save()
+            elif i_row['op'] == "delete":  # ii
+                PostMenuFunc.objects.filter(post_id=i_row['postid'],menu_id=i_row['menuid'],func_id=i_row['funcid']).delete()
+            else:
+                pass
+        else:
+            pass
+    l_rtn["msg"] = "执行成功。"
+    l_rtn["stateCod"] = 202
     return(l_rtn)
 

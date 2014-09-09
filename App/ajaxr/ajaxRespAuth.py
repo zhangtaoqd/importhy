@@ -89,16 +89,21 @@ def logout(request):
     return HttpResponse(json.dumps({ "stateCod": 3 },ensure_ascii = False))
 
 
-# jpargs:{"func":"密码修改","ex_parm":{"oldpw":"ok","newpw":"123"}}
-def changePassword(request,ldict):
+
+def changePassword(ldict):
+    '''
+    ldict['jpargs']:{"func":"密码修改",reqtyp:'query',"ex_parm":{"oldpw":"ok","newpw":"123"}}
+    返回：l_rtn = 失败{ "stateCod" : -2, "msg": "密码更改失败。"}
+                 成功{ "stateCod" : 202, "msg": "密码更改成功。"}
+    '''
     l_rtn = { "stateCod" : -2, "msg": "密码更改失败。"}
-    l_userid =  request.session['userid']
-    if l_userid > 0 :
-        ls_newpass = ldict["ex_parm"]["newpw"]
-        ls_oldpass = ldict["ex_parm"]["oldpw"]
-        l_cur = connection.cursor()
-        lrtn = cursorExec2("update s_user set password = %s where id = %s and password = %s ", [ls_newpass,l_userid, ls_oldpass])
-        if lrtn > 0 :
+    if ldict['userid'] > 0 :
+        u = User.objects.get(id=ldict['userid'])
+        ls_newpass = ldict['jpargs']["ex_parm"]["newpw"]
+        ls_oldpass = ldict['jpargs']["ex_parm"]["oldpw"]
+        if u.pw == ls_oldpass:
+            u.pw = ls_newpass
+            u.save(update_fields=['pw'])
             l_rtn = { "stateCod" : 202, "msg": "密码更改成功。"}
             return l_rtn
     return l_rtn

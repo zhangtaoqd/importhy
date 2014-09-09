@@ -48,6 +48,7 @@ jpargs:｛
 ************************************************  前台update：
 jpargs:   {
         'reqtype':'update',
+        "func":"权限维护",
         'rows': [ {
                 'op': 'update',       // 不需要旧值判断。用updatedirty，col数组只要一个要更新的值就行。
                 'table': 'c_client',
@@ -58,6 +59,7 @@ jpargs:   {
 **********************************************    前台delete：
 jpargs: {
         'reqtype':'update',
+        "func":"权限维护",
         'rows': [ {  'op': 'delete',    'table': 'c_client',  'id': [25,26,27], 'subs': { }  } ....  ]
         }
 ------------------------- 统一返回格式：-----------------

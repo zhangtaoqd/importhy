@@ -87,7 +87,7 @@ def getpaytype(request):
     return HttpResponse(returnQueryJson(*commonQuery(PayType.objects.all(), ldict)))
 def getprivilege(request):
     ldict = json.loads(request.POST['jpargs'])
-    return HttpResponse(json.dumps(getMenuPrivilege(ldict['postid']), ensure_ascii=False))
+    return HttpResponse(json.dumps(getMenuPrivilege(ldict['ex_parm']['postid']), ensure_ascii=False))
 def getrpt(request):
     '''费用报表头查询'''
     ldict = json.loads(request.POST['jpargs'])
@@ -219,11 +219,16 @@ def getcolrender(request):
              "and a.attnum =  f.conkey[1]" % (ldict['ex_parm']['table_name'],ldict['ex_parm']['field_name'])
 
 #############################################################    UPDATE    -----
-def updateRaw(request):
-    ''' 通用update 通用update接口 见文件interface'''
-    ldict = json.loads(request.POST['jpargs'])
-    ltime = datetime.now()
-    lRtn = commonUpdate(ldict,request.session['userid'],ltime)
+def updateRaw(aDict):
+    '''
+    aDict:{
+        'jpargs':json.loads(request.POST['jpargs'])   通用update参数，见文件interface,
+        'userid':request.session['userid']) 当前操作员id
+        'time':request时间
+    }
+    '''
+    #ldict = json.loads(request.POST['jpargs'])
+    lRtn = commonUpdate(aDict['jpargs'],aDict['userid'],aDict['time'])
     return HttpResponse(returnUpdateJson(lRtn))
 #####################################################  common interface ----------
 def dealPAjax(request):
@@ -237,16 +242,21 @@ def dealPAjax(request):
                 'stateCod': -101
             }
             return ( HttpResponse(json.dumps(l_rtn, ensure_ascii=False)))
-        ls_userid = str(request.session['userid'])
+        l_userid = request.session['userid']
         ldict = json.loads(request.POST['jpargs'])
+        l_pdict = {
+            'jpargs':ldict,
+            'userid':l_userid,
+            'time':datetime.now()
+        }
         log(ldict)
         # 判断是否有调用的权限。
-        if (ls_userid == '1') \
+        if (l_userid == 1) \
                 or (ldict['func'] in ('功能查询', '权限查询', '功能权限查询', 'excel导出', '文件导出',
                                       '查询条件查询', '查询体查询', '查询增加', '查询条件删除',
                                       '费用报表结构')):
             pass
-        elif (ldict['func'] in getFunc4User(ls_userid)):
+        elif (ldict['func'] in getFunc4User(str(l_userid))):
             # check if the function is valid
             if checkPrivilege(ldict):
                 pass
@@ -263,25 +273,64 @@ def dealPAjax(request):
             return ( HttpResponse(json.dumps(l_rtn, ensure_ascii=False)))
 
         with transaction.atomic():
-            #################################################  get
+
+            #########系统管理
             if ldict['func'] == '功能查询':
                 return (getsysmenu(request))
+            elif ldict['func'] == '功能维护':
+                return (updateRaw(l_pdict))
             elif ldict['func'] == '权限查询':
                 return (getsysfunc(request))
+            elif ldict['func'] == '权限维护':
+                return (updateRaw(l_pdict))
             elif ldict['func'] == '功能权限查询':
                 return (getsysmenufunc(request))
+            elif ldict['func'] == '功能权限维护':
+                return (updateRaw(l_pdict))
             elif ldict['func'] == '系统参数查询':
                 return (getsyscod(request))
+            elif ldict['func'] == '系统参数维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '协议要素查询':
+                return (getprotocolele(request))
+            elif ldict['func'] == '协议要素维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '协议模式查询':
+                return (getprotocolmod(request))
+            elif ldict['func'] == '协议模式维护':
+                return (updateRaw(l_pdict))
+            #######系统配置管理
+            elif ldict['func'] == '密码修改':
+                l_rtn = changePassword(request, ldict)
+                return HttpResponse(json.dumps(l_rtn, ensure_ascii=False))
+            elif ldict['func'] == '用户查询':
+                return (getuser(request))
+            elif ldict['func'] == '用户维护':
+                for i_row in l_pdict['jpargs']['rows']: #
+                    if i_row['op'] in ('update', 'updatedirty'):
+                        i_row['cols'].pop("pw",'ok')
+                    elif i_row['op'] in ('insert'):
+                        i_row['cols'].update( { 'pw': 'ok' } )
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '岗位查询':
+                return (getpost(request))
+            elif ldict['func'] == '岗位维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '岗位用户查询':
+                return (getpostuser(request))
+            elif ldict['func'] == '岗位用户维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '岗位权限查询':
+                return (getprivilege(request))
+            elif ldict['func'] == "岗位权限维护":
+                return (HttpResponse(json.dumps(setMenuPrivilege(l_pdict), ensure_ascii=False)))
+
+
+
             elif ldict['func'] == '查询条件查询':
                 return (getfilterhead(request))
             elif ldict['func'] == '查询体查询':
                 return (getfilterbody(request))
-            elif ldict['func'] == '用户查询':
-                return (getuser(request))
-            elif ldict['func'] == '岗位查询':
-                return (getpost(request))
-            elif ldict['func'] == '岗位用户查询':
-                return (getpostuser(request))
             elif ldict['func'] == '箱型查询':
                 return (getcntrtype(request))
             elif ldict['func'] == '动态类型查询':
@@ -294,8 +343,6 @@ def dealPAjax(request):
                 return (getpaytype(request))
             elif ldict['func'] == '客户查询':
                 return (getclients(request))
-            elif ldict['func'] == '岗位权限查询':
-                return (getprivilege(request))
             elif ldict['func'] == '货物查询':
                 return (getcargo(request))
             elif ldict['func'] == '货物分类查询':
@@ -305,12 +352,8 @@ def dealPAjax(request):
             ##-----------计费协议----------------------------------
             elif ldict['func'] == '协议查询':
                 return (getprotocol(request))
-            elif ldict['func'] == '协议要素查询':
-                return (getprotocolele(request))
             elif ldict['func'] == '协议要素内容查询':
                 return (getprotocolelelov(request))
-            elif ldict['func'] == '协议模式查询':
-                return (getprotocolmod(request))
             elif ldict['func'] == '模式描述查询':
                 return (getprotocolmodremark(request))
 
@@ -372,23 +415,9 @@ def dealPAjax(request):
                 l_rtn = contrProFeeGen(request, ldict)
                 return HttpResponse(json.dumps(l_rtn, ensure_ascii=False))
             ########################################################## update
-            elif ldict['func'] == '功能维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '权限维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '功能权限维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '系统参数维护':
-                return (updateRaw(request))
             elif ldict['func'] == '查询增加':
                 return (HttpResponse(json.dumps(insert_filter(request, ldict), ensure_ascii=False)))
             elif ldict['func'] == '查询条件删除':
-                return (updateRaw(request))
-            elif ldict['func'] == '用户维护':
-                return (HttpResponse(json.dumps(update_user(request, ldict), ensure_ascii=False)))
-            elif ldict['func'] == '岗位维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '岗位用户维护':
                 return (updateRaw(request))
             elif ldict['func'] == '箱型维护':
                 return (updateRaw(request))
@@ -422,8 +451,6 @@ def dealPAjax(request):
                 return (updateRaw(request))
             elif ldict['func'] == '已收付费用维护':
                 return (HttpResponse(json.dumps(update_gotfee(request, ldict), ensure_ascii=False)))
-            elif ldict['func'] == "menufuncpost" or ldict['func'] == "岗位权限维护":
-                return (HttpResponse(json.dumps(setMenuPrivilege(request), ensure_ascii=False)))
             ########################################
             elif ldict['func'] == "取序列号":
                 return (HttpResponse(json.dumps(getSequence(ldict), ensure_ascii=False)))
@@ -448,9 +475,6 @@ def dealPAjax(request):
             elif ldict['func'] == '核销明细查询':  # ajax 查询
                 l_rtn = auditDetailQuery(request, ldict)
                 return HttpResponse(json.dumps(l_rtn, ensure_ascii=False))
-            # elif ldict['func'] == '客户费用明细报表':
-            #     l_rtn = clientFeeDetailReport(request, ldict)
-            #     return HttpResponse(json.dumps(l_rtn, ensure_ascii=False))
             elif ldict['func'] == '费用报表头维护':
                 return (updateRaw(request))
             elif ldict['func'] == '费用报表项目维护':
@@ -460,15 +484,11 @@ def dealPAjax(request):
             ##-----------计费协议----------------------------------
             elif ldict['func'] == '协议维护':
                 return (updateRaw(request))
-            elif ldict['func'] == '协议要素维护':
-                return (updateRaw(request))
             elif ldict['func'] == '协议要素内容维护':
                 return (updateRaw(request))
             elif ldict['func'] == '协议要素内容初始化':
                 l_rtn = initProtElemContent(request, ldict)
                 return HttpResponse(json.dumps(l_rtn, ensure_ascii=False))
-            elif ldict['func'] == '协议模式维护':
-                return (updateRaw(request))
             elif ldict['func'] == '协议费用模式维护':
                 return (updateRaw(request))
             elif ldict['func'] == '协议模式结构查询':
@@ -480,10 +500,6 @@ def dealPAjax(request):
                 return HttpResponse(json.dumps(copyProFeeRat(request, ldict), ensure_ascii = False))
 
             #########################################################3
-            elif ldict['func'] == '密码修改':  # ajax 查询
-                # jpargs:{"func":"密码修改","ex_parm":{"oldpw":"ok","newpw":"123"}}
-                l_rtn = changePassword(request, ldict)
-                return HttpResponse(json.dumps(l_rtn, ensure_ascii=False))
             elif ldict['func'] == '业务汇总报表查询':
                 return getBussSumary(request, ldict)
             elif ldict['func'] == '文件导出':

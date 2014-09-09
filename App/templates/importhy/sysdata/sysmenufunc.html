@@ -46,13 +46,13 @@
                             sysdata.sysmenufuncview.menufuncdg.datagrid('options').toolbar[4].handler();
                         }
                         opts.filterFields = [
-                            {cod: 'menu', operatorTyp: '等于', value: id}
+                            {cod: 'menu_id', operatorTyp: '等于', value: id}
                         ];
                         sysdata.sysmenufuncview.menufuncdg.datagrid('reload');
                     });
                 } else {
                     opts.filterFields = [
-                        {cod: 'menu', operatorTyp: '等于', value: id}
+                        {cod: 'menu_id', operatorTyp: '等于', value: id}
                     ];
                     sysdata.sysmenufuncview.menufuncdg.datagrid('reload');
                 }
@@ -80,7 +80,7 @@
                         var menuRow = sysdata.sysmenufuncview.menudg.datagrid('getSelected');
                         if (menuRow != null && menuRow.id != null) {
                             sysdata.sysmenufuncview.menufuncdg.datagrid('insertData', {
-                                menu: menuRow.id
+                                menu_id: menuRow.id
                             });
                         } else {
                             $.messager.alert('提示', '请选择功能', 'info');
@@ -118,7 +118,7 @@
             var find = false;
             $.each(rows, function (index, data) {
                 for (var i = index + 1, ilen = rows.length; i < ilen; i++) {
-                    if (data.func == rows[i].func) {
+                    if (data.func_id == rows[i].func_id) {
                         find = true;
                         return false;
                     }
