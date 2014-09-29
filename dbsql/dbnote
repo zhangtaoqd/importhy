@@ -1,3 +1,5 @@
+重构修改内容
+一、数据库
 1.外键字段名称加'_id',例如下表中的post_id,user_id：
     CREATE TABLE s_postuser
     (
@@ -16,3 +18,11 @@
           ON UPDATE NO ACTION ON DELETE CASCADE,
       CONSTRAINT uk_s_postuser UNIQUE (post_id, user_id)
     )
+2.字段禁用bool类型，用character(1)  ‘Y’/‘N’ 代替
+3.character varying类型 允许null值
+4.去掉了upd_nam,upd_tim字段
+二、中间层
+1.BaseModel类下增加clientToServerDataTrans方法，前端传入对象，对‘’转换为None，或抛出异常
+    使用地点：在model.save()方法前
+    调用方式：手动调用
+2.

@@ -338,7 +338,7 @@ $.extend($.fn.datagrid.defaults.editors, {
     datetimebox: {
         init: function (container, options) {
             var editor = $('<input />').appendTo(container);
-            options.editable = false;
+            //options.editable = false;
             editor.datetimebox(options);
             return editor;
         },
@@ -646,7 +646,9 @@ $.extend($.fn.datagrid.methods, {
                     var colpair = {};
                     for (var key in updateRows[i]) {
                         if (oriRows[j].hasOwnProperty(key) && updateRows[i][key] != oriRows[j][key]) {
-                            colpair[key] = [updateRows[i][key], oriRows[j][key]];
+                            if (!(updateRows[i][key] == '' && oriRows[j][key] == null)){
+                                colpair[key] = [updateRows[i][key], oriRows[j][key]];
+                            }
                         }
                     }
                     updatePairArray.push({
@@ -1037,12 +1039,15 @@ $.extend($.fn.form.methods, {
         var dirty = {};
         $.each(jq.serializeJson(), function (name, value) {
             if (oriData.hasOwnProperty(name)) {
-                if (oriData[name] != value) {
-                    dirty[name] = [value, oriData[name]];
+                if (oriData[name] != value ) {
+                    if (!(oriData[name] == null && value == '')){
+                        dirty[name] = [value, oriData[name]];
+                    }
+
                 }
             } else {
                 if (value != null && value.length > 0) {
-                    dirty[name] = [value, ""];
+                    dirty[name] = [value, null];
                 }
             }
         });

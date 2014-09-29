@@ -5,6 +5,7 @@ __author__ = 'dh'
 '''
 import json,sys
 import re
+from decimal import Decimal
 from datetime import date,datetime
 from django.db import connection, transaction
 from App import models
@@ -82,6 +83,8 @@ class ServerToClientJsonEncoder(json.JSONEncoder):
             return obj.strftime('%Y-%m-%d %H:%M:%S')
         elif isinstance(obj,date):
             return obj.strftime('%Y-%m-%d')
+        elif isinstance(obj,Decimal):
+            return float(obj)
         else:
             return json.JSONEncoder.default(self,obj)
 

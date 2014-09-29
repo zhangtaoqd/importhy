@@ -142,7 +142,7 @@ $(function () {
                             contract.contractview.cntrdatagrid.datagrid('loadData', []);
                             contract.contractview.actiondatagrid.datagrid('loadData', []);
                         }
-
+                        $.ajaxSettings.success(r, t, a, true);
                     } else {
                         $.messager.alert('错误', '系统错误，请联系系统管理员', 'error');
                     }

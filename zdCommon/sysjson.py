@@ -1,12 +1,11 @@
 __author__ = 'dh'
 
 import json
-
-from django.db import connection
-
+import datetime
+from django.utils.dateparse import parse_date, parse_datetime
 from App.models import SysMenu,SysMenuFunc,PostMenu,PostUser,PostMenuFunc
 from zdCommon.dbhelp import cursorSelect,getModelByTableName,ServerToClientJsonEncoder
-from zdCommon.utils import logErr, log
+from zdCommon.utils import logErr
 
 
 def loginOnly():
@@ -109,7 +108,7 @@ def returnQueryJson(aQuerySet, aRowsCount):
     except Exception as e:
         logErr("查询失败：%s" % str(e.args))
         raise e
-    return json.dumps(l_rtn,ensure_ascii=False,cls=ServerToClientJsonEncoder).replace('true','"true"').replace('false','"false"')
+    return json.dumps(l_rtn,ensure_ascii=False,cls=ServerToClientJsonEncoder)
 def commonUpdate(aDict,aRec_nam,aRec_tim,aRtn = None):
     '''
     通用update
@@ -133,6 +132,7 @@ def commonUpdate(aDict,aRec_nam,aRec_tim,aRtn = None):
                 l_cols.pop('id',0)
                 l_cols.update({'rec_nam':aRec_nam,'rec_tim':aRec_tim})
                 o = tm(**l_cols)
+                o.clientToServerDataTrans()
                 o.save()
                 l_newid = o.id
                 aRtn['changeid'].update({
@@ -151,12 +151,29 @@ def commonUpdate(aDict,aRec_nam,aRec_tim,aRtn = None):
                 o = tm.objects.get(id=l_oldid)
                 for k,v in l_cols.items():
                     if item['op'] == 'update':
-                        if o[k] == v[1]:
-                            o[k] = v[0]
+                        if isinstance(o[k],datetime.datetime):
+                            if o[k] == parse_datetime(v[1]):
+                                o[k] = parse_datetime(v[0])
+                            else:
+                                raise Exception("更新数据已发生变动，修改数据失败")
+                        elif isinstance(o[k],datetime.date):
+                            if o[k] == parse_date(v[1]):
+                                o[k] = parse_date(v[0])
+                            else:
+                                raise Exception("更新数据已发生变动，修改数据失败")
                         else:
-                            raise Exception("更新数据已发生变动，修改数据失败")
+                            if o[k] == v[1]:
+                                o[k] = v[0]
+                            else:
+                                raise Exception("更新数据已发生变动，修改数据失败")
                     else:
-                        o[k] = v[0]
+                        if isinstance(o[k],datetime.datetime):
+                            o[k] = parse_datetime(v[0])
+                        elif isinstance(o[k],datetime.date):
+                            o[k] = parse_date(v[0])
+                        else:
+                            o[k] = v[0]
+                o.clientToServerDataTrans()
                 o.save(update_fields=list(l_cols.keys()))
             elif item['op'] == 'delete':
                 l_oldid = item['id']
@@ -317,9 +334,6 @@ def getAuth4post(aPostId, aMenuId):
     '''
     l_postAuth = cursorSelect('select func_id from s_postmenufunc where post_id=%d and menu_id=%d' % (aPostId, aMenuId) )  # menu下的func功能
     # select a.func_id , b.funcname from s_postmenufunc as a  , sys_func  as b where menu_id = 9 and post_id = 2 and a.id = b.id
-
-
-
 
 def setMenuPrivilege(aDict):
     '''

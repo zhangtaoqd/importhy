@@ -134,30 +134,27 @@ def getprotococlrat(request):
     return HttpResponse(json.dumps(rawsql2json(*rawsql4request(ls_sql, ldict)), ensure_ascii=False))
 
 def getcontract(request):
-    ls_sql = "select id,bill_no,vslvoy,cargo_name,origin_place,client_id,cargo_piece,cargo_weight," \
-             "cargo_volume,booking_date,in_port_date,return_cntr_date,custom_id,ship_corp_id,port_id," \
-             "yard_id,finish_flag,finish_time,remark,contract_no,dispatch_place,custom_title1," \
-             "custom_title2,landtrans_id,check_yard_id,unbox_yard_id,credit_id,cargo_type,cntr_freedays," \
-             "pre_inport_date from contract"
     ldict = json.loads(request.POST['jpargs'])
-    return HttpResponse(json.dumps(rawsql2json(*rawsql4request(ls_sql, ldict)), ensure_ascii=False))
+    return HttpResponse(returnQueryJson(*commonQuery(Contract.objects.all(), ldict)))
 def getcontractbybill(request):
-    ls_sql = "select id,bill_no,vslvoy,cargo_name,client_id,in_port_date,remark from contract"
     ldict = json.loads(request.POST['jpargs'])
-    return HttpResponse(json.dumps(rawsql2json(*rawsql4request(ls_sql, ldict)), ensure_ascii=False))
+    for col in ldict['cols']:
+        if col not in ['id','bill_no','vslvoy','cargo_name_id','client_id','in_port_date','remark']:
+            ldict['cols'].remove(col)
+    return HttpResponse(returnQueryJson(*commonQuery(Contract.objects.all(),ldict)))
 def getcontractaction(request):
-    ls_sql = "select id,contract_id,action_id,finish_flag,finish_time,remark from contract_action"
     ldict = json.loads(request.POST['jpargs'])
-    return HttpResponse(json.dumps(rawsql2json(*rawsql4request(ls_sql, ldict)), ensure_ascii=False))
+    return HttpResponse(returnQueryJson(*commonQuery(ContractAction.objects.all(), ldict)))
 def getcontractcntr(request):
-    ls_sql = "select id,contract_id,cntr_type,cntr_num,check_num,remark from contract_cntr"
     ldict = json.loads(request.POST['jpargs'])
-    return HttpResponse(json.dumps(rawsql2json(*rawsql4request(ls_sql, ldict)), ensure_ascii=False))
+    return HttpResponse(returnQueryJson(*commonQuery(ContractCntr.objects.all(), ldict)))
 def getcontractprefeein(request):
     ls_sql = "select id,contract_id,fee_typ,fee_cod,client_id,amount,fee_tim,fee_financial_tim," \
              "lock_flag,audit_id,ex_feeid,create_flag,remark from pre_fee " \
              "where fee_typ = 'I' and ex_feeid = 'O'"
     ldict = json.loads(request.POST['jpargs'])
+    if len(ldict['filter']) == 0:
+        raise Exception('参数错误！')
     return HttpResponse(json.dumps(rawsql2json(*rawsql4request(ls_sql, ldict)), ensure_ascii=False))
 def getcontractprefeeout(request):
     ls_sql = "select id,contract_id,fee_typ,fee_cod,client_id,amount,fee_tim,fee_financial_tim," \
@@ -325,30 +322,68 @@ def dealPAjax(request):
             elif ldict['func'] == "岗位权限维护":
                 return (HttpResponse(json.dumps(setMenuPrivilege(l_pdict), ensure_ascii=False)))
 
+################基础数据管理
+            elif ldict['func'] == '箱型查询':
+                return (getcntrtype(request))
+            elif ldict['func'] == '箱型维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '发货地查询':
+                return (getdispatch(request))
+            elif ldict['func'] == '发货地维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '产地查询':
+                return (getplace(request))
+            elif ldict['func'] == '产地维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '货物分类查询':
+                return (getcargotype(request))
+            elif ldict['func'] == '货物分类维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '货物查询':
+                return (getcargo(request))
+            elif ldict['func'] == '货物维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '动态类型查询':
+                return (getaction(request))
+            elif ldict['func'] == '动态类型维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '费用名称查询':
+                return (getfeecod(request))
+            elif ldict['func'] == '费用名称维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '付款方式查询':
+                return (getpaytype(request))
+            elif ldict['func'] == '付款方式维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '客户查询':
+                return (getclients(request))
+            elif ldict['func'] == '客户维护':
+                return (updateRaw(l_pdict))
 
+################进口货运
+            elif ldict['func'] == '委托查询':
+                return (getcontract(request))
+            elif ldict['func'] == '委托动态查询':
+                return (getcontractaction(request))
+            elif ldict['func'] == '委托箱查询':
+                return (getcontractcntr(request))
+            elif ldict['func'] == '提单查询':
+                return (getcontractbybill(request))
+            elif ldict['func'] == '委托维护':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '委托锁定':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '委托解锁':
+                return (updateRaw(l_pdict))
+            elif ldict['func'] == '委托应收查询':
+                return (getcontractprefeein(request))
+            elif ldict['func'] == '委托应付查询':
+                return (getcontractprefeeout(request))
 
             elif ldict['func'] == '查询条件查询':
                 return (getfilterhead(request))
             elif ldict['func'] == '查询体查询':
                 return (getfilterbody(request))
-            elif ldict['func'] == '箱型查询':
-                return (getcntrtype(request))
-            elif ldict['func'] == '动态类型查询':
-                return (getaction(request))
-            elif ldict['func'] == '发货地查询':
-                return (getdispatch(request))
-            elif ldict['func'] == '费用名称查询':
-                return (getfeecod(request))
-            elif ldict['func'] == '付款方式查询':
-                return (getpaytype(request))
-            elif ldict['func'] == '客户查询':
-                return (getclients(request))
-            elif ldict['func'] == '货物查询':
-                return (getcargo(request))
-            elif ldict['func'] == '货物分类查询':
-                return (getcargotype(request))
-            elif ldict['func'] == '产地查询':
-                return (getplace(request))
             ##-----------计费协议----------------------------------
             elif ldict['func'] == '协议查询':
                 return (getprotocol(request))
@@ -363,16 +398,8 @@ def dealPAjax(request):
                 return (getprotococlrat(request))
 
             ############## 费用  ###################################
-            elif ldict['func'] == '委托查询':
-                return (getcontract(request))
             elif ldict['func'] == '业务明细报表查询':
                 return (getContractDetail(request, ldict))
-            elif ldict['func'] == '委托动态查询':
-                return (getcontractaction(request))
-            elif ldict['func'] == '委托箱查询':
-                return (getcontractcntr(request))
-            elif ldict['func'] == '提单查询':
-                return (getcontractbybill(request))
             elif ldict['func'] == '委托应收查询':
                 return (getcontractprefeein(request))
             elif ldict['func'] == '委托应付查询':
@@ -418,30 +445,6 @@ def dealPAjax(request):
             elif ldict['func'] == '查询增加':
                 return (HttpResponse(json.dumps(insert_filter(request, ldict), ensure_ascii=False)))
             elif ldict['func'] == '查询条件删除':
-                return (updateRaw(request))
-            elif ldict['func'] == '箱型维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '发货地维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '动态类型维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '费用名称维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '付款方式维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '客户维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '货物维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '货物分类维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '产地维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '委托维护':
-                return (updateRaw(request))
-            elif ldict['func'] == '委托锁定':
-                return (updateRaw(request))
-            elif ldict['func'] == '委托解锁':
                 return (updateRaw(request))
             elif ldict['func'] == '应收付费用维护':
                 return (HttpResponse(json.dumps(update_oughtfee(request, ldict), ensure_ascii=False)))

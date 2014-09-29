@@ -1428,15 +1428,11 @@ CREATE TABLE pre_fee
   amount numeric(10,2), -- 金额
   fee_tim timestamp without time zone NOT NULL, -- 费用产生时间
   lock_flag character(1) NOT NULL DEFAULT 'N', -- 费用锁定
-  fee_financial_tim timestamp without time zone, -- 财务统计时间
   rec_nam integer NOT NULL,
   rec_tim timestamp without time zone NOT NULL,
   remark character varying(50),
-  ex_from character varying(36) NOT NULL DEFAULT ''::character varying, -- 来源号
-  ex_over character varying(36) NOT NULL DEFAULT ''::character varying, -- 结单号
-  ex_feeid character varying(1) NOT NULL DEFAULT 'O'::character varying, -- 生成标记'O'原生'E'核销拆分
   audit_flag character(1) NOT NULL DEFAULT 'N',
-  audit_tim timestamp without time zone, -- 核销时间
+  audit_finish_flag character(1) NOT NULL DEFAULT 'N',
   currency_cod character varying(3) DEFAULT 'RMB'::character varying, -- 货币种类
   create_flag character varying(1) NOT NULL DEFAULT 'M'::character varying, -- 费用产生方式 'M'-手工录入 'P'-协议计费
   CONSTRAINT pk_pre_fee PRIMARY KEY (id),
@@ -1464,11 +1460,6 @@ COMMENT ON COLUMN pre_fee.client_id IS '客户ID';;
 COMMENT ON COLUMN pre_fee.amount IS '金额';;
 COMMENT ON COLUMN pre_fee.fee_tim IS '费用产生时间';;
 COMMENT ON COLUMN pre_fee.lock_flag IS '费用锁定';;
-COMMENT ON COLUMN pre_fee.fee_financial_tim IS '财务统计时间';;
-COMMENT ON COLUMN pre_fee.ex_from IS '来源号';;
-COMMENT ON COLUMN pre_fee.ex_over IS '结单号';;
-COMMENT ON COLUMN pre_fee.ex_feeid IS '生成标记''O''原生''E''核销拆分';;
-COMMENT ON COLUMN pre_fee.audit_tim IS '核销时间';;
 COMMENT ON COLUMN pre_fee.currency_cod IS '货币种类';;
 COMMENT ON COLUMN pre_fee.create_flag IS '费用产生方式 ''M''-手工录入 ''P''-协议计费';;
 

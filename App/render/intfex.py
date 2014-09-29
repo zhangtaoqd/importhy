@@ -52,18 +52,24 @@ def dealMenuReq(request):
         return(pwupdateview(request))
     elif ls_args == '用户维护':
         return(userview(request))
-
-#########委托业务
     elif ls_args == '岗位维护':
         return(postview(request))
     elif ls_args == '岗位用户维护':
         return(postuserview(request))
     elif ls_args == '岗位权限维护':
         return(postmenufuncview(request))
+
+#########基础数据管理
     elif ls_args == '箱型维护':
         return(cntrtypeview(request))
     elif ls_args == '发货地维护':
         return(dispatchview(request))
+    elif ls_args == '产地维护':
+        return(placeview(request))
+    elif ls_args == '货物分类维护':
+        return(cargotypeview(request))
+    elif ls_args == '货物维护':
+        return(cargoview(request))
     elif ls_args == '委托动态类型维护':
         return(actionview(request))
     elif ls_args == '费用名称维护':
@@ -72,12 +78,7 @@ def dealMenuReq(request):
         return(paytypeview(request))
     elif ls_args == '客户维护':
         return(clientview(request))
-    elif ls_args == '货物维护':
-        return(cargoview(request))
-    elif ls_args == '货物分类维护':
-        return(cargotypeview(request))
-    elif ls_args == '产地维护':
-        return(placeview(request))
+################进口货运
     elif ls_args == '委托维护':
         return(contractview(request))
     elif ls_args == '提单查询':
@@ -90,6 +91,7 @@ def dealMenuReq(request):
         return(contractreportview(request))
     elif ls_args == '业务汇总报表':
         return(contractgroupreportview(request))
+################商务
     elif ls_args == '账单':
         return(feesheetview(request))
     #######  费用 #############(func='已收费用维护')
